@@ -18,6 +18,7 @@ import LaunchInfo from "./LaunchInfo";
 import Logo from "./Logo";
 import PriceDisplay from "./PriceDisplay";
 import LiquidityHealth from "./LiquidityHealth";
+import VolatilityCard from "./VolatilityCard";
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
@@ -26,6 +27,14 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
     </h2>
   );
 }
+
+const TABS = [
+  { id: "overview", label: "Overview" },
+  { id: "market", label: "Market" },
+  { id: "engine", label: "Engine" },
+] as const;
+
+type TabId = (typeof TABS)[number]["id"];
 
 export default function Dashboard({
   initialStats,
@@ -37,6 +46,7 @@ export default function Dashboard({
     initialStats ? null : "Unable to load live data right now."
   );
   const [, forceTick] = useState(0);
+  const [tab, setTab] = useState<TabId>("overview");
 
   useEffect(() => {
     let cancelled = false;
@@ -69,8 +79,28 @@ export default function Dashboard({
   return (
     <>
       <div className="sticky top-0 z-10 border-b border-white/[0.06] bg-navy-950/80 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-3xl items-center px-4 py-4 sm:px-6">
-          <Logo />
+        <div className="mx-auto max-w-3xl space-y-3 px-4 py-3 sm:px-6 sm:py-4">
+          <div className="flex items-center justify-between gap-4">
+            <Logo />
+            <span className="whitespace-nowrap text-xs text-navy-500">
+              {stats ? `Updated ${formatRelativeTime(stats.updatedAt)}` : ""}
+            </span>
+          </div>
+          <nav className="flex gap-1 self-start rounded-full bg-navy-800 p-1">
+            {TABS.map((t) => (
+              <button
+                key={t.id}
+                onClick={() => setTab(t.id)}
+                className={`rounded-full px-3 py-1.5 text-xs font-semibold transition-colors sm:px-4 sm:text-sm ${
+                  tab === t.id
+                    ? "bg-navy-300 text-navy-950"
+                    : "text-navy-400 hover:text-navy-100"
+                }`}
+              >
+                {t.label}
+              </button>
+            ))}
+          </nav>
         </div>
       </div>
 
@@ -93,154 +123,167 @@ export default function Dashboard({
           </div>
         ) : null}
 
-        <Explainer />
+        {tab === "overview" && (
+          <>
+            <Explainer />
 
-        <section className="rounded-2xl border border-white/[0.08] bg-navy-800 p-6 shadow-card sm:p-8">
-          <div className="flex flex-wrap items-start justify-between gap-4">
-            <div>
-              <div className="flex items-center gap-2.5">
-                {stats?.imageUrl ? (
-                  <Image
-                    src={stats.imageUrl}
-                    alt={stats.symbol}
-                    width={32}
-                    height={32}
-                    className="rounded-full border border-navy-700"
-                  />
-                ) : (
-                  <div className="h-8 w-8 shrink-0 rounded-full border border-navy-700 bg-navy-800" />
-                )}
-                <div className="flex items-center gap-2 text-sm text-navy-400">
-                  <span>{stats?.name ?? "Stonk5 Index"}</span>
-                  <span className="text-navy-600">·</span>
-                  <span>Solana</span>
-                  {stats?.status && (
-                    <span className="rounded-full bg-sky-500/20 px-2 py-0.5 text-[11px] font-medium capitalize text-sky-400">
-                      {stats.status}
-                    </span>
+            <section className="rounded-2xl border border-white/[0.08] bg-navy-800 p-6 shadow-card sm:p-8">
+              <div className="flex flex-wrap items-start justify-between gap-4">
+                <div>
+                  <div className="flex items-center gap-2.5">
+                    {stats?.imageUrl ? (
+                      <Image
+                        src={stats.imageUrl}
+                        alt={stats.symbol}
+                        width={32}
+                        height={32}
+                        className="rounded-full border border-navy-700"
+                      />
+                    ) : (
+                      <div className="h-8 w-8 shrink-0 rounded-full border border-navy-700 bg-navy-800" />
+                    )}
+                    <div className="flex items-center gap-2 text-sm text-navy-400">
+                      <span>{stats?.name ?? "Stonk5 Index"}</span>
+                      <span className="text-navy-600">·</span>
+                      <span>Solana</span>
+                      {stats?.status && (
+                        <span className="rounded-full bg-sky-500/20 px-2 py-0.5 text-[11px] font-medium capitalize text-sky-400">
+                          {stats.status}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="mt-3 flex flex-wrap items-baseline gap-3">
+                    <PriceDisplay
+                      value={stats?.priceUsd ?? null}
+                      className="font-sans text-3xl font-bold tracking-tight tabular-nums text-navy-50"
+                    />
+                    {priceChange24h !== null && (
+                      <span
+                        className={`font-sans text-sm font-semibold tabular-nums ${
+                          priceChange24h >= 0 ? "text-sky-400" : "text-slate-400"
+                        }`}
+                      >
+                        {formatPercent(priceChange24h)}{" "}
+                        <span className="font-normal text-navy-500">24h</span>
+                      </span>
+                    )}
+                  </div>
+                  {stats?.priceSol != null && (
+                    <div className="mt-1 font-mono text-xs text-navy-500">
+                      {stats.priceSol.toFixed(10).replace(/0+$/, "")} SOL
+                    </div>
                   )}
                 </div>
+                <BuyButton />
               </div>
-              <div className="mt-3 flex flex-wrap items-baseline gap-3">
-                <PriceDisplay
-                  value={stats?.priceUsd ?? null}
-                  className="font-sans text-3xl font-bold tracking-tight tabular-nums text-navy-50"
-                />
-                {priceChange24h !== null && (
-                  <span
-                    className={`font-sans text-sm font-semibold tabular-nums ${
-                      priceChange24h >= 0 ? "text-sky-400" : "text-slate-400"
-                    }`}
-                  >
-                    {formatPercent(priceChange24h)}{" "}
-                    <span className="font-normal text-navy-500">24h</span>
-                  </span>
-                )}
-              </div>
-              {stats?.priceSol != null && (
-                <div className="mt-1 font-mono text-xs text-navy-500">
-                  {stats.priceSol.toFixed(10).replace(/0+$/, "")} SOL
+            </section>
+
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+              <StatCard label="Market cap" value={stats ? formatUsd(stats.marketCapUsd, { compact: true }) : "—"} />
+              <StatCard label="FDV" value={stats ? formatUsd(stats.fdvUsd, { compact: true }) : "—"} />
+              <StatCard label="Liquidity" value={stats ? formatUsd(stats.liquidityUsd, { compact: true }) : "—"} />
+              <StatCard label="24h volume" value={stats ? formatUsd(stats.volume24hUsd, { compact: true }) : "—"} />
+              <StatCard
+                label="Peak market cap"
+                value={stats?.peakMarketCapUsd != null ? formatUsd(stats.peakMarketCapUsd, { compact: true }) : "—"}
+              />
+              <StatCard
+                label="Graduation"
+                value={stats?.graduationProgress != null ? `${(stats.graduationProgress * 100).toFixed(0)}%` : "—"}
+              />
+            </div>
+
+            <div className="space-y-3">
+              <SectionLabel>Chart</SectionLabel>
+              <Chart />
+            </div>
+
+            <CopyAddress />
+          </>
+        )}
+
+        {tab === "market" && (
+          <>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <LiquidityHealth
+                liquidityUsd={stats?.liquidityUsd ?? null}
+                marketCapUsd={stats?.marketCapUsd ?? null}
+                volume24hUsd={stats?.volume24hUsd ?? null}
+              />
+              <TimeframeStats priceChange={stats?.priceChange ?? null} />
+              <VolatilityCard priceChange={stats?.priceChange ?? null} />
+              {stats?.txns24h && (
+                <div className="rounded-2xl border border-white/[0.08] bg-navy-800 p-5 shadow-card">
+                  <div className="text-[11px] font-medium uppercase tracking-wider text-navy-400">
+                    24h buys / sells
+                  </div>
+                  <div className="mt-3 flex items-center gap-4 font-sans text-sm tabular-nums">
+                    <span className="text-sky-400">{stats.txns24h.buys} buys</span>
+                    <span className="text-navy-600">/</span>
+                    <span className="text-slate-400">{stats.txns24h.sells} sells</span>
+                  </div>
+                  <div className="mt-2.5 h-1.5 overflow-hidden rounded-full bg-navy-700/80">
+                    <div
+                      className="h-full bg-sky-400"
+                      style={{
+                        width: `${
+                          (stats.txns24h.buys /
+                            Math.max(1, stats.txns24h.buys + stats.txns24h.sells)) *
+                          100
+                        }%`,
+                      }}
+                    />
+                  </div>
                 </div>
               )}
             </div>
-            <BuyButton />
-          </div>
-        </section>
 
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-          <StatCard label="Market cap" value={stats ? formatUsd(stats.marketCapUsd, { compact: true }) : "—"} />
-          <StatCard label="FDV" value={stats ? formatUsd(stats.fdvUsd, { compact: true }) : "—"} />
-          <StatCard label="Liquidity" value={stats ? formatUsd(stats.liquidityUsd, { compact: true }) : "—"} />
-          <StatCard label="24h volume" value={stats ? formatUsd(stats.volume24hUsd, { compact: true }) : "—"} />
-          <StatCard
-            label="Peak market cap"
-            value={stats?.peakMarketCapUsd != null ? formatUsd(stats.peakMarketCapUsd, { compact: true }) : "—"}
-          />
-          <StatCard
-            label="Graduation"
-            value={stats?.graduationProgress != null ? `${(stats.graduationProgress * 100).toFixed(0)}%` : "—"}
-          />
-        </div>
+            <BasketList
+              basket={stats?.basket ?? null}
+              avgChange24h={stats?.basketAvgChange24h}
+              totalMarketCapUsd={stats?.basketTotalMarketCapUsd}
+            />
+          </>
+        )}
 
-        <div className="grid gap-3 sm:grid-cols-2">
-          <LiquidityHealth
-            liquidityUsd={stats?.liquidityUsd ?? null}
-            marketCapUsd={stats?.marketCapUsd ?? null}
-            volume24hUsd={stats?.volume24hUsd ?? null}
-          />
-          <TimeframeStats priceChange={stats?.priceChange ?? null} />
-          {stats?.txns24h && (
-            <div className="rounded-2xl border border-white/[0.08] bg-navy-800 p-5 shadow-card">
-              <div className="text-[11px] font-medium uppercase tracking-wider text-navy-400">
-                24h buys / sells
-              </div>
-              <div className="mt-3 flex items-center gap-4 font-sans text-sm tabular-nums">
-                <span className="text-sky-400">{stats.txns24h.buys} buys</span>
-                <span className="text-navy-600">/</span>
-                <span className="text-slate-400">{stats.txns24h.sells} sells</span>
-              </div>
-              <div className="mt-2.5 h-1.5 overflow-hidden rounded-full bg-navy-700/80">
-                <div
-                  className="h-full bg-sky-400"
-                  style={{
-                    width: `${
-                      (stats.txns24h.buys /
-                        Math.max(1, stats.txns24h.buys + stats.txns24h.sells)) *
-                      100
-                    }%`,
-                  }}
-                />
+        {tab === "engine" && (
+          <>
+            <div className="space-y-3">
+              <SectionLabel>Engine &amp; safety</SectionLabel>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <EngineStatus onchain={stats?.onchain ?? null} />
+                <SafetyCard onchain={stats?.onchain ?? null} />
               </div>
             </div>
-          )}
-        </div>
 
-        <div className="space-y-3">
-          <SectionLabel>Engine &amp; safety</SectionLabel>
-          <div className="grid gap-3 sm:grid-cols-2">
-            <EngineStatus onchain={stats?.onchain ?? null} />
-            <SafetyCard onchain={stats?.onchain ?? null} />
-          </div>
-        </div>
+            <LaunchInfo
+              launch={stats?.launch ?? null}
+              marketCapUsd={stats?.marketCapUsd ?? null}
+              peakMarketCapUsd={stats?.peakMarketCapUsd ?? null}
+            />
 
-        <BasketList
-          basket={stats?.basket ?? null}
-          avgChange24h={stats?.basketAvgChange24h}
-          totalMarketCapUsd={stats?.basketTotalMarketCapUsd}
-        />
-
-        <LaunchInfo
-          launch={stats?.launch ?? null}
-          marketCapUsd={stats?.marketCapUsd ?? null}
-          peakMarketCapUsd={stats?.peakMarketCapUsd ?? null}
-        />
-
-        <div className="space-y-3">
-          <SectionLabel>Chart</SectionLabel>
-          <Chart />
-        </div>
-
-        <CopyAddress />
-
-        <div className="flex flex-wrap gap-2 text-sm">
-          {[
-            { href: LINKS.website, label: "Website" },
-            { href: LINKS.twitter, label: "X / Twitter" },
-            { href: LINKS.stonkfun, label: "stonkfun.xyz" },
-            { href: LINKS.dexscreener, label: "Dexscreener" },
-            { href: LINKS.solscanToken, label: "Solscan" },
-          ].map((link) => (
-            <a
-              key={link.href}
-              href={link.href}
-              target="_blank"
-              rel="noreferrer"
-              className="rounded-lg border border-white/[0.08] px-3 py-2 text-navy-300 shadow-card transition-colors hover:border-navy-500 hover:text-navy-100"
-            >
-              {link.label}
-            </a>
-          ))}
-        </div>
+            <div className="flex flex-wrap gap-2 text-sm">
+              {[
+                { href: LINKS.website, label: "Website" },
+                { href: LINKS.twitter, label: "X / Twitter" },
+                { href: LINKS.stonkfun, label: "stonkfun.xyz" },
+                { href: LINKS.dexscreener, label: "Dexscreener" },
+                { href: LINKS.solscanToken, label: "Solscan" },
+              ].map((link) => (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="rounded-lg border border-white/[0.08] px-3 py-2 text-navy-300 shadow-card transition-colors hover:border-navy-500 hover:text-navy-100"
+                >
+                  {link.label}
+                </a>
+              ))}
+            </div>
+          </>
+        )}
 
         <footer className="space-y-1 pt-2 text-xs text-navy-500">
           <p>
