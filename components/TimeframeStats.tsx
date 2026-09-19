@@ -16,18 +16,18 @@ export default function TimeframeStats({
   if (!priceChange) return null;
 
   return (
-    <div className="rounded-xl border border-navy-700 bg-navy-800/60 p-4">
-      <div className="text-xs uppercase tracking-wide text-navy-400">
+    <div className="rounded-2xl border border-navy-700/60 bg-navy-800/50 p-5 shadow-card">
+      <div className="text-[11px] font-medium uppercase tracking-wider text-navy-400">
         Price change
       </div>
-      <div className="mt-3 grid grid-cols-4 gap-2">
+      <div className="mt-3 grid grid-cols-4 divide-x divide-navy-700/60">
         {WINDOWS.map(({ key, label }) => {
           const value = priceChange[key];
           return (
             <div key={key} className="text-center">
               <div className="text-xs text-navy-400">{label}</div>
               <div
-                className={`mt-1 font-mono text-sm ${
+                className={`mt-1 font-mono text-sm tabular-nums ${
                   value === null
                     ? "text-navy-400"
                     : value >= 0

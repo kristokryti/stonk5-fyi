@@ -1,8 +1,8 @@
 import type { Config } from "tailwindcss";
 
-// Palette lifted from stonk5.com's own page source (theme-color meta +
-// inline hex values), not invented: navy for surfaces, orange as the
-// brand CTA color, teal as the secondary/positive accent.
+// Navy/orange/teal lifted from stonk5.com's own page source (theme-color
+// meta + inline hex values). "action" is a deliberate departure from their
+// bright orange CTA — a restrained blue for buttons, per design feedback.
 const config: Config = {
   content: ["./app/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}"],
   theme: {
@@ -36,9 +36,19 @@ const config: Config = {
           strong: "#1187CE",
           deep: "#1B6E62",
         },
+        action: {
+          light: "#DBEAFE",
+          DEFAULT: "#2563EB",
+          hover: "#1D4ED8",
+          deep: "#1E3A8A",
+        },
       },
       fontFamily: {
+        sans: ["var(--font-sans)", "ui-sans-serif", "system-ui", "sans-serif"],
         mono: ["var(--font-mono)", "ui-monospace", "SFMono-Regular", "monospace"],
+      },
+      boxShadow: {
+        card: "0 1px 2px 0 rgb(0 0 0 / 0.2), 0 0 0 1px rgb(255 255 255 / 0.03) inset",
       },
     },
   },

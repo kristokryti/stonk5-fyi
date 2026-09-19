@@ -5,12 +5,20 @@ export interface TimeframeStats {
   h24: number | null;
 }
 
+export interface HolderConcentration {
+  topHolderPercent: number;
+  accountsSampled: number;
+}
+
 export interface OnchainStats {
   totalSupply: number;
   burnedTokens: number;
   burnedPercent: number;
   engineWalletSol: number;
   roundProgressPercent: number;
+  mintAuthorityRenounced: boolean;
+  freezeAuthorityRenounced: boolean;
+  holderConcentration: HolderConcentration | null;
 }
 
 export interface LaunchInfo {
@@ -18,6 +26,15 @@ export interface LaunchInfo {
   createdAt: string;
   graduatedAt: string | null;
   startMarketCapUsd: number | null;
+}
+
+export interface BasketToken {
+  mint: string;
+  name: string;
+  symbol: string;
+  imageUrl: string | null;
+  marketCapUsd: number | null;
+  priceChange24h: number | null;
 }
 
 export interface TokenStats {
@@ -40,6 +57,7 @@ export interface TokenStats {
   launch: LaunchInfo | null;
 
   onchain: OnchainStats | null;
+  basket: BasketToken[] | null;
 
   updatedAt: string;
   warnings: string[];

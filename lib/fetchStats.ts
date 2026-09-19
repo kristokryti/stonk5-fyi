@@ -1,6 +1,6 @@
 import { DEXSCREENER_API_BASE, MINT, PAIR_ADDRESS, STONKFUN_API_BASE } from "./constants";
 import { getOnchainStats } from "./solana";
-import type { LaunchInfo, OnchainStats, TimeframeStats, TokenStats } from "./types";
+import type { BasketToken, LaunchInfo, OnchainStats, TimeframeStats, TokenStats } from "./types";
 
 const FETCH_TIMEOUT_MS = 8_000;
 
@@ -110,6 +110,25 @@ async function fetchStonkfunMeta(): Promise<StonkfunMeta> {
   };
 }
 
+async function fetchBasket(): Promise<BasketToken[]> {
+  const json = (await fetchJson(
+    `${STONKFUN_API_BASE}/tokens?sort=marketCap&pageSize=5`
+  )) as { data?: { tokens?: any[] } };
+  const tokens = json.data?.tokens ?? [];
+  return tokens.slice(0, 5).map((t) => ({
+    mint: t.mint,
+    name: t.name ?? t.symbol,
+    symbol: t.symbol,
+    imageUrl: t.imageUrl
+      ? t.imageUrl.startsWith("http")
+        ? t.imageUrl
+        : `https://www.stonkfun.xyz${t.imageUrl}`
+      : null,
+    marketCapUsd: t.market?.marketCapUsd ?? null,
+    priceChange24h: t.market?.priceChange24h ?? null,
+  }));
+}
+
 function pctDiff(a: number | null, b: number | null): number | null {
   if (a === null || b === null || a === 0) return null;
   return (Math.abs(a - b) / Math.abs(a)) * 100;
@@ -118,16 +137,18 @@ function pctDiff(a: number | null, b: number | null): number | null {
 export async function getTokenStats(): Promise<TokenStats> {
   const warnings: string[] = [];
 
-  const [dexResult, stonkfunResult, onchainResult] = await Promise.allSettled([
+  const [dexResult, stonkfunResult, onchainResult, basketResult] = await Promise.allSettled([
     fetchDexscreener(),
     fetchStonkfunMeta(),
     getOnchainStats(),
+    fetchBasket(),
   ]);
 
   const dex = dexResult.status === "fulfilled" ? dexResult.value : null;
   const stonkfun = stonkfunResult.status === "fulfilled" ? stonkfunResult.value : null;
   const onchain: OnchainStats | null =
     onchainResult.status === "fulfilled" ? onchainResult.value : null;
+  const basket = basketResult.status === "fulfilled" ? basketResult.value : null;
 
   if (!dex && !stonkfun) {
     throw new Error(
@@ -183,6 +204,7 @@ export async function getTokenStats(): Promise<TokenStats> {
     launch: stonkfun?.launch ?? null,
 
     onchain,
+    basket,
 
     updatedAt: new Date().toISOString(),
     warnings,
