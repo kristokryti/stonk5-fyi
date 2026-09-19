@@ -4,10 +4,15 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import type { TokenStats } from "@/lib/types";
 import { LINKS, REFRESH_INTERVAL_MS } from "@/lib/constants";
-import { formatNumber, formatPercent, formatRelativeTime, formatUsd } from "@/lib/format";
+import { formatPercent, formatRelativeTime, formatUsd } from "@/lib/format";
 import StatCard from "./StatCard";
 import CopyAddress from "./CopyAddress";
 import Chart from "./Chart";
+import BuyButton from "./BuyButton";
+import Explainer from "./Explainer";
+import TimeframeStats from "./TimeframeStats";
+import EngineStatus from "./EngineStatus";
+import LaunchInfo from "./LaunchInfo";
 
 export default function Dashboard({
   initialStats,
@@ -46,60 +51,70 @@ export default function Dashboard({
     };
   }, []);
 
+  const priceChange24h = stats?.priceChange?.h24 ?? null;
+
   return (
     <div className="space-y-6">
-      <header className="flex items-center gap-4">
-        {stats?.imageUrl ? (
-          <Image
-            src={stats.imageUrl}
-            alt={stats.symbol}
-            width={56}
-            height={56}
-            className="rounded-full border border-zinc-800"
-          />
-        ) : (
-          <div className="h-14 w-14 rounded-full border border-zinc-800 bg-zinc-900" />
-        )}
-        <div>
-          <h1 className="text-2xl font-semibold text-zinc-50">
-            {stats?.symbol ?? "STONK5"}
-          </h1>
-          <p className="text-sm text-zinc-500">
-            {stats?.name ?? "Stonk5 Index"} · Solana
-          </p>
+      <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-4">
+          {stats?.imageUrl ? (
+            <Image
+              src={stats.imageUrl}
+              alt={stats.symbol}
+              width={56}
+              height={56}
+              className="rounded-full border border-navy-700"
+            />
+          ) : (
+            <div className="h-14 w-14 rounded-full border border-navy-700 bg-navy-800" />
+          )}
+          <div>
+            <h1 className="text-2xl font-semibold text-navy-50">
+              {stats?.symbol ?? "STONK5"}
+            </h1>
+            <p className="text-sm text-navy-400">
+              {stats?.name ?? "Stonk5 Index"} · Solana
+            </p>
+          </div>
         </div>
+        <BuyButton />
       </header>
 
       {error && (
-        <div className="rounded-lg border border-amber-900/50 bg-amber-950/30 px-4 py-2 text-sm text-amber-400">
+        <div className="rounded-lg border border-accent/40 bg-accent-light/10 px-4 py-2 text-sm text-accent-tint">
           {error}
         </div>
       )}
-      {stats?.warning && (
-        <div className="rounded-lg border border-amber-900/50 bg-amber-950/30 px-4 py-2 text-sm text-amber-400">
-          {stats.warning}
+      {stats?.warnings?.map((warning) => (
+        <div
+          key={warning}
+          className="rounded-lg border border-accent/40 bg-accent-light/10 px-4 py-2 text-sm text-accent-tint"
+        >
+          {warning}
         </div>
-      )}
+      ))}
 
-      <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-5">
-        <div className="text-xs uppercase tracking-wide text-zinc-500">
+      <div className="rounded-xl border border-navy-700 bg-navy-800/60 p-5">
+        <div className="text-xs uppercase tracking-wide text-navy-400">
           Price
         </div>
         <div className="mt-1 flex flex-wrap items-baseline gap-3">
-          <span className="font-mono text-4xl font-semibold text-zinc-50">
+          <span className="font-mono text-4xl font-semibold text-navy-50">
             {stats ? formatUsd(stats.priceUsd) : "—"}
           </span>
-          {stats?.priceChange24h !== null && stats?.priceChange24h !== undefined && (
+          {priceChange24h !== null && (
             <span
               className={`font-mono text-lg ${
-                stats.priceChange24h >= 0 ? "text-accent-up" : "text-accent-down"
+                priceChange24h >= 0 ? "text-teal-soft" : "text-accent-hover"
               }`}
             >
-              {formatPercent(stats.priceChange24h)} (24h)
+              {formatPercent(priceChange24h)} (24h)
             </span>
           )}
         </div>
       </div>
+
+      <Explainer />
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         <StatCard label="Market cap" value={stats ? formatUsd(stats.marketCapUsd, { compact: true }) : "—"} />
@@ -121,37 +136,41 @@ export default function Dashboard({
         />
       </div>
 
-      <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-5">
-        <div className="text-xs uppercase tracking-wide text-zinc-500">
-          Burns
-        </div>
-        {stats?.burns ? (
-          <div className="mt-3 grid grid-cols-3 gap-3">
-            <div>
-              <div className="font-mono text-lg text-zinc-100">
-                {formatNumber(stats.burns.amountTokens)}
-              </div>
-              <div className="text-xs text-zinc-500">STONK5 burned</div>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <TimeframeStats priceChange={stats?.priceChange ?? null} />
+        {stats?.txns24h && (
+          <div className="rounded-xl border border-navy-700 bg-navy-800/60 p-4">
+            <div className="text-xs uppercase tracking-wide text-navy-400">
+              24h buys / sells
             </div>
-            <div>
-              <div className="font-mono text-lg text-zinc-100">
-                {formatUsd(stats.burns.valueUsdAtBurn)}
-              </div>
-              <div className="text-xs text-zinc-500">Value at burn</div>
+            <div className="mt-3 flex items-center gap-4 font-mono text-sm">
+              <span className="text-teal-soft">{stats.txns24h.buys} buys</span>
+              <span className="text-navy-400">/</span>
+              <span className="text-accent-hover">{stats.txns24h.sells} sells</span>
             </div>
-            <div>
-              <div className="font-mono text-lg text-zinc-100">
-                {formatNumber(stats.burns.burnCount)}
-              </div>
-              <div className="text-xs text-zinc-500">Burn events</div>
+            <div className="mt-2 h-2 overflow-hidden rounded-full bg-navy-700">
+              <div
+                className="h-full bg-teal-soft"
+                style={{
+                  width: `${
+                    (stats.txns24h.buys /
+                      Math.max(1, stats.txns24h.buys + stats.txns24h.sells)) *
+                    100
+                  }%`,
+                }}
+              />
             </div>
           </div>
-        ) : (
-          <p className="mt-2 text-sm text-zinc-500">
-            Burn data unavailable from the current source.
-          </p>
         )}
       </div>
+
+      <EngineStatus onchain={stats?.onchain ?? null} />
+
+      <LaunchInfo
+        launch={stats?.launch ?? null}
+        marketCapUsd={stats?.marketCapUsd ?? null}
+        peakMarketCapUsd={stats?.peakMarketCapUsd ?? null}
+      />
 
       <Chart />
 
@@ -162,7 +181,7 @@ export default function Dashboard({
           href={LINKS.website}
           target="_blank"
           rel="noreferrer"
-          className="rounded-lg border border-zinc-800 px-3 py-2 text-zinc-300 transition hover:border-zinc-600"
+          className="rounded-lg border border-navy-700 px-3 py-2 text-navy-200 transition hover:border-navy-500"
         >
           Website
         </a>
@@ -170,7 +189,7 @@ export default function Dashboard({
           href={LINKS.twitter}
           target="_blank"
           rel="noreferrer"
-          className="rounded-lg border border-zinc-800 px-3 py-2 text-zinc-300 transition hover:border-zinc-600"
+          className="rounded-lg border border-navy-700 px-3 py-2 text-navy-200 transition hover:border-navy-500"
         >
           X / Twitter
         </a>
@@ -178,7 +197,7 @@ export default function Dashboard({
           href={LINKS.stonkfun}
           target="_blank"
           rel="noreferrer"
-          className="rounded-lg border border-zinc-800 px-3 py-2 text-zinc-300 transition hover:border-zinc-600"
+          className="rounded-lg border border-navy-700 px-3 py-2 text-navy-200 transition hover:border-navy-500"
         >
           stonkfun.xyz
         </a>
@@ -186,16 +205,24 @@ export default function Dashboard({
           href={LINKS.dexscreener}
           target="_blank"
           rel="noreferrer"
-          className="rounded-lg border border-zinc-800 px-3 py-2 text-zinc-300 transition hover:border-zinc-600"
+          className="rounded-lg border border-navy-700 px-3 py-2 text-navy-200 transition hover:border-navy-500"
         >
           Dexscreener
         </a>
+        <a
+          href={LINKS.solscanToken}
+          target="_blank"
+          rel="noreferrer"
+          className="rounded-lg border border-navy-700 px-3 py-2 text-navy-200 transition hover:border-navy-500"
+        >
+          Solscan
+        </a>
       </div>
 
-      <footer className="space-y-1 pt-4 text-xs text-zinc-600">
+      <footer className="space-y-1 pt-4 text-xs text-navy-500">
         <p>
           {stats
-            ? `Data source: ${stats.source} · updated ${formatRelativeTime(stats.updatedAt)}`
+            ? `Updated ${formatRelativeTime(stats.updatedAt)} · price & volume from Dexscreener, status & launch data from stonkfun.xyz, burns verified on-chain`
             : "No live data"}
         </p>
         <p>

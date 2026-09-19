@@ -7,6 +7,12 @@
 }
 
 body {
-  background-color: #09090b;
-  color: #fafafa;
+  background-color: #131F30;
+  background-image: radial-gradient(
+    circle at top,
+    #1B2C42 0%,
+    #131F30 55%
+  );
+  background-attachment: fixed;
+  color: #F7FAFD;
 }

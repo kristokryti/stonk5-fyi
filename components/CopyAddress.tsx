@@ -19,17 +19,17 @@ export default function CopyAddress() {
   return (
     <button
       onClick={handleCopy}
-      className="group flex w-full items-center justify-between gap-2 rounded-xl border border-zinc-800 bg-zinc-900/60 px-4 py-3 text-left transition hover:border-zinc-700"
+      className="group flex w-full items-center justify-between gap-2 rounded-xl border border-navy-700 bg-navy-800/60 px-4 py-3 text-left transition hover:border-navy-500"
     >
       <div className="min-w-0">
-        <div className="text-xs uppercase tracking-wide text-zinc-500">
+        <div className="text-xs uppercase tracking-wide text-navy-400">
           Contract address
         </div>
-        <div className="mt-1 truncate font-mono text-sm text-zinc-300">
+        <div className="mt-1 truncate font-mono text-sm text-navy-200">
           {MINT}
         </div>
       </div>
-      <span className="shrink-0 rounded-lg border border-zinc-700 px-2 py-1 text-xs text-zinc-300 group-hover:border-zinc-500">
+      <span className="shrink-0 rounded-lg border border-navy-500 px-2 py-1 text-xs text-navy-200 group-hover:border-teal">
         {copied ? "Copied" : "Copy"}
       </span>
     </button>
