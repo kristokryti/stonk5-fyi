@@ -19,7 +19,7 @@ function SafetyRow({ label, ok, okLabel, badLabel }: { label: string; ok: boolea
 export default function SafetyCard({ onchain }: { onchain: OnchainStats | null }) {
   if (!onchain) {
     return (
-      <div className="rounded-3xl border border-navy-700/60 bg-navy-800/50 p-6 shadow-card">
+      <div className="rounded-[28px] border border-white/[0.08] bg-navy-800/50 p-6 shadow-card">
         <div className="text-[11px] font-medium uppercase tracking-wider text-navy-400">
           On-chain safety
         </div>
@@ -31,11 +31,11 @@ export default function SafetyCard({ onchain }: { onchain: OnchainStats | null }
   }
 
   return (
-    <div className="rounded-3xl border border-navy-700/60 bg-navy-800/50 p-6 shadow-card">
+    <div className="rounded-[28px] border border-white/[0.08] bg-navy-800/50 p-6 shadow-card">
       <div className="text-[11px] font-medium uppercase tracking-wider text-navy-400">
         On-chain safety
       </div>
-      <div className="mt-2 divide-y divide-navy-700/60">
+      <div className="mt-2 divide-y divide-white/[0.08]">
         <SafetyRow
           label="Mint authority"
           ok={onchain.mintAuthorityRenounced}
@@ -50,7 +50,7 @@ export default function SafetyCard({ onchain }: { onchain: OnchainStats | null }
         />
       </div>
       {onchain.holderConcentration && (
-        <div className="mt-3 border-t border-navy-700/60 pt-3">
+        <div className="mt-3 border-t border-white/[0.08] pt-3">
           <div className="flex items-baseline justify-between">
             <span className="text-sm text-navy-200">
               Top {onchain.holderConcentration.accountsSampled} accounts hold

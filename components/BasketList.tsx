@@ -4,7 +4,7 @@ import type { BasketToken } from "@/lib/types";
 export default function BasketList({ basket }: { basket: BasketToken[] | null }) {
   if (!basket || basket.length === 0) {
     return (
-      <div className="rounded-3xl border border-navy-700/60 bg-navy-800/50 p-6 shadow-card">
+      <div className="rounded-[28px] border border-white/[0.08] bg-navy-800/50 p-6 shadow-card">
         <div className="text-[11px] font-medium uppercase tracking-wider text-navy-400">
           Current basket
         </div>
@@ -16,7 +16,7 @@ export default function BasketList({ basket }: { basket: BasketToken[] | null })
   }
 
   return (
-    <div className="rounded-3xl border border-navy-700/60 bg-navy-800/50 p-6 shadow-card">
+    <div className="rounded-[28px] border border-white/[0.08] bg-navy-800/50 p-6 shadow-card">
       <div className="text-[11px] font-medium uppercase tracking-wider text-navy-400">
         Current basket &mdash; what the next round would buy
       </div>
@@ -24,7 +24,7 @@ export default function BasketList({ basket }: { basket: BasketToken[] | null })
         StonkFun&apos;s top 5 tokens by market cap right now, 19% of the
         round each. Re-evaluated every round.
       </p>
-      <ul className="mt-4 divide-y divide-navy-700/60">
+      <ul className="mt-4 divide-y divide-white/[0.08]">
         {basket.map((token, i) => (
           <li key={token.mint} className="flex items-center gap-3 py-2.5">
             <span className="w-4 text-xs text-navy-500">{i + 1}</span>

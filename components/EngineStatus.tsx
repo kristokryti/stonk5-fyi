@@ -9,7 +9,7 @@ export default function EngineStatus({
 }) {
   if (!onchain) {
     return (
-      <div className="rounded-3xl border border-navy-700/60 bg-navy-800/50 p-6 shadow-card">
+      <div className="rounded-[28px] border border-white/[0.08] bg-navy-800/50 p-6 shadow-card">
         <div className="text-[11px] font-medium uppercase tracking-wider text-navy-400">
           Engine & burns
         </div>
@@ -21,7 +21,7 @@ export default function EngineStatus({
   }
 
   return (
-    <div className="rounded-3xl border border-navy-700/60 bg-navy-800/50 p-6 shadow-card">
+    <div className="rounded-[28px] border border-white/[0.08] bg-navy-800/50 p-6 shadow-card">
       <div className="text-[11px] font-medium uppercase tracking-wider text-navy-400">
         Engine round progress
       </div>
@@ -40,7 +40,7 @@ export default function EngineStatus({
         whichever comes first).
       </p>
 
-      <div className="mt-5 grid grid-cols-2 gap-4 border-t border-navy-700/60 pt-4">
+      <div className="mt-5 grid grid-cols-2 gap-4 border-t border-white/[0.08] pt-4">
         <div>
           <div className="font-mono text-lg tabular-nums text-navy-50">
             {formatCompactNumber(onchain.burnedTokens)}

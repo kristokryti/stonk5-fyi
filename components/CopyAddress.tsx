@@ -19,7 +19,7 @@ export default function CopyAddress() {
   return (
     <button
       onClick={handleCopy}
-      className="group flex w-full items-center justify-between gap-3 rounded-3xl border border-navy-700/60 bg-navy-800/50 px-5 py-4 text-left shadow-card transition-colors hover:border-navy-500"
+      className="group flex w-full items-center justify-between gap-3 rounded-[28px] border border-white/[0.08] bg-navy-800/50 px-5 py-4 text-left shadow-card transition-colors hover:border-navy-500"
     >
       <div className="min-w-0">
         <div className="text-[11px] font-medium uppercase tracking-wider text-navy-400">

@@ -16,6 +16,26 @@ export function formatUsd(value: number | null, opts: { compact?: boolean } = {}
   }).format(value);
 }
 
+export interface CompactPrice {
+  prefix: string;
+  zeroCount: number;
+  digits: string;
+}
+
+/**
+ * For sub-cent prices, splits "$0.00007852" into a leading-zero count
+ * (rendered as a subscript) plus significant digits, the way most
+ * trading UIs show micro-cap tokens instead of a wall of zeros.
+ */
+export function formatCompactPrice(value: number, sigFigs = 4): CompactPrice | null {
+  if (!(value > 0) || value >= 0.01) return null;
+  const decimals = value.toFixed(20).split(".")[1] ?? "";
+  let zeroCount = 0;
+  while (decimals[zeroCount] === "0") zeroCount++;
+  const digits = decimals.slice(zeroCount, zeroCount + sigFigs).replace(/0+$/, "") || "0";
+  return { prefix: "$0.", zeroCount, digits };
+}
+
 export function formatPercent(value: number | null): string {
   if (value === null || Number.isNaN(value)) return "—";
   const sign = value > 0 ? "+" : "";

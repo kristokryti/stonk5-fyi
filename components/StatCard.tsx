@@ -10,7 +10,7 @@ export default function StatCard({
   accent?: "up" | "down";
 }) {
   return (
-    <div className="rounded-2xl border border-navy-700/60 bg-navy-800/50 p-5 shadow-card">
+    <div className="rounded-[20px] border border-white/[0.08] bg-navy-800/50 p-5 shadow-card">
       <div className="text-[11px] font-medium uppercase tracking-wider text-navy-400">
         {label}
       </div>

@@ -14,7 +14,7 @@ export default function LaunchInfo({
   if (!launch) return null;
 
   return (
-    <div className="rounded-3xl border border-navy-700/60 bg-navy-800/50 p-6 shadow-card">
+    <div className="rounded-[28px] border border-white/[0.08] bg-navy-800/50 p-6 shadow-card">
       <div className="text-[11px] font-medium uppercase tracking-wider text-navy-400">
         Launch
       </div>
