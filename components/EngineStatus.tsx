@@ -25,7 +25,7 @@ export default function EngineStatus({
       <div className="text-[11px] font-medium uppercase tracking-wider text-navy-400">
         Engine round progress
       </div>
-      <div className="mt-2.5 flex items-baseline justify-between font-mono text-sm tabular-nums text-navy-100">
+      <div className="mt-2.5 flex items-baseline justify-between font-sans text-sm tabular-nums text-navy-100">
         <span>{onchain.engineWalletSol.toFixed(3)} SOL</span>
         <span className="text-navy-400">/ {ROUND_SOL_THRESHOLD} SOL</span>
       </div>
@@ -42,13 +42,13 @@ export default function EngineStatus({
 
       <div className="mt-5 grid grid-cols-2 gap-4 border-t border-white/[0.08] pt-4">
         <div>
-          <div className="font-mono text-lg tabular-nums text-navy-50">
+          <div className="font-sans text-lg tabular-nums text-navy-50">
             {formatCompactNumber(onchain.burnedTokens)}
           </div>
           <div className="text-xs text-navy-400">STONK5 burned</div>
         </div>
         <div>
-          <div className="font-mono text-lg tabular-nums text-navy-50">
+          <div className="font-sans text-lg tabular-nums text-navy-50">
             {onchain.burnedPercent.toFixed(3)}%
           </div>
           <div className="text-xs text-navy-400">of issued supply</div>

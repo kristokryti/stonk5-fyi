@@ -20,25 +20,25 @@ export default function LaunchInfo({
       </div>
       <div className="mt-3 grid grid-cols-2 gap-4 sm:grid-cols-4">
         <div>
-          <div className="font-mono text-sm tabular-nums text-navy-50">
+          <div className="font-sans text-sm tabular-nums text-navy-50">
             {formatDateShort(launch.createdAt)}
           </div>
           <div className="text-xs text-navy-400">Launched</div>
         </div>
         <div>
-          <div className="font-mono text-sm tabular-nums text-navy-50">
+          <div className="font-sans text-sm tabular-nums text-navy-50">
             {formatDuration(launch.createdAt, launch.graduatedAt)}
           </div>
           <div className="text-xs text-navy-400">Time to graduate</div>
         </div>
         <div>
-          <div className="font-mono text-sm tabular-nums text-sky-400">
+          <div className="font-sans text-sm tabular-nums text-sky-400">
             {formatMultiplier(marketCapUsd, launch.startMarketCapUsd)}
           </div>
           <div className="text-xs text-navy-400">Since launch</div>
         </div>
         <div>
-          <div className="font-mono text-sm tabular-nums text-navy-50">
+          <div className="font-sans text-sm tabular-nums text-navy-50">
             {peakMarketCapUsd && marketCapUsd
               ? `-${(100 - (marketCapUsd / peakMarketCapUsd) * 100).toFixed(0)}%`
               : "—"}

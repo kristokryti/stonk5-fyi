@@ -27,7 +27,7 @@ export default function TimeframeStats({
             <div key={key} className="text-center">
               <div className="text-xs text-navy-400">{label}</div>
               <div
-                className={`mt-1 font-mono text-sm tabular-nums ${
+                className={`mt-1 font-sans text-sm tabular-nums ${
                   value === null
                     ? "text-navy-400"
                     : value >= 0

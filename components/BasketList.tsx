@@ -46,11 +46,11 @@ export default function BasketList({ basket }: { basket: BasketToken[] | null })
                 {token.symbol}
               </div>
             </div>
-            <div className="text-right font-mono text-sm tabular-nums text-navy-100">
+            <div className="text-right font-sans text-sm tabular-nums text-navy-100">
               {formatUsd(token.marketCapUsd, { compact: true })}
             </div>
             <div
-              className={`w-16 text-right font-mono text-xs tabular-nums ${
+              className={`w-16 text-right font-sans text-xs tabular-nums ${
                 token.priceChange24h === null
                   ? "text-navy-400"
                   : token.priceChange24h >= 0

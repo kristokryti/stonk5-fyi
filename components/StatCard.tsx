@@ -15,7 +15,7 @@ export default function StatCard({
         {label}
       </div>
       <div
-        className={`mt-1.5 font-sans text-xl font-extrabold tracking-tight tabular-nums ${
+        className={`mt-1.5 font-sans text-lg font-bold tracking-tight tabular-nums ${
           accent === "up"
             ? "text-sky-400"
             : accent === "down"

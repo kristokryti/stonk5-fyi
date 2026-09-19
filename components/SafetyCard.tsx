@@ -55,7 +55,7 @@ export default function SafetyCard({ onchain }: { onchain: OnchainStats | null }
             <span className="text-sm text-navy-200">
               Top {onchain.holderConcentration.accountsSampled} accounts hold
             </span>
-            <span className="font-mono text-sm tabular-nums text-navy-50">
+            <span className="font-sans text-sm tabular-nums text-navy-50">
               {onchain.holderConcentration.topHolderPercent.toFixed(1)}%
             </span>
           </div>

@@ -69,7 +69,7 @@ export default function Dashboard({
     <>
       <div className="sticky top-0 z-10 border-b border-white/[0.06] bg-navy-950/80 backdrop-blur-xl">
         <div className="mx-auto flex max-w-3xl items-center px-4 py-4 sm:px-6">
-          <Logo imageUrl={stats?.imageUrl} />
+          <Logo />
         </div>
       </div>
 
@@ -123,16 +123,16 @@ export default function Dashboard({
               <div className="mt-3 flex flex-wrap items-baseline gap-3">
                 <PriceDisplay
                   value={stats?.priceUsd ?? null}
-                  className="font-sans text-4xl font-black tracking-tight tabular-nums text-navy-50 sm:text-5xl"
+                  className="font-sans text-3xl font-bold tracking-tight tabular-nums text-navy-50"
                 />
                 {priceChange24h !== null && (
                   <span
-                    className={`font-mono text-lg tabular-nums ${
+                    className={`font-sans text-sm font-semibold tabular-nums ${
                       priceChange24h >= 0 ? "text-sky-400" : "text-slate-400"
                     }`}
                   >
                     {formatPercent(priceChange24h)}{" "}
-                    <span className="text-sm text-navy-500">24h</span>
+                    <span className="font-normal text-navy-500">24h</span>
                   </span>
                 )}
               </div>
@@ -163,7 +163,7 @@ export default function Dashboard({
               <div className="text-[11px] font-medium uppercase tracking-wider text-navy-400">
                 24h buys / sells
               </div>
-              <div className="mt-3 flex items-center gap-4 font-mono text-sm tabular-nums">
+              <div className="mt-3 flex items-center gap-4 font-sans text-sm tabular-nums">
                 <span className="text-sky-400">{stats.txns24h.buys} buys</span>
                 <span className="text-navy-600">/</span>
                 <span className="text-slate-400">{stats.txns24h.sells} sells</span>
