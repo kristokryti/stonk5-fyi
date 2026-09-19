@@ -40,7 +40,7 @@ async function getHolderConcentration(
     const [result] = await rpcBatch([
       { method: "getTokenLargestAccounts", params: [MINT] },
     ]);
-    const accounts: { uiAmount: number | null }[] = result?.value ?? [];
+    const accounts: { uiAmount: number | null }[] = (result?.value ?? []).slice(0, 10);
     if (accounts.length === 0 || totalSupplyUi === 0) return null;
     const topSum = accounts.reduce((sum, a) => sum + (a.uiAmount ?? 0), 0);
     return {

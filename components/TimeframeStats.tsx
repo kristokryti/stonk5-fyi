@@ -16,11 +16,11 @@ export default function TimeframeStats({
   if (!priceChange) return null;
 
   return (
-    <div className="rounded-2xl border border-navy-700/60 bg-navy-800/50 p-5 shadow-card">
-      <div className="text-[11px] font-medium uppercase tracking-wider text-navy-400">
+    <div className="rounded-2xl border border-navy-150 bg-white p-5 shadow-card">
+      <div className="text-[11px] font-medium uppercase tracking-wider text-navy-500">
         Price change
       </div>
-      <div className="mt-3 grid grid-cols-4 divide-x divide-navy-700/60">
+      <div className="mt-3 grid grid-cols-4 divide-x divide-navy-150">
         {WINDOWS.map(({ key, label }) => {
           const value = priceChange[key];
           return (
@@ -31,7 +31,7 @@ export default function TimeframeStats({
                   value === null
                     ? "text-navy-400"
                     : value >= 0
-                      ? "text-teal-soft"
+                      ? "text-teal-deep"
                       : "text-accent-hover"
                 }`}
               >

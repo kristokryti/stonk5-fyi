@@ -50,6 +50,15 @@ export function formatDate(iso: string | null): string {
   }).format(new Date(iso));
 }
 
+export function formatDateShort(iso: string | null): string {
+  if (!iso) return "—";
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  }).format(new Date(iso));
+}
+
 export function formatDuration(fromIso: string, toIso: string | null): string {
   if (!toIso) return "—";
   const ms = new Date(toIso).getTime() - new Date(fromIso).getTime();
