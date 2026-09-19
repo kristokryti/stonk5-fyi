@@ -43,6 +43,7 @@ export interface TokenStats {
   imageUrl: string | null;
 
   priceUsd: number;
+  priceSol: number | null;
   marketCapUsd: number | null;
   fdvUsd: number | null;
   liquidityUsd: number | null;
@@ -58,6 +59,8 @@ export interface TokenStats {
 
   onchain: OnchainStats | null;
   basket: BasketToken[] | null;
+  basketAvgChange24h: number | null;
+  basketTotalMarketCapUsd: number | null;
 
   updatedAt: string;
   warnings: string[];

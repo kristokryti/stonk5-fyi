@@ -1,7 +1,15 @@
 import { formatPercent, formatUsd } from "@/lib/format";
 import type { BasketToken } from "@/lib/types";
 
-export default function BasketList({ basket }: { basket: BasketToken[] | null }) {
+export default function BasketList({
+  basket,
+  avgChange24h,
+  totalMarketCapUsd,
+}: {
+  basket: BasketToken[] | null;
+  avgChange24h?: number | null;
+  totalMarketCapUsd?: number | null;
+}) {
   if (!basket || basket.length === 0) {
     return (
       <div className="rounded-2xl border border-white/[0.08] bg-navy-800 p-6 shadow-card">
@@ -17,13 +25,37 @@ export default function BasketList({ basket }: { basket: BasketToken[] | null })
 
   return (
     <div className="rounded-2xl border border-white/[0.08] bg-navy-800 p-6 shadow-card">
-      <div className="text-[11px] font-medium uppercase tracking-wider text-navy-400">
-        Current basket &mdash; what the next round would buy
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <div className="text-[11px] font-medium uppercase tracking-wider text-navy-400">
+            Current basket &mdash; what the next round would buy
+          </div>
+          <p className="mt-1.5 text-xs text-navy-500">
+            StonkFun&apos;s top 5 tokens by market cap right now, 19% of the
+            round each. Re-evaluated every round.
+          </p>
+        </div>
+        {avgChange24h != null && (
+          <div className="shrink-0 text-right">
+            <div
+              className={`text-sm font-bold tabular-nums ${
+                avgChange24h >= 0 ? "text-sky-400" : "text-slate-400"
+              }`}
+            >
+              {formatPercent(avgChange24h)}
+            </div>
+            <div className="text-[10px] text-navy-500">basket avg 24h</div>
+          </div>
+        )}
       </div>
-      <p className="mt-1.5 text-xs text-navy-500">
-        StonkFun&apos;s top 5 tokens by market cap right now, 19% of the
-        round each. Re-evaluated every round.
-      </p>
+      {totalMarketCapUsd != null && (
+        <p className="mt-2 text-xs text-navy-500">
+          Combined market cap of the basket:{" "}
+          <span className="font-semibold text-navy-300">
+            {formatUsd(totalMarketCapUsd, { compact: true })}
+          </span>
+        </p>
+      )}
       <ul className="mt-4 divide-y divide-white/[0.08]">
         {basket.map((token, i) => (
           <li key={token.mint} className="flex items-center gap-3 py-2.5">

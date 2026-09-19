@@ -17,6 +17,7 @@ import BasketList from "./BasketList";
 import LaunchInfo from "./LaunchInfo";
 import Logo from "./Logo";
 import PriceDisplay from "./PriceDisplay";
+import LiquidityHealth from "./LiquidityHealth";
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
@@ -136,6 +137,11 @@ export default function Dashboard({
                   </span>
                 )}
               </div>
+              {stats?.priceSol != null && (
+                <div className="mt-1 font-mono text-xs text-navy-500">
+                  {stats.priceSol.toFixed(10).replace(/0+$/, "")} SOL
+                </div>
+              )}
             </div>
             <BuyButton />
           </div>
@@ -157,6 +163,11 @@ export default function Dashboard({
         </div>
 
         <div className="grid gap-3 sm:grid-cols-2">
+          <LiquidityHealth
+            liquidityUsd={stats?.liquidityUsd ?? null}
+            marketCapUsd={stats?.marketCapUsd ?? null}
+            volume24hUsd={stats?.volume24hUsd ?? null}
+          />
           <TimeframeStats priceChange={stats?.priceChange ?? null} />
           {stats?.txns24h && (
             <div className="rounded-2xl border border-white/[0.08] bg-navy-800 p-5 shadow-card">
@@ -192,7 +203,11 @@ export default function Dashboard({
           </div>
         </div>
 
-        <BasketList basket={stats?.basket ?? null} />
+        <BasketList
+          basket={stats?.basket ?? null}
+          avgChange24h={stats?.basketAvgChange24h}
+          totalMarketCapUsd={stats?.basketTotalMarketCapUsd}
+        />
 
         <LaunchInfo
           launch={stats?.launch ?? null}

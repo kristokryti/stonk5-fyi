@@ -16,6 +16,7 @@ async function fetchJson(url: string): Promise<unknown> {
 
 interface DexData {
   priceUsd: number;
+  priceSol: number | null;
   marketCapUsd: number | null;
   fdvUsd: number | null;
   liquidityUsd: number | null;
@@ -41,6 +42,7 @@ async function fetchDexscreener(): Promise<DexData> {
 
   return {
     priceUsd: Number(pair.priceUsd ?? 0),
+    priceSol: pair.priceNative ? Number(pair.priceNative) : null,
     marketCapUsd: pair.marketCap ?? null,
     fdvUsd: pair.fdv ?? null,
     liquidityUsd: pair.liquidity?.usd ?? null,
@@ -184,12 +186,22 @@ export async function getTokenStats(): Promise<TokenStats> {
 
   const primary = dex ?? stonkfun!;
 
+  const basketAvgChange24h =
+    basket && basket.length > 0
+      ? basket.reduce((sum, t) => sum + (t.priceChange24h ?? 0), 0) / basket.length
+      : null;
+  const basketTotalMarketCapUsd =
+    basket && basket.length > 0
+      ? basket.reduce((sum, t) => sum + (t.marketCapUsd ?? 0), 0)
+      : null;
+
   return {
     name: primary.name,
     symbol: primary.symbol,
     imageUrl: dex?.imageUrl ?? stonkfun?.imageUrl ?? null,
 
     priceUsd: primary.priceUsd,
+    priceSol: dex?.priceSol ?? null,
     marketCapUsd: dex?.marketCapUsd ?? stonkfun?.marketCapUsd ?? null,
     fdvUsd: dex?.fdvUsd ?? stonkfun?.fdvUsd ?? null,
     liquidityUsd: dex?.liquidityUsd ?? stonkfun?.liquidityUsd ?? null,
@@ -205,6 +217,8 @@ export async function getTokenStats(): Promise<TokenStats> {
 
     onchain,
     basket,
+    basketAvgChange24h,
+    basketTotalMarketCapUsd,
 
     updatedAt: new Date().toISOString(),
     warnings,
