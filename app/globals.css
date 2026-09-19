@@ -3,11 +3,13 @@
 @tailwind utilities;
 
 body {
-  background-color: #f7fafd;
-  color: #1b2c42;
+  background-color: #131f30;
+  background-image: radial-gradient(ellipse 900px 500px at 50% -10%, #23385199 0%, transparent 70%);
+  background-attachment: fixed;
+  color: #f7fafd;
   -webkit-font-smoothing: antialiased;
 }
 
 ::selection {
-  background-color: #dbeafe;
+  background-color: #2563eb66;
 }

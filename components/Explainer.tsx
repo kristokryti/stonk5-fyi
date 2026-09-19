@@ -1,14 +1,14 @@
 export default function Explainer() {
   return (
-    <div className="rounded-2xl border border-navy-150 bg-white p-6 shadow-card">
-      <h2 className="text-[11px] font-medium uppercase tracking-wider text-navy-500">
+    <div className="rounded-3xl border border-navy-700/60 bg-navy-800/50 p-6 shadow-card">
+      <h2 className="text-[11px] font-medium uppercase tracking-wider text-navy-400">
         What is STONK5?
       </h2>
-      <p className="mt-2.5 text-[15px] leading-relaxed text-navy-800">
+      <p className="mt-2.5 text-[15px] leading-relaxed text-navy-100">
         STONK5 is the Top 5 index on StonkFun &mdash; it tracks the five
         biggest StonkFun tokens and pays them out to eligible holders.
       </p>
-      <ul className="mt-3 space-y-2 text-[15px] leading-relaxed text-navy-800">
+      <ul className="mt-3 space-y-2 text-[15px] leading-relaxed text-navy-100">
         <li className="flex gap-2">
           <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-action" />
           <span>

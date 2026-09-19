@@ -48,7 +48,7 @@ const config: Config = {
         mono: ["var(--font-mono)", "ui-monospace", "SFMono-Regular", "monospace"],
       },
       boxShadow: {
-        card: "0 1px 2px 0 rgb(27 44 66 / 0.04), 0 1px 6px 0 rgb(27 44 66 / 0.05)",
+        card: "0 1px 2px 0 rgb(0 0 0 / 0.25), 0 12px 32px -12px rgb(0 0 0 / 0.45), 0 0 0 1px rgb(255 255 255 / 0.04) inset",
       },
     },
   },

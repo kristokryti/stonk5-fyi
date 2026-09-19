@@ -10,17 +10,17 @@ export default function StatCard({
   accent?: "up" | "down";
 }) {
   return (
-    <div className="rounded-2xl border border-navy-150 bg-white p-5 shadow-card">
-      <div className="text-[11px] font-medium uppercase tracking-wider text-navy-500">
+    <div className="rounded-2xl border border-navy-700/60 bg-navy-800/50 p-5 shadow-card">
+      <div className="text-[11px] font-medium uppercase tracking-wider text-navy-400">
         {label}
       </div>
       <div
         className={`mt-1.5 font-mono text-xl font-medium tabular-nums ${
           accent === "up"
-            ? "text-teal-deep"
+            ? "text-sky-400"
             : accent === "down"
-              ? "text-accent-hover"
-              : "text-navy-900"
+              ? "text-slate-400"
+              : "text-navy-50"
         }`}
       >
         {value}

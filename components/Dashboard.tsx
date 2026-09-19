@@ -66,24 +66,24 @@ export default function Dashboard({
 
   return (
     <>
-      <div className="sticky top-0 z-10 border-b border-navy-150 bg-white/90 backdrop-blur-md">
-        <div className="mx-auto flex max-w-3xl items-center px-4 py-3 sm:px-6">
+      <div className="sticky top-0 z-10 border-b border-white/[0.06] bg-navy-950/80 backdrop-blur-xl">
+        <div className="mx-auto flex max-w-3xl items-center px-4 py-4 sm:px-6">
           <Logo />
         </div>
       </div>
 
-      <div className="mx-auto max-w-3xl space-y-8 px-4 py-8 sm:px-6 sm:py-10">
+      <div className="mx-auto max-w-3xl space-y-10 px-4 py-10 sm:px-6 sm:py-14">
         {(error || stats?.warnings?.length) ? (
           <div className="space-y-2">
             {error && (
-              <div className="rounded-xl border border-navy-150 bg-white px-4 py-2.5 text-sm text-navy-600 shadow-card">
+              <div className="rounded-2xl border border-navy-700/60 bg-navy-800/50 px-4 py-2.5 text-sm text-navy-300 shadow-card">
                 {error}
               </div>
             )}
             {stats?.warnings?.map((warning) => (
               <div
                 key={warning}
-                className="rounded-xl border border-navy-150 bg-white px-4 py-2.5 text-sm text-navy-600 shadow-card"
+                className="rounded-2xl border border-navy-700/60 bg-navy-800/50 px-4 py-2.5 text-sm text-navy-300 shadow-card"
               >
                 {warning}
               </div>
@@ -93,7 +93,7 @@ export default function Dashboard({
 
         <Explainer />
 
-        <section className="rounded-2xl border border-navy-150 bg-white p-6 shadow-card sm:p-8">
+        <section className="rounded-3xl border border-navy-700/60 bg-navy-800/50 p-6 shadow-card sm:p-8">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
               <div className="flex items-center gap-2.5">
@@ -103,34 +103,34 @@ export default function Dashboard({
                     alt={stats.symbol}
                     width={32}
                     height={32}
-                    className="rounded-full border border-navy-150"
+                    className="rounded-full border border-navy-700"
                   />
                 ) : (
-                  <div className="h-8 w-8 shrink-0 rounded-full border border-navy-150 bg-navy-100" />
+                  <div className="h-8 w-8 shrink-0 rounded-full border border-navy-700 bg-navy-800" />
                 )}
-                <div className="flex items-center gap-2 text-sm text-navy-500">
+                <div className="flex items-center gap-2 text-sm text-navy-400">
                   <span>{stats?.name ?? "Stonk5 Index"}</span>
-                  <span className="text-navy-300">·</span>
+                  <span className="text-navy-600">·</span>
                   <span>Solana</span>
                   {stats?.status && (
-                    <span className="rounded-full bg-teal-deep/10 px-2 py-0.5 text-[11px] font-medium capitalize text-teal-deep">
+                    <span className="rounded-full bg-sky-500/20 px-2 py-0.5 text-[11px] font-medium capitalize text-sky-400">
                       {stats.status}
                     </span>
                   )}
                 </div>
               </div>
               <div className="mt-3 flex flex-wrap items-baseline gap-3">
-                <span className="font-mono text-4xl font-semibold tabular-nums text-navy-900 sm:text-5xl">
+                <span className="font-mono text-4xl font-semibold tabular-nums text-navy-50 sm:text-5xl">
                   {stats ? formatUsd(stats.priceUsd) : "—"}
                 </span>
                 {priceChange24h !== null && (
                   <span
                     className={`font-mono text-lg tabular-nums ${
-                      priceChange24h >= 0 ? "text-teal-deep" : "text-accent-hover"
+                      priceChange24h >= 0 ? "text-sky-400" : "text-slate-400"
                     }`}
                   >
                     {formatPercent(priceChange24h)}{" "}
-                    <span className="text-sm text-navy-400">24h</span>
+                    <span className="text-sm text-navy-500">24h</span>
                   </span>
                 )}
               </div>
@@ -157,18 +157,18 @@ export default function Dashboard({
         <div className="grid gap-3 sm:grid-cols-2">
           <TimeframeStats priceChange={stats?.priceChange ?? null} />
           {stats?.txns24h && (
-            <div className="rounded-2xl border border-navy-150 bg-white p-5 shadow-card">
-              <div className="text-[11px] font-medium uppercase tracking-wider text-navy-500">
+            <div className="rounded-2xl border border-navy-700/60 bg-navy-800/50 p-5 shadow-card">
+              <div className="text-[11px] font-medium uppercase tracking-wider text-navy-400">
                 24h buys / sells
               </div>
               <div className="mt-3 flex items-center gap-4 font-mono text-sm tabular-nums">
-                <span className="text-teal-deep">{stats.txns24h.buys} buys</span>
-                <span className="text-navy-300">/</span>
-                <span className="text-accent-hover">{stats.txns24h.sells} sells</span>
+                <span className="text-sky-400">{stats.txns24h.buys} buys</span>
+                <span className="text-navy-600">/</span>
+                <span className="text-slate-400">{stats.txns24h.sells} sells</span>
               </div>
-              <div className="mt-2.5 h-1.5 overflow-hidden rounded-full bg-navy-100">
+              <div className="mt-2.5 h-1.5 overflow-hidden rounded-full bg-navy-700/80">
                 <div
-                  className="h-full bg-teal-deep"
+                  className="h-full bg-sky-400"
                   style={{
                     width: `${
                       (stats.txns24h.buys /
@@ -218,21 +218,21 @@ export default function Dashboard({
               href={link.href}
               target="_blank"
               rel="noreferrer"
-              className="rounded-lg border border-navy-150 px-3 py-2 text-navy-500 shadow-card transition-colors hover:border-navy-300 hover:text-navy-800"
+              className="rounded-lg border border-navy-700/60 px-3 py-2 text-navy-300 shadow-card transition-colors hover:border-navy-500 hover:text-navy-100"
             >
               {link.label}
             </a>
           ))}
         </div>
 
-        <footer className="space-y-1 pt-2 text-xs text-navy-400">
+        <footer className="space-y-1 pt-2 text-xs text-navy-500">
           <p>
             {stats
               ? `Updated ${formatRelativeTime(stats.updatedAt)} · price & volume from Dexscreener, status & launch data from stonkfun.xyz, burns & authorities verified on-chain`
               : "No live data"}
           </p>
           <p>
-            <strong className="font-medium text-navy-500">
+            <strong className="font-medium text-navy-400">
               Unofficial community tracker
             </strong>{" "}
             for STONK5. Not affiliated with StonkFun or the STONK5 team. Not
