@@ -165,11 +165,6 @@ export async function getTokenStats(): Promise<TokenStats> {
       "Dexscreener unreachable — using stonkfun.xyz for price data; timeframe breakdown unavailable."
     );
   }
-  if (!stonkfun) {
-    warnings.push(
-      "stonkfun.xyz unreachable — graduation status and launch info unavailable."
-    );
-  }
   if (!onchain) {
     warnings.push("Solana RPC unreachable — burn and engine-round data unavailable.");
   }
