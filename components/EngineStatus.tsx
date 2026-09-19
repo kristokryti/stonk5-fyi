@@ -9,7 +9,7 @@ export default function EngineStatus({
 }) {
   if (!onchain) {
     return (
-      <div className="rounded-[28px] border border-white/[0.08] bg-navy-800/50 p-6 shadow-card">
+      <div className="rounded-2xl border border-white/[0.08] bg-navy-800 p-6 shadow-card">
         <div className="text-[11px] font-medium uppercase tracking-wider text-navy-400">
           Engine & burns
         </div>
@@ -21,7 +21,7 @@ export default function EngineStatus({
   }
 
   return (
-    <div className="rounded-[28px] border border-white/[0.08] bg-navy-800/50 p-6 shadow-card">
+    <div className="rounded-2xl border border-white/[0.08] bg-navy-800 p-6 shadow-card">
       <div className="text-[11px] font-medium uppercase tracking-wider text-navy-400">
         Engine round progress
       </div>

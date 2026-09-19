@@ -4,7 +4,7 @@ import type { BasketToken } from "@/lib/types";
 export default function BasketList({ basket }: { basket: BasketToken[] | null }) {
   if (!basket || basket.length === 0) {
     return (
-      <div className="rounded-[28px] border border-white/[0.08] bg-navy-800/50 p-6 shadow-card">
+      <div className="rounded-2xl border border-white/[0.08] bg-navy-800 p-6 shadow-card">
         <div className="text-[11px] font-medium uppercase tracking-wider text-navy-400">
           Current basket
         </div>
@@ -16,7 +16,7 @@ export default function BasketList({ basket }: { basket: BasketToken[] | null })
   }
 
   return (
-    <div className="rounded-[28px] border border-white/[0.08] bg-navy-800/50 p-6 shadow-card">
+    <div className="rounded-2xl border border-white/[0.08] bg-navy-800 p-6 shadow-card">
       <div className="text-[11px] font-medium uppercase tracking-wider text-navy-400">
         Current basket &mdash; what the next round would buy
       </div>

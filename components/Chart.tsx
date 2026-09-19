@@ -4,7 +4,7 @@ export default function Chart() {
   const src = `https://dexscreener.com/${DEX_CHAIN}/${PAIR_ADDRESS}?embed=1&theme=dark&trades=0&info=0`;
 
   return (
-    <div className="overflow-hidden rounded-[28px] border border-white/[0.08] shadow-card">
+    <div className="overflow-hidden rounded-2xl border border-white/[0.08] shadow-card">
       <iframe
         src={src}
         title="STONK5 price chart"

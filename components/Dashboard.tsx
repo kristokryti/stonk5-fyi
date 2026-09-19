@@ -69,7 +69,7 @@ export default function Dashboard({
     <>
       <div className="sticky top-0 z-10 border-b border-white/[0.06] bg-navy-950/80 backdrop-blur-xl">
         <div className="mx-auto flex max-w-3xl items-center px-4 py-4 sm:px-6">
-          <Logo />
+          <Logo imageUrl={stats?.imageUrl} />
         </div>
       </div>
 
@@ -77,14 +77,14 @@ export default function Dashboard({
         {(error || stats?.warnings?.length) ? (
           <div className="space-y-2">
             {error && (
-              <div className="rounded-[20px] border border-white/[0.08] bg-navy-800/50 px-4 py-2.5 text-sm text-navy-300 shadow-card">
+              <div className="rounded-2xl border border-white/[0.08] bg-navy-800 px-4 py-2.5 text-sm text-navy-300 shadow-card">
                 {error}
               </div>
             )}
             {stats?.warnings?.map((warning) => (
               <div
                 key={warning}
-                className="rounded-[20px] border border-white/[0.08] bg-navy-800/50 px-4 py-2.5 text-sm text-navy-300 shadow-card"
+                className="rounded-2xl border border-white/[0.08] bg-navy-800 px-4 py-2.5 text-sm text-navy-300 shadow-card"
               >
                 {warning}
               </div>
@@ -94,7 +94,7 @@ export default function Dashboard({
 
         <Explainer />
 
-        <section className="rounded-[28px] border border-white/[0.08] bg-navy-800/50 p-6 shadow-card sm:p-8">
+        <section className="rounded-2xl border border-white/[0.08] bg-navy-800 p-6 shadow-card sm:p-8">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
               <div className="flex items-center gap-2.5">
@@ -123,7 +123,7 @@ export default function Dashboard({
               <div className="mt-3 flex flex-wrap items-baseline gap-3">
                 <PriceDisplay
                   value={stats?.priceUsd ?? null}
-                  className="font-sans text-4xl font-semibold tabular-nums text-navy-50 sm:text-5xl"
+                  className="font-sans text-4xl font-black tracking-tight tabular-nums text-navy-50 sm:text-5xl"
                 />
                 {priceChange24h !== null && (
                   <span
@@ -159,7 +159,7 @@ export default function Dashboard({
         <div className="grid gap-3 sm:grid-cols-2">
           <TimeframeStats priceChange={stats?.priceChange ?? null} />
           {stats?.txns24h && (
-            <div className="rounded-[20px] border border-white/[0.08] bg-navy-800/50 p-5 shadow-card">
+            <div className="rounded-2xl border border-white/[0.08] bg-navy-800 p-5 shadow-card">
               <div className="text-[11px] font-medium uppercase tracking-wider text-navy-400">
                 24h buys / sells
               </div>

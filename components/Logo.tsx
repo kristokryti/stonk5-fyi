@@ -1,11 +1,26 @@
-export default function Logo({ className = "" }: { className?: string }) {
+export default function Logo({
+  className = "",
+  imageUrl,
+}: {
+  className?: string;
+  imageUrl?: string | null;
+}) {
   return (
-    <div className={`flex items-baseline gap-3 ${className}`}>
-      <span className="flex items-baseline font-serif text-[28px] leading-none text-navy-50">
-        <span className="relative inline-flex h-[30px] w-[30px] items-center justify-center rounded-full border-[1.5px] border-sky-400 text-sky-400">
-          5
-        </span>
-        <span className="ml-0.5 text-navy-400">.fyi</span>
+    <div className={`flex items-center gap-2.5 ${className}`}>
+      {imageUrl ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={imageUrl}
+          alt=""
+          width={26}
+          height={26}
+          className="h-[26px] w-[26px] rounded-full border border-white/[0.08] object-cover"
+        />
+      ) : (
+        <div className="h-[26px] w-[26px] shrink-0 rounded-full border border-white/[0.08] bg-navy-800" />
+      )}
+      <span className="font-sans text-lg font-black tracking-tight text-navy-50">
+        stonk5<span className="text-navy-500">.fyi</span>
       </span>
       <span className="font-sans text-xs text-navy-500">Unofficial</span>
     </div>

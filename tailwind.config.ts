@@ -14,13 +14,13 @@ const config: Config = {
           150: "#E7EEF7",
           200: "#E6F1FB",
           300: "#D6E2F0",
-          400: "#AFC2DA",
-          500: "#3C577A",
-          600: "#314A69",
-          700: "#2D4560",
-          800: "#243851",
-          900: "#1B2C42",
-          950: "#131F30",
+          400: "#96A5BD",
+          500: "#5C6B85",
+          600: "#333B49",
+          700: "#22262F",
+          800: "#14171D",
+          900: "#0D0F14",
+          950: "#0A0C10",
         },
         accent: {
           light: "#FBEDE8",
@@ -49,11 +49,11 @@ const config: Config = {
         mono: ["var(--font-mono)", "ui-monospace", "SFMono-Regular", "monospace"],
       },
       boxShadow: {
-        // Layered elevation recipe measured off ponsfamily.com's "float"
-        // cards, re-polarized for a dark surface (their shadows go dark
-        // on white; ours go darker + a faint light rim on navy).
-        card: "0 1px 2px 0 rgb(0 0 0 / 0.3), 0 8px 24px 0 rgb(0 0 0 / 0.35), 0 24px 48px 0 rgb(0 0 0 / 0.25), inset 0 1px 0 0 rgb(255 255 255 / 0.06)",
-        pill: "0 1px 2px 0 rgb(0 0 0 / 0.3), 0 8px 24px 0 rgb(0 0 0 / 0.35), 0 20px 40px -8px rgb(37 99 235 / 0.45), inset 0 1px 0 0 rgb(255 255 255 / 0.1)",
+        // ponsfamily.com's own dark mode is flat -- solid near-black
+        // surfaces with a thin border, not the glossy "float" shadow
+        // their light mode uses. Matching that: minimal, not glowing.
+        card: "0 1px 2px 0 rgb(0 0 0 / 0.4)",
+        pill: "0 1px 2px 0 rgb(0 0 0 / 0.4), 0 0 0 1px rgb(56 189 248 / 0.15)",
       },
     },
   },
