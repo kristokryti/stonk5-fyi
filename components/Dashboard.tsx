@@ -80,21 +80,16 @@ export default function Dashboard({
     <>
       <div className="sticky top-0 z-10 border-b border-white/[0.06] bg-navy-950/80 backdrop-blur-xl">
         <div className="mx-auto max-w-3xl space-y-3 px-4 py-3 sm:px-6 sm:py-4">
-          <div className="flex items-center justify-between gap-4">
-            <Logo />
-            <span className="whitespace-nowrap text-xs text-navy-500">
-              {stats ? `Updated ${formatRelativeTime(stats.updatedAt)}` : ""}
-            </span>
-          </div>
-          <nav className="flex gap-1 self-start rounded-full bg-navy-800 p-1">
+          <Logo />
+          <nav className="flex gap-5">
             {TABS.map((t) => (
               <button
                 key={t.id}
                 onClick={() => setTab(t.id)}
-                className={`rounded-full px-3 py-1.5 text-xs font-semibold transition-colors sm:px-4 sm:text-sm ${
+                className={`border-b-2 pb-0.5 text-sm font-semibold transition-colors ${
                   tab === t.id
-                    ? "bg-navy-300 text-navy-950"
-                    : "text-navy-400 hover:text-navy-100"
+                    ? "border-sky-400 text-navy-50"
+                    : "border-transparent text-navy-500 hover:text-navy-300"
                 }`}
               >
                 {t.label}
