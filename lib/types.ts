@@ -19,6 +19,7 @@ export interface OnchainStats {
   mintAuthorityRenounced: boolean;
   freezeAuthorityRenounced: boolean;
   holderConcentration: HolderConcentration | null;
+  lastRoundTimestamp: string | null;
 }
 
 export interface LaunchInfo {
