@@ -44,7 +44,7 @@ export default function Nav() {
         )}
 
         <div className="hidden items-center gap-3 md:flex">
-          <span className="chip">Unofficial</span>
+          <span className="label">Unofficial</span>
           <a href={LINKS.website} target="_blank" rel="noreferrer" className="btn btn-ghost btn-sm">
             stonk5.com
           </a>
