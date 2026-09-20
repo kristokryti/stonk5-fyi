@@ -175,7 +175,8 @@ export default function PayoutCard() {
             })}
           </div>
           <p className="mt-3 text-[13px] leading-relaxed text-ink2">
-            The five biggest StonkFun tokens at the moment of each round.
+            The five biggest StonkFun tokens at the moment of each round —
+            these are what you receive for holding $STONK5.
           </p>
           <span className="chip chip-pos mt-3">
             5% of each round&apos;s budget buys back &amp; burns $STONK5
