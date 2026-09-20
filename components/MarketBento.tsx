@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useStats } from "@/lib/statsContext";
 import Price from "./Price";
 import { formatCompactUsd, formatPercent1dp } from "@/lib/format";
@@ -57,8 +58,15 @@ export default function MarketBento() {
               href={LINKS.stonkfun}
               target="_blank"
               rel="noreferrer"
-              className="label hover:text-ink2"
+              className="label flex items-center gap-1.5 hover:text-ink2"
             >
+              <Image
+                src="/stonk5-logo.png"
+                alt=""
+                width={16}
+                height={16}
+                className="rounded-full"
+              />
               Stonk5 Index
             </a>
             <span className="chip">Solana</span>
