@@ -10,9 +10,15 @@ import type { HolderConcentration, OnchainStats } from "./types";
 const RPC_TIMEOUT_MS = 8_000;
 const LAMPORTS_PER_SOL = 1_000_000_000;
 
+interface RpcResponseEntry {
+  id: number;
+  result?: unknown;
+  error?: { message: string };
+}
+
 async function rpcBatch(
   calls: { method: string; params: unknown[] }[]
-): Promise<any[]> {
+): Promise<unknown[]> {
   const res = await fetch(SOLANA_RPC_URL, {
     method: "POST",
     cache: "no-store",
@@ -23,8 +29,8 @@ async function rpcBatch(
     ),
   });
   if (!res.ok) throw new Error(`Solana RPC batch responded ${res.status}`);
-  const json = await res.json();
-  const byId = new Map<number, any>(json.map((r: any) => [r.id, r]));
+  const json = (await res.json()) as RpcResponseEntry[];
+  const byId = new Map<number, RpcResponseEntry>(json.map((r) => [r.id, r]));
   return calls.map((_, i) => {
     const entry = byId.get(i);
     if (!entry) throw new Error("Solana RPC batch: missing response entry");
@@ -60,12 +66,14 @@ async function fetchFeePayers(
     ),
   });
   if (!res.ok) throw new Error(`Solana RPC batch responded ${res.status}`);
-  const json = await res.json();
-  const byId = new Map<number, any>(json.map((r: any) => [r.id, r]));
+  const json = (await res.json()) as RpcResponseEntry[];
+  const byId = new Map<number, RpcResponseEntry>(json.map((r) => [r.id, r]));
   // Individual entries may fail (rate limits, pruned history) without
   // failing the whole batch — a missing entry is just excluded downstream.
   return signatures.map((_, i) => {
-    const result = byId.get(i)?.result;
+    const result = byId.get(i)?.result as
+      | { blockTime?: number; transaction?: { message?: { accountKeys?: string[] } } }
+      | undefined;
     if (!result) return { blockTime: null, feePayer: null };
     return {
       blockTime: result.blockTime ?? null,
@@ -93,7 +101,9 @@ async function getLastRoundTimestamp(): Promise<string | null> {
     const [sigResult] = await rpcBatch([
       { method: "getSignaturesForAddress", params: [ENGINE_WALLET, { limit: 60 }] },
     ]);
-    const signatures: string[] = (sigResult ?? []).map((s: any) => s.signature);
+    const signatures: string[] = ((sigResult as { signature: string }[] | null) ?? []).map(
+      (s) => s.signature
+    );
     if (signatures.length === 0) {
       lastRoundCache = { value: null, computedAt: now };
       return null;
@@ -134,7 +144,8 @@ async function getHolderConcentration(
     const [result] = await rpcBatch([
       { method: "getTokenLargestAccounts", params: [MINT] },
     ]);
-    const accounts: { uiAmount: number | null }[] = (result?.value ?? []).slice(0, 10);
+    const value = (result as { value?: { uiAmount: number | null }[] } | undefined)?.value;
+    const accounts: { uiAmount: number | null }[] = (value ?? []).slice(0, 10);
     if (accounts.length === 0 || totalSupplyUi === 0) return null;
     const topSum = accounts.reduce((sum, a) => sum + (a.uiAmount ?? 0), 0);
     return {
@@ -147,11 +158,17 @@ async function getHolderConcentration(
 }
 
 export async function getOnchainStats(): Promise<OnchainStats> {
-  const [supplyResult, balanceResult, mintAccountResult] = await rpcBatch([
+  const [supplyResultRaw, balanceResultRaw, mintAccountResultRaw] = await rpcBatch([
     { method: "getTokenSupply", params: [MINT] },
     { method: "getBalance", params: [ENGINE_WALLET] },
     { method: "getAccountInfo", params: [MINT, { encoding: "jsonParsed" }] },
   ]);
+
+  const supplyResult = supplyResultRaw as { value?: { uiAmount?: number } } | undefined;
+  const balanceResult = balanceResultRaw as { value?: number } | undefined;
+  const mintAccountResult = mintAccountResultRaw as
+    | { value?: { data?: { parsed?: { info?: { mintAuthority: unknown; freezeAuthority: unknown } } } } }
+    | undefined;
 
   const totalSupply = Number(supplyResult?.value?.uiAmount ?? 0);
   const burnedTokens = Math.max(0, ISSUED_SUPPLY - totalSupply);

@@ -29,9 +29,23 @@ interface DexData {
   symbol: string;
 }
 
+interface DexPair {
+  pairAddress: string;
+  priceUsd?: string | number;
+  priceNative?: string | number;
+  marketCap?: number;
+  fdv?: number;
+  liquidity?: { usd?: number };
+  volume?: { m5?: number; h1?: number; h6?: number; h24?: number };
+  priceChange?: { m5?: number; h1?: number; h6?: number; h24?: number };
+  txns?: { h24?: { buys?: number; sells?: number } };
+  info?: { imageUrl?: string };
+  baseToken?: { name?: string; symbol?: string };
+}
+
 async function fetchDexscreener(): Promise<DexData> {
   const json = (await fetchJson(`${DEXSCREENER_API_BASE}/tokens/${MINT}`)) as {
-    pairs?: any[];
+    pairs?: DexPair[];
   };
   const pairs = json.pairs ?? [];
   const pair =
@@ -83,8 +97,37 @@ interface StonkfunMeta {
   launch: LaunchInfo | null;
 }
 
+interface StonkfunTokenResponse {
+  data?: {
+    token?: {
+      name?: string;
+      symbol?: string;
+      imageUrl?: string;
+      createdAt?: string;
+      graduatedAt?: string | null;
+      status?: string;
+      graduationProgress?: number;
+      market?: {
+        priceUsd?: number;
+        marketCapUsd?: number;
+        fdvUsd?: number;
+        liquidityUsd?: number;
+        volume24hUsd?: number;
+        peakMarketCapUsd?: number;
+      };
+    };
+    launch?: {
+      creator?: string;
+      createdAt?: string;
+      startMarketCapUsd?: number;
+    };
+  };
+}
+
 async function fetchStonkfunMeta(): Promise<StonkfunMeta> {
-  const tokenRes = (await fetchJson(`${STONKFUN_API_BASE}/tokens/${MINT}`)) as any;
+  const tokenRes = (await fetchJson(
+    `${STONKFUN_API_BASE}/tokens/${MINT}`
+  )) as StonkfunTokenResponse;
   const token = tokenRes?.data?.token;
   const launchRecord = tokenRes?.data?.launch;
   if (!token) throw new Error("stonkfun: unexpected response shape");
@@ -104,7 +147,7 @@ async function fetchStonkfunMeta(): Promise<StonkfunMeta> {
     launch: launchRecord
       ? {
           creator: launchRecord.creator ?? "",
-          createdAt: launchRecord.createdAt ?? token.createdAt,
+          createdAt: launchRecord.createdAt ?? token.createdAt ?? "",
           graduatedAt: token.graduatedAt ?? null,
           startMarketCapUsd: launchRecord.startMarketCapUsd ?? null,
         }
@@ -112,10 +155,18 @@ async function fetchStonkfunMeta(): Promise<StonkfunMeta> {
   };
 }
 
+interface StonkfunBasketToken {
+  mint: string;
+  name?: string;
+  symbol: string;
+  imageUrl?: string;
+  market?: { marketCapUsd?: number; priceChange24h?: number };
+}
+
 async function fetchBasket(): Promise<BasketToken[]> {
-  const json = (await fetchJson(
-    `${STONKFUN_API_BASE}/tokens?sort=marketCap&pageSize=5`
-  )) as { data?: { tokens?: any[] } };
+  const json = (await fetchJson(`${STONKFUN_API_BASE}/tokens?sort=marketCap&pageSize=5`)) as {
+    data?: { tokens?: StonkfunBasketToken[] };
+  };
   const tokens = json.data?.tokens ?? [];
   return tokens.slice(0, 5).map((t) => ({
     mint: t.mint,

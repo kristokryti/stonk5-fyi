@@ -32,11 +32,12 @@ export function StatsProvider({
     initialStats ? null : "Unable to load live data right now."
   );
   const [stale, setStale] = useState(false);
-  const lastOkRef = useRef(Date.now());
+  const lastOkRef = useRef<number | null>(null);
 
   useEffect(() => {
     let cancelled = false;
     let interval: ReturnType<typeof setInterval> | null = null;
+    lastOkRef.current = Date.now();
 
     async function poll() {
       try {
@@ -70,7 +71,7 @@ export function StatsProvider({
     document.addEventListener("visibilitychange", onVisibilityChange);
 
     const staleCheck = setInterval(() => {
-      setStale(Date.now() - lastOkRef.current > 3 * 60 * 1000);
+      setStale(Date.now() - (lastOkRef.current ?? Date.now()) > 3 * 60 * 1000);
     }, 5_000);
 
     return () => {
