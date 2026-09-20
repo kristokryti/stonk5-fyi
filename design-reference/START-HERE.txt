@@ -1,0 +1,35 @@
+HOW TO GIVE THE NEW DESIGN TO CLAUDE CODE
+=========================================
+
+1. Open your stonk5.fyi project (the git repo that is connected to Vercel) in Claude Code.
+
+2. Copy THIS whole folder (03-website-redesign) into the root of that repo and rename the copy to:
+
+       design-reference
+
+   You should now have design-reference/CLAUDE_CODE_BRIEF.md, design-reference/aurora-tokens.css,
+   design-reference/aurora-home-reference-1440.png, design-reference/site-assets/ ...
+
+3. Paste this message into Claude Code:
+
+----------------------------------------------------------------------
+I want to redesign my live stonk5.fyi site (Next.js, deployed on Vercel) so it matches an approved design.
+
+Everything you need is in the folder design-reference/ in this repo. Start by reading design-reference/CLAUDE_CODE_BRIEF.md completely, and open design-reference/aurora-home-reference-1440.png - that image is the target.
+
+Follow the brief exactly:
+- Work on a new branch called redesign/aurora. Never push to the production branch and never deploy to production.
+- Do Step 0 (recon of the repo) first and send me a short plan before you write code.
+- Don't change data logic. Never invent numbers - every number in the mockup is a placeholder and must come from the site's real data sources.
+- Use design-reference/aurora-tokens.css as the design system, Poppins for all text and numbers, and the wordmark-only logo "stonk5.fyi" (no symbol).
+- When you are done, push the branch, wait for the Vercel Preview, and give me the preview URL plus screenshots at 1440px and 375px next to the reference image.
+----------------------------------------------------------------------
+
+4. Review the Vercel Preview link Claude Code gives you. Ask for changes ("make the cards rounder", "the countdown is too small on mobile" ...). When you are happy, merge the branch yourself (or tell Claude Code to open a pull request).
+
+5. After the redesign is live, upload the X profile picture and cover from 01-brand and start posting from 02-first-x-posts.
+
+NOTES
+- The brief is also fine to paste directly into Claude Code instead of using the folder - but the folder is better because Claude Code can open the reference image and the CSS file.
+- The mockup uses sample numbers on purpose. If you see 02:14:09, $71K, 24.26K on the live site after the redesign, something was copied from the mockup instead of the real data - tell Claude Code.
+- The site's Vercel project could not be inspected from here (access was denied), so the brief starts with a repo check (Step 0) instead of assuming how the code is built.
