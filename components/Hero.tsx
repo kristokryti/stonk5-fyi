@@ -9,7 +9,7 @@ export default function Hero() {
       </div>
 
       <h1 className="mt-6">
-        Your STONK5 payouts,
+        Your STONK5 payout,
         <br />
         <span className="grad-text">tracked live.</span>
       </h1>
