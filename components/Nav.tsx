@@ -45,12 +45,6 @@ export default function Nav() {
 
         <div className="hidden items-center gap-3 md:flex">
           <span className="label">Unofficial</span>
-          <a href={LINKS.website} target="_blank" rel="noreferrer" className="btn btn-ghost btn-sm">
-            stonk5.com
-          </a>
-          <a href={LINKS.stonkfun} target="_blank" rel="noreferrer" className="btn btn-ghost btn-sm">
-            Trade $STONK5
-          </a>
           <a
             href={LINKS.siteTwitter}
             target="_blank"
@@ -59,6 +53,12 @@ export default function Nav() {
             className="btn btn-ghost btn-sm !min-h-10 !w-10 !px-0"
           >
             <XIcon className="h-4 w-4" />
+          </a>
+          <a href={LINKS.website} target="_blank" rel="noreferrer" className="btn btn-ghost btn-sm">
+            STONK5.com
+          </a>
+          <a href={LINKS.stonkfun} target="_blank" rel="noreferrer" className="btn btn-ghost btn-sm">
+            Trade $STONK5
           </a>
         </div>
 
