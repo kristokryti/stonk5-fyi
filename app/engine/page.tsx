@@ -1,36 +1,25 @@
 import { getInitialStats } from "@/lib/getInitialStats";
 import PageShell from "@/components/PageShell";
-import Hero from "@/components/Hero";
 import PayoutCard from "@/components/PayoutCard";
-import MarketBento from "@/components/MarketBento";
 import HowItWorks from "@/components/HowItWorks";
 import WhaleCap from "@/components/WhaleCap";
 import PairedWithSol from "@/components/PairedWithSol";
-import Chart from "@/components/Chart";
-import CopyAddress from "@/components/CopyAddress";
 
 export const revalidate = 0;
 
-export default async function Home() {
+export default async function EnginePage() {
   const initialStats = await getInitialStats();
 
   return (
     <PageShell initialStats={initialStats}>
-      <Hero />
+      <div className="pt-12" />
       <PayoutCard />
-      <MarketBento />
       <HowItWorks />
       <section className="wrap mt-16 sm:mt-22">
         <div className="two-grid">
           <WhaleCap />
           <PairedWithSol />
         </div>
-      </section>
-      <section className="wrap mt-16 sm:mt-22">
-        <Chart />
-      </section>
-      <section className="wrap mt-16 sm:mt-22">
-        <CopyAddress />
       </section>
     </PageShell>
   );
