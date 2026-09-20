@@ -6,8 +6,8 @@ export default function PairedWithSol() {
       <div className="label">Paired with SOL</div>
       <h3 className="mt-2">Trade with what you already hold.</h3>
       <p className="mt-2 text-sm leading-relaxed text-ink2">
-        STONK5 is paired with SOL, which makes trading it fast, convenient
-        and affordable.
+        STONK5 is paired with SOL, which makes trading fast, convenient and
+        affordable.
       </p>
       <a
         href={LINKS.stonkfun}
