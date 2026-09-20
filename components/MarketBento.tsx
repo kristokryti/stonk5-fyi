@@ -1,0 +1,131 @@
+"use client";
+
+import Image from "next/image";
+import { useStats } from "@/lib/statsContext";
+import Price from "./Price";
+import { formatCompactUsd, formatPercent1dp } from "@/lib/format";
+import { LINKS } from "@/lib/constants";
+
+function StatCard({
+  label,
+  value,
+  sub,
+  subClassName = "text-mute",
+}: {
+  label: string;
+  value: string;
+  sub?: string;
+  subClassName?: string;
+}) {
+  return (
+    <div className="glass p-6">
+      <div className="label">{label}</div>
+      <div className="num mt-2 text-[34px] font-semibold text-ink">{value}</div>
+      {sub && <div className={`mt-1 text-[13px] ${subClassName}`}>{sub}</div>}
+    </div>
+  );
+}
+
+export default function MarketBento() {
+  const { stats } = useStats();
+
+  const marketCap = stats?.marketCapUsd ?? null;
+  const fdv = stats?.fdvUsd ?? null;
+  const liquidity = stats?.liquidityUsd ?? null;
+  const volume24h = stats?.volume24hUsd ?? null;
+  const peak = stats?.peakMarketCapUsd ?? null;
+  const change24h = stats?.priceChange?.h24 ?? null;
+  const priceUsd = stats?.priceUsd ?? null;
+  const priceSol = stats?.priceSol ?? null;
+
+  const liquidityPct =
+    liquidity !== null && marketCap ? (liquidity / marketCap) * 100 : null;
+  const volumeMultiple =
+    volume24h !== null && marketCap ? volume24h / marketCap : null;
+
+  const changePositive = change24h !== null && change24h >= 0;
+
+  return (
+    <section className="wrap mt-16 sm:mt-22">
+      <div className="bento">
+        <div className="glass price-card p-8">
+          <div className="flex flex-wrap items-center gap-2">
+            <a
+              href={LINKS.stonkfun}
+              target="_blank"
+              rel="noreferrer"
+              className="label flex items-center gap-1.5 hover:text-ink2"
+            >
+              <Image
+                src="/stonk5-logo.png"
+                alt=""
+                width={16}
+                height={16}
+                className="rounded-full"
+              />
+              Stonk5 Index
+            </a>
+            <span className="chip">Solana</span>
+            <span className="chip chip-pos">Paired with SOL</span>
+          </div>
+
+          <div className="price mt-4 break-all text-[clamp(2.5rem,9vw,4.5rem)] font-semibold leading-none text-ink">
+            <Price value={priceUsd} />
+          </div>
+
+          <div className="mt-4 flex items-center gap-3">
+            {change24h !== null ? (
+              <span className={`chip ${changePositive ? "chip-pos" : "chip-neg"}`}>
+                {changePositive ? "▲" : "▼"} {formatPercent1dp(change24h)}
+              </span>
+            ) : (
+              <span className="chip">— 24h</span>
+            )}
+            <span className="code text-[13px] text-mute">
+              {priceSol !== null ? `${priceSol} SOL` : "—"}
+            </span>
+          </div>
+
+          <p className="mt-6 max-w-[38ch] text-[13px] leading-relaxed text-mute">
+            Price and 24h change from DexScreener, refreshed automatically
+            while this tab is open.
+          </p>
+        </div>
+
+        {marketCap !== null && (
+          <StatCard
+            label="Market cap"
+            value={formatCompactUsd(marketCap)}
+            sub={fdv !== null ? `FDV ${formatCompactUsd(fdv)}` : undefined}
+          />
+        )}
+
+        {liquidity !== null && (
+          <StatCard
+            label="Liquidity"
+            value={formatCompactUsd(liquidity)}
+            sub={
+              liquidityPct !== null
+                ? `${liquidityPct.toFixed(1)}% of market cap`
+                : undefined
+            }
+          />
+        )}
+
+        {volume24h !== null && (
+          <StatCard
+            label="24h volume"
+            value={formatCompactUsd(volume24h)}
+            sub={
+              volumeMultiple !== null
+                ? `${volumeMultiple.toFixed(2)}× market cap`
+                : undefined
+            }
+          />
+        )}
+
+        {peak !== null && <StatCard label="Peak market cap" value={formatCompactUsd(peak)} />}
+      </div>
+    </section>
+  );
+}

@@ -18,8 +18,11 @@ export const SOLANA_RPC_URL =
 
 export const LINKS = {
   website: "https://stonk5.com/",
+  claims: "https://stonk5.com/claims",
   twitter: "https://x.com/stonk5onsf",
+  siteTwitter: "https://x.com/stonk5_fyi",
   stonkfun: `https://www.stonkfun.xyz/token/${MINT}`,
+  stonkfunToken: (mint: string) => `https://www.stonkfun.xyz/token/${mint}`,
   dexscreener: `https://dexscreener.com/${DEX_CHAIN}/${PAIR_ADDRESS}`,
   solscanToken: `https://solscan.io/token/${MINT}`,
   solscanEngineWallet: `https://solscan.io/account/${ENGINE_WALLET}`,

@@ -16,30 +16,60 @@ export function formatUsd(value: number | null, opts: { compact?: boolean } = {}
   }).format(value);
 }
 
-export interface CompactPrice {
-  prefix: string;
-  zeroCount: number;
+/**
+ * Price formatter — brief §7.
+ *
+ * Returns either `{ text }` for a plain string, or `{ pre, zeros, digits }`
+ * for prices small enough to need the subscript-zero-count notation used by
+ * DexScreener and friends (e.g. 0.00007171 -> "$0.0" + <sub>4</sub> + "7171").
+ * `zeros` is the count of leading zeros after the decimal point, with one
+ * zero kept visible before the subscript. This replaces the previous
+ * implementation, which dropped that leading zero (an off-by-one bug).
+ */
+export interface PriceTextShape {
+  text: string;
+}
+export interface PriceSubscriptShape {
+  pre: string;
+  zeros: number;
   digits: string;
 }
+export type PriceParts = PriceTextShape | PriceSubscriptShape;
 
-/**
- * For sub-cent prices, splits "$0.00007852" into a leading-zero count
- * (rendered as a subscript) plus significant digits, the way most
- * trading UIs show micro-cap tokens instead of a wall of zeros.
- */
-export function formatCompactPrice(value: number, sigFigs = 4): CompactPrice | null {
-  if (!(value > 0) || value >= 0.01) return null;
-  const decimals = value.toFixed(20).split(".")[1] ?? "";
-  let zeroCount = 0;
-  while (decimals[zeroCount] === "0") zeroCount++;
-  const digits = decimals.slice(zeroCount, zeroCount + sigFigs).replace(/0+$/, "") || "0";
-  return { prefix: "$0.", zeroCount, digits };
+export function priceParts(p: number): PriceParts {
+  if (!Number.isFinite(p) || p <= 0) return { text: "—" };
+  if (p >= 1) return { text: "$" + p.toLocaleString("en-US", { maximumFractionDigits: 2 }) };
+  if (p >= 0.01) return { text: "$" + p.toFixed(4) };
+  const [m, e] = p.toExponential(3).split("e"); // "7.171", "-5"
+  const digits = m.replace(".", "").replace(/0+$/, "") || "0";
+  const zeros = -Number(e) - 1; // leading zeros after "0."
+  if (zeros < 3) return { text: "$0." + "0".repeat(zeros) + digits };
+  return { pre: "$0.0", zeros, digits }; // render pre + <sub>{zeros}</sub> + digits
+}
+
+export function isPriceSubscriptShape(parts: PriceParts): parts is PriceSubscriptShape {
+  return "digits" in parts;
+}
+
+/** Full plain-text price for aria-label/title, e.g. "$0.00007171". */
+export function priceFullText(p: number): string {
+  if (!Number.isFinite(p) || p <= 0) return "—";
+  const parts = priceParts(p);
+  if (!isPriceSubscriptShape(parts)) return parts.text;
+  return "$0." + "0".repeat(parts.zeros) + parts.digits;
 }
 
 export function formatPercent(value: number | null): string {
   if (value === null || Number.isNaN(value)) return "—";
-  const sign = value > 0 ? "+" : "";
-  return `${sign}${value.toFixed(2)}%`;
+  const sign = value > 0 ? "+" : value < 0 ? "−" : "";
+  return `${sign}${Math.abs(value).toFixed(2)}%`;
+}
+
+/** One decimal, real minus sign — used for the 24h change chip (brief §6.3). */
+export function formatPercent1dp(value: number | null): string {
+  if (value === null || Number.isNaN(value)) return "—";
+  const sign = value > 0 ? "+" : value < 0 ? "−" : "";
+  return `${sign}${Math.abs(value).toFixed(1)}%`;
 }
 
 export function formatNumber(value: number | null): string {
@@ -54,6 +84,22 @@ export function formatCompactNumber(value: number | null): string {
   return new Intl.NumberFormat("en-US", {
     notation: "compact",
     maximumFractionDigits: 2,
+  }).format(value);
+}
+
+/**
+ * Compact money format per brief §6.3: 2 decimals under 100K, 1 decimal
+ * above (e.g. $71K, $1.2M, $24.26K), en-US.
+ */
+export function formatCompactUsd(value: number | null): string {
+  if (value === null || Number.isNaN(value)) return "—";
+  const abs = Math.abs(value);
+  const maximumFractionDigits = abs < 100_000 ? 2 : 1;
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    notation: "compact",
+    maximumFractionDigits,
   }).format(value);
 }
 
@@ -103,4 +149,14 @@ export function formatRelativeTime(iso: string): string {
   if (seconds < 60) return `${seconds}s ago`;
   const minutes = Math.round(seconds / 60);
   return `${minutes}m ago`;
+}
+
+/** HH:MM:SS countdown text, clamped at 00:00:00. Used by the payout timer. */
+export function formatCountdown(msRemaining: number): string {
+  const total = Math.max(0, Math.floor(msRemaining / 1000));
+  const h = Math.floor(total / 3600);
+  const m = Math.floor((total % 3600) / 60);
+  const s = total % 60;
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${pad(h)}:${pad(m)}:${pad(s)}`;
 }

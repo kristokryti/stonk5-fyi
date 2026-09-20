@@ -17,21 +17,19 @@ export default function CopyAddress() {
   }
 
   return (
-    <button
-      onClick={handleCopy}
-      className="group flex w-full items-center justify-between gap-3 rounded-2xl border border-white/[0.08] bg-navy-800 px-5 py-4 text-left shadow-card transition-colors hover:border-navy-500"
-    >
+    <div className="glass flex flex-col items-start justify-between gap-4 p-6 sm:flex-row sm:items-center">
       <div className="min-w-0">
-        <div className="text-[11px] font-medium uppercase tracking-wider text-navy-400">
-          Contract address
-        </div>
-        <div className="mt-1 truncate font-mono text-sm text-navy-200">
+        <div className="label">Contract address</div>
+        <div className="code mt-1.5 text-[15px] text-ink2" style={{ overflowWrap: "anywhere" }}>
           {MINT}
         </div>
       </div>
-      <span className="shrink-0 rounded-lg border border-navy-500 px-3 py-1.5 text-xs font-medium text-navy-200 transition-colors group-hover:border-action group-hover:text-sky-300">
+      <button onClick={handleCopy} className="btn btn-ghost btn-sm shrink-0">
         {copied ? "Copied" : "Copy"}
+      </button>
+      <span className="sr-only" role="status" aria-live="polite">
+        {copied ? "Address copied to clipboard" : ""}
       </span>
-    </button>
+    </div>
   );
 }
