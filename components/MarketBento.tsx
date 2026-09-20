@@ -3,6 +3,7 @@
 import { useStats } from "@/lib/statsContext";
 import Price from "./Price";
 import { formatCompactUsd, formatPercent1dp } from "@/lib/format";
+import { LINKS } from "@/lib/constants";
 
 function StatCard({
   label,
@@ -52,7 +53,14 @@ export default function MarketBento() {
       <div className="bento">
         <div className="glass price-card p-8">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="label">Stonk5 Index</span>
+            <a
+              href={LINKS.stonkfun}
+              target="_blank"
+              rel="noreferrer"
+              className="label hover:text-ink2"
+            >
+              Stonk5 Index
+            </a>
             <span className="chip">Solana</span>
             <span className="chip chip-pos">Paired with SOL</span>
           </div>
