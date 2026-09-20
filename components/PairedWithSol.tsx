@@ -6,8 +6,8 @@ export default function PairedWithSol() {
       <div className="label">Paired with SOL</div>
       <h3 className="mt-2">Trade with what you already hold.</h3>
       <p className="mt-2 text-sm leading-relaxed text-ink2">
-        STONK5 is paired with SOL rather than a stablecoin, since most traders
-        already hold and use it.
+        STONK5 is paired with SOL, which makes trading it fast, convenient
+        and affordable.
       </p>
       <a
         href={LINKS.stonkfun}
@@ -15,7 +15,7 @@ export default function PairedWithSol() {
         rel="noreferrer"
         className="btn btn-ghost btn-sm mt-5"
       >
-        Buy $STONK5 ↗
+        Trade $STONK5 ↗
       </a>
     </div>
   );

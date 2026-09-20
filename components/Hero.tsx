@@ -5,11 +5,11 @@ export default function Hero() {
     <section className="wrap pt-16 text-center sm:pt-24">
       <div className="pill-live mx-auto w-fit">
         <span className="dot-live" aria-hidden="true" />
-        Live · Community tracker for the Top 5 index on StonkFun
+        Live · Community tracker for the $STONK5 Index on StonkFun
       </div>
 
       <h1 className="mt-6">
-        Your STONK5 payout,
+        Your STONK5 payouts,
         <br />
         <span className="grad-text">tracked live.</span>
       </h1>
@@ -21,7 +21,7 @@ export default function Hero() {
       </p>
 
       <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-        <a href={LINKS.website} target="_blank" rel="noreferrer" className="btn btn-primary">
+        <a href={LINKS.claims} target="_blank" rel="noreferrer" className="btn btn-primary">
           Check my rewards ↗
         </a>
         <a href="#how-it-works" className="btn btn-ghost">

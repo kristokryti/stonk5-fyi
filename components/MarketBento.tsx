@@ -54,10 +54,10 @@ export default function MarketBento() {
           <div className="flex flex-wrap items-center gap-2">
             <span className="label">Stonk5 Index</span>
             <span className="chip">Solana</span>
-            {stats?.status && <span className="chip chip-pos">{stats.status}</span>}
+            <span className="chip chip-pos">Paired with SOL</span>
           </div>
 
-          <div className="price mt-4 text-[72px] font-semibold leading-none text-ink">
+          <div className="price mt-4 break-all text-[clamp(2.5rem,9vw,4.5rem)] font-semibold leading-none text-ink">
             <Price value={priceUsd} />
           </div>
 
@@ -73,6 +73,11 @@ export default function MarketBento() {
               {priceSol !== null ? `${priceSol} SOL` : "—"}
             </span>
           </div>
+
+          <p className="mt-6 max-w-[38ch] text-[13px] leading-relaxed text-mute">
+            Price and 24h change from DexScreener, refreshed automatically
+            while this tab is open.
+          </p>
         </div>
 
         {marketCap !== null && (

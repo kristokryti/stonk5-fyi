@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useStats } from "@/lib/statsContext";
-import { ROUND_MAX_HOURS, ROUND_SOL_THRESHOLD } from "@/lib/constants";
-import { formatCountdown } from "@/lib/format";
+import { ENGINE_WALLET, LINKS, ROUND_MAX_HOURS, ROUND_SOL_THRESHOLD } from "@/lib/constants";
+import { formatCountdown, shortenAddress } from "@/lib/format";
 
 const RING_SIZE = 232;
 const STROKE = 14;
@@ -124,6 +124,14 @@ export default function PayoutCard() {
             <div className="bar mt-2">
               <i style={{ width: `${walletPct}%` }} />
             </div>
+            <a
+              href={LINKS.solscanEngineWallet}
+              target="_blank"
+              rel="noreferrer"
+              className="code mt-2 inline-block text-[13px] text-mute hover:text-ink2"
+            >
+              Engine wallet: {shortenAddress(ENGINE_WALLET)} ↗
+            </a>
           </div>
         </div>
 
@@ -132,10 +140,37 @@ export default function PayoutCard() {
           <div className="mt-3 flex gap-2">
             {Array.from({ length: 5 }).map((_, i) => {
               const token = basket?.[i];
+              if (!token) {
+                return (
+                  <div key={i} className="slot">
+                    {i + 1}
+                  </div>
+                );
+              }
               return (
-                <div key={i} className="slot" title={token?.symbol ?? undefined}>
-                  {token?.symbol ? token.symbol.slice(0, 2).toUpperCase() : i + 1}
-                </div>
+                <a
+                  key={token.mint}
+                  href={LINKS.stonkfunToken(token.mint)}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="slot overflow-hidden transition-transform hover:scale-105"
+                  title={token.symbol}
+                  aria-label={`View ${token.symbol} on StonkFun`}
+                >
+                  {token.imageUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={token.imageUrl}
+                      alt=""
+                      width={44}
+                      height={44}
+                      loading="lazy"
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    token.symbol.slice(0, 2).toUpperCase()
+                  )}
+                </a>
               );
             })}
           </div>
