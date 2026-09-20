@@ -16,8 +16,8 @@ export default function Hero() {
 
       <p className="lead mx-auto mt-6 max-w-[700px]">
         Every 5 hours — or as soon as the engine wallet reaches 5 SOL — the
-        engine buys StonkFun&apos;s top 5 tokens and sends them to eligible
-        holders.
+        engine buys StonkFun&apos;s top 5 tokens and sends them to wallets
+        holding $STONK5.
       </p>
 
       <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
