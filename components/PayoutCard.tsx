@@ -62,7 +62,7 @@ export default function PayoutCard() {
   const timerDueMs = ROUND_MAX_HOURS * 60 * 60 * 1000;
   let timerPct: number | null = null;
   let timerRemainingMs: number | null = null;
-  let timerElapsedLabel = "—";
+  let timerElapsedValue: string | null = null;
 
   if (lastRoundTs) {
     const roundStart = new Date(lastRoundTs).getTime();
@@ -71,7 +71,7 @@ export default function PayoutCard() {
     timerRemainingMs = Math.max(0, timerDueMs - elapsed);
     const elapsedHours = Math.floor(elapsed / (60 * 60 * 1000));
     const elapsedMinutes = Math.floor((elapsed % (60 * 60 * 1000)) / (60 * 1000));
-    timerElapsedLabel = `${elapsedHours}h ${elapsedMinutes}m of ${ROUND_MAX_HOURS}h`;
+    timerElapsedValue = `${elapsedHours}h ${elapsedMinutes}m`;
   }
 
   const ringPct = Math.max(timerPct ?? 0, walletPct);
@@ -139,7 +139,14 @@ export default function PayoutCard() {
             <div className="flex items-baseline justify-between">
               <span className="text-sm text-ink2">Timer</span>
               <span className="num text-sm font-semibold text-ink">
-                {timerElapsedLabel}
+                {timerElapsedValue !== null ? (
+                  <>
+                    {timerElapsedValue}
+                    <span className="font-medium text-mute"> of {ROUND_MAX_HOURS}h</span>
+                  </>
+                ) : (
+                  "—"
+                )}
               </span>
             </div>
             <div className="bar mt-2">
@@ -151,9 +158,14 @@ export default function PayoutCard() {
             <div className="flex items-baseline justify-between">
               <span className="text-sm text-ink2">Engine wallet holds</span>
               <span className="num text-sm font-semibold text-ink">
-                {walletSol !== null
-                  ? `${walletSol.toFixed(2)} / ${ROUND_SOL_THRESHOLD} SOL`
-                  : "—"}
+                {walletSol !== null ? (
+                  <>
+                    {walletSol.toFixed(2)}
+                    <span className="font-medium text-mute"> / {ROUND_SOL_THRESHOLD} SOL</span>
+                  </>
+                ) : (
+                  "—"
+                )}
               </span>
             </div>
             <div className="bar mt-2">
