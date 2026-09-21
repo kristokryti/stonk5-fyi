@@ -5,6 +5,7 @@ import PayoutCard from "@/components/PayoutCard";
 import MarketBento from "@/components/MarketBento";
 import HowItWorks from "@/components/HowItWorks";
 import BuybackBurn from "@/components/BuybackBurn";
+import SafetyCard from "@/components/SafetyCard";
 import PairedWithSol from "@/components/PairedWithSol";
 import Chart from "@/components/Chart";
 import CopyAddress from "@/components/CopyAddress";
@@ -21,6 +22,7 @@ export default async function Home() {
       <MarketBento />
       <HowItWorks />
       <BuybackBurn />
+      <SafetyCard />
       <section className="wrap mt-16 sm:mt-22">
         <PairedWithSol />
       </section>
