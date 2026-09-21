@@ -2,7 +2,6 @@
 
 import { useStats } from "@/lib/statsContext";
 import { formatCompactNumber } from "@/lib/format";
-import { LINKS } from "@/lib/constants";
 
 export default function BuybackBurn() {
   const { stats } = useStats();
@@ -14,12 +13,13 @@ export default function BuybackBurn() {
         <div className="label">Burn &amp; lock</div>
         <h3 className="mt-2">Every round burns 5% and locks 5% of $STONK5.</h3>
         <p className="mt-2 max-w-[60ch] text-sm leading-relaxed text-ink2">
-          Funded from the basket&apos;s share (18% to each of the top 5,
-          instead of 19%) — not from what holders are paid. 5% of each
-          round buys $STONK5 and burns it forever. Another 5% buys $STONK5
-          and sends it to a vault that locks into a 5-year Jupiter Lock
-          escrow every week — no cancel authority, a fixed recipient, and
-          it can&apos;t be pulled forward.
+          Every $STONK5 buy or sell pays a transfer tax, which funds each
+          round. 18% of that goes to each of the top 5 in the basket, and
+          the rest comes back into $STONK5 — not out of what holders are
+          paid. 5% of each round buys $STONK5 and burns it forever. Another
+          5% buys $STONK5 and sends it to a vault that locks into a 5-year
+          Jupiter Lock escrow every week — no cancel authority, a fixed
+          recipient, and it can&apos;t be pulled forward.
         </p>
 
         <div className="mt-6 flex flex-wrap gap-8">
@@ -60,15 +60,6 @@ export default function BuybackBurn() {
             <i style={{ width: `${Math.max(0.5, onchain.burnedPercent)}%` }} />
           </div>
         )}
-
-        <a
-          href={LINKS.burnLock}
-          target="_blank"
-          rel="noreferrer"
-          className="mt-6 inline-block text-[13px] text-mute hover:text-ink2"
-        >
-          Track the vault &amp; every lock on stonk5.com ↗
-        </a>
       </div>
     </section>
   );
