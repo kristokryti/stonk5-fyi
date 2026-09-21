@@ -1,22 +1,22 @@
 const STEPS = [
   {
-    title: "1% fee on every trade",
-    body: "Half of the fee is paid to a public engine wallet as creator fees.",
+    title: "Every trade earns a fee",
+    body: "Every trade of $STONK5 pays a creator fee, collected into a public engine wallet.",
   },
   {
     title: "Engine fills up",
     body: "Every 5 hours, or once the wallet holds 5 SOL — whichever comes first.",
   },
   {
-    title: "Buys the top 5",
-    body: "18% of the round's budget goes to each of the current top 5 StonkFun tokens — 90% total, paid to holders.",
+    title: "Buys the top 5, burns, and locks",
+    body: "90% of the round buys the current top 5 StonkFun tokens, 18% each. The other 10% goes back into $STONK5 — 5% burned, 5% locked away for 5 years.",
   },
   {
     title: "Holders get paid",
     body: (
       <>
-        Tokens are deposited to eligible STONK5 holders. Check what you&apos;re
-        owed at{" "}
+        Holders of at least 50,000 $STONK5 (or $20 worth) at settlement get
+        paid, weighted by how long they held. Check what you&apos;re owed at{" "}
         <a href="https://stonk5.com" target="_blank" rel="noreferrer" className="underline">
           stonk5.com
         </a>
@@ -41,6 +41,13 @@ export default function HowItWorks() {
           </div>
         ))}
       </div>
+
+      <p className="mt-6 max-w-[70ch] text-[13px] leading-relaxed text-mute">
+        A payout is held back until it&apos;s worth more than twice the rent
+        of the account it lands in — below that it rolls into the next
+        round instead of being sent as dust. Selling before a round settles
+        forfeits that round&apos;s payout.
+      </p>
     </section>
   );
 }

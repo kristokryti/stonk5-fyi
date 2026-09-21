@@ -232,17 +232,46 @@ async function fetchEnginePayout(): Promise<EnginePayoutData> {
   };
 }
 
+interface StonkLockResponse {
+  inVault?: number;
+  locked?: number;
+}
+
+interface EngineLockData {
+  lockedTokens: number;
+  inVaultTokens: number;
+}
+
+// stonk5.com's own lock-vault bookkeeping — "locked" (in a Jupiter Lock
+// escrow, unreachable for 5 years) and "in vault" (bought, waiting for the
+// weekly sweep into a lock) are two figures that only exist in the engine's
+// own records, not derivable from the mint account the way burns are.
+async function fetchEngineLock(): Promise<EngineLockData> {
+  const json = (await fetchJson(`${STONK5_API_BASE}/lock`)) as StonkLockResponse;
+  if (json.inVault === undefined || json.locked === undefined) {
+    throw new Error("stonk5 lock: unexpected response shape");
+  }
+  return { lockedTokens: json.locked, inVaultTokens: json.inVault };
+}
+
 export async function getTokenStats(): Promise<TokenStats> {
   const warnings: string[] = [];
 
-  const [dexResult, stonkfunResult, onchainResult, basketResult, enginePayoutResult] =
-    await Promise.allSettled([
-      fetchDexscreener(),
-      fetchStonkfunMeta(),
-      getOnchainStats(),
-      fetchBasket(),
-      fetchEnginePayout(),
-    ]);
+  const [
+    dexResult,
+    stonkfunResult,
+    onchainResult,
+    basketResult,
+    enginePayoutResult,
+    engineLockResult,
+  ] = await Promise.allSettled([
+    fetchDexscreener(),
+    fetchStonkfunMeta(),
+    getOnchainStats(),
+    fetchBasket(),
+    fetchEnginePayout(),
+    fetchEngineLock(),
+  ]);
 
   const dex = dexResult.status === "fulfilled" ? dexResult.value : null;
   const stonkfun = stonkfunResult.status === "fulfilled" ? stonkfunResult.value : null;
@@ -251,13 +280,16 @@ export async function getTokenStats(): Promise<TokenStats> {
   const basket = basketResult.status === "fulfilled" ? basketResult.value : null;
   const enginePayout =
     enginePayoutResult.status === "fulfilled" ? enginePayoutResult.value : null;
+  const engineLock =
+    engineLockResult.status === "fulfilled" ? engineLockResult.value : null;
 
   // stonk5.com's own engine API is the authoritative source for the
   // round-trigger reserve/progress/timer — it knows things (the buying
   // reserve vs. rent vs. hand-topped-up SOL, the exact round-start instant)
   // that can't be reconstructed from on-chain data alone. Prefer it, but
   // fall back to the on-chain-derived figures if it's unreachable rather
-  // than losing the section entirely.
+  // than losing the section entirely. Locked/in-vault token counts likewise
+  // only exist in the engine's own bookkeeping.
   const onchain: OnchainStats | null = rpcOnchain
     ? {
         ...rpcOnchain,
@@ -265,6 +297,8 @@ export async function getTokenStats(): Promise<TokenStats> {
         roundProgressPercent:
           enginePayout?.roundProgressPercent ?? rpcOnchain.roundProgressPercent,
         lastRoundTimestamp: enginePayout?.lastRoundTimestamp ?? rpcOnchain.lastRoundTimestamp,
+        lockedTokens: engineLock?.lockedTokens ?? null,
+        inVaultTokens: engineLock?.inVaultTokens ?? null,
       }
     : null;
 

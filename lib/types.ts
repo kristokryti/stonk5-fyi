@@ -20,6 +20,8 @@ export interface OnchainStats {
   freezeAuthorityRenounced: boolean;
   holderConcentration: HolderConcentration | null;
   lastRoundTimestamp: string | null;
+  lockedTokens: number | null;
+  inVaultTokens: number | null;
 }
 
 export interface LaunchInfo {

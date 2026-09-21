@@ -288,5 +288,7 @@ export async function getOnchainStats(): Promise<OnchainStats> {
     freezeAuthorityRenounced: mintInfo?.freezeAuthority === null,
     holderConcentration,
     lastRoundTimestamp,
+    lockedTokens: null,
+    inVaultTokens: null,
   };
 }

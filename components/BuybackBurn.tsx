@@ -33,6 +33,20 @@ export default function BuybackBurn() {
             </div>
           </div>
           <div>
+            <div className="label">Locked</div>
+            <div className="num mt-1 text-2xl font-semibold text-ink">
+              {onchain?.lockedTokens != null ? formatCompactNumber(onchain.lockedTokens) : "—"}
+            </div>
+            <div className="mt-0.5 text-[13px] text-mute">In a 5-year Jupiter Lock escrow</div>
+          </div>
+          <div>
+            <div className="label">In the vault</div>
+            <div className="num mt-1 text-2xl font-semibold text-ink">
+              {onchain?.inVaultTokens != null ? formatCompactNumber(onchain.inVaultTokens) : "—"}
+            </div>
+            <div className="mt-0.5 text-[13px] text-mute">Bought, waiting for the weekly lock</div>
+          </div>
+          <div>
             <div className="label">Circulating supply</div>
             <div className="num mt-1 text-2xl font-semibold text-ink">
               {onchain ? formatCompactNumber(onchain.totalSupply) : "—"}
