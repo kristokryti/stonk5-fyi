@@ -5,7 +5,7 @@ const STEPS = [
   },
   {
     title: "Engine fills up",
-    body: "Every 5 hours, or once the wallet holds 5 SOL — whichever comes first.",
+    body: "Every 5 hours, or once the engine wallet holds 5 SOL — whichever comes first.",
   },
   {
     title: "Buys the top 5, burns, and locks",
