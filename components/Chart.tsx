@@ -14,18 +14,14 @@ export default function Chart() {
 
   // The first load of the embed often gets stuck on "Loading pair..." but
   // pressing "Reload chart" reliably clears it, so simulate that same click
-  // automatically once the page (and the embed's first attempt) has had
-  // time to settle.
+  // automatically a few seconds after this component mounts — i.e. right
+  // when the page loads, in the background, whether or not the user has
+  // scrolled down to the chart yet. (Waiting on the window "load" event
+  // instead was unreliable since that only fires once every resource on the
+  // whole page, including images, has finished loading.)
   useEffect(() => {
-    function clickReload() {
-      window.setTimeout(() => reloadButtonRef.current?.click(), 4000);
-    }
-    if (document.readyState === "complete") {
-      clickReload();
-      return;
-    }
-    window.addEventListener("load", clickReload);
-    return () => window.removeEventListener("load", clickReload);
+    const timer = setTimeout(() => reloadButtonRef.current?.click(), 3000);
+    return () => clearTimeout(timer);
   }, []);
 
   return (
