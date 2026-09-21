@@ -2,7 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { useStats } from "@/lib/statsContext";
-import { ENGINE_WALLET, LINKS, ROUND_MAX_HOURS, ROUND_SOL_THRESHOLD } from "@/lib/constants";
+import {
+  ENGINE_WALLET,
+  LINKS,
+  ROUND_MAX_HOURS,
+  ROUND_RENT_RESERVE_SOL,
+  ROUND_SOL_THRESHOLD,
+} from "@/lib/constants";
 import { formatCountdown, shortenAddress } from "@/lib/format";
 
 const RING_SIZE = 232;
@@ -127,7 +133,7 @@ export default function PayoutCard() {
             </div>
             <p className="mt-2 text-[13px] text-mute">
               {walletSol !== null
-                ? `Wallet holds ${walletSol.toFixed(2)} SOL, of which ${rewardsSol?.toFixed(2)} SOL is round rewards (the rest is a rent reserve).`
+                ? `Wallet holds ${walletSol.toFixed(2)} SOL. After the ${ROUND_RENT_RESERVE_SOL.toFixed(2)} SOL rent reserve, ~${rewardsSol?.toFixed(2)} SOL counts toward the round (may include a small untracked buffer).`
                 : "Wallet balance unavailable"}
             </p>
             <a
