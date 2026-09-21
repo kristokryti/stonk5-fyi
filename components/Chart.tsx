@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { DEX_CHAIN, LINKS, PAIR_ADDRESS } from "@/lib/constants";
 
 export default function Chart() {
@@ -10,13 +10,22 @@ export default function Chart() {
   // that same broken response on later visits without this.
   const [reloadKey, setReloadKey] = useState(() => Date.now());
   const src = `https://dexscreener.com/${DEX_CHAIN}/${PAIR_ADDRESS}?embed=1&theme=dark&trades=0&info=0&_=${reloadKey}`;
+  const reloadButtonRef = useRef<HTMLButtonElement>(null);
 
-  // The first load of the embed often gets stuck on "Loading pair..." but a
-  // remount (same trigger as the Reload chart button) reliably fixes it, so
-  // do that once automatically shortly after the page loads.
+  // The first load of the embed often gets stuck on "Loading pair..." but
+  // pressing "Reload chart" reliably clears it, so simulate that same click
+  // automatically once the page (and the embed's first attempt) has had
+  // time to settle.
   useEffect(() => {
-    const timer = setTimeout(() => setReloadKey(Date.now()), 2500);
-    return () => clearTimeout(timer);
+    function clickReload() {
+      window.setTimeout(() => reloadButtonRef.current?.click(), 4000);
+    }
+    if (document.readyState === "complete") {
+      clickReload();
+      return;
+    }
+    window.addEventListener("load", clickReload);
+    return () => window.removeEventListener("load", clickReload);
   }, []);
 
   return (
@@ -30,6 +39,7 @@ export default function Chart() {
         </div>
         <div className="flex items-center gap-3">
           <button
+            ref={reloadButtonRef}
             onClick={() => setReloadKey(Date.now())}
             className="text-[13px] text-mute hover:text-ink2"
           >
