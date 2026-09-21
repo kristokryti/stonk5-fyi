@@ -290,5 +290,6 @@ export async function getOnchainStats(): Promise<OnchainStats> {
     lastRoundTimestamp,
     lockedTokens: null,
     inVaultTokens: null,
+    avgRoundSol: null,
   };
 }

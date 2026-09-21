@@ -1,7 +1,9 @@
 import {
+  BASKET_SHARE_OF_ROUND,
   DEXSCREENER_API_BASE,
   MINT,
   PAIR_ADDRESS,
+  ROUND_HISTORY_SAMPLE_SIZE,
   STONK5_API_BASE,
   STONKFUN_API_BASE,
 } from "./constants";
@@ -255,6 +257,43 @@ async function fetchEngineLock(): Promise<EngineLockData> {
   return { lockedTokens: json.locked, inVaultTokens: json.inVault };
 }
 
+interface StonkRoundBuy {
+  spentRaw?: string;
+}
+interface StonkRoundEntry {
+  at?: string;
+  buys?: StonkRoundBuy[];
+}
+interface StonkRoundsResponse {
+  rounds?: StonkRoundEntry[];
+}
+
+// A round settling on schedule buys all 5 basket slots; fewer than 4 buys
+// means this entry is a carried-forward single-token flush, not a real
+// round, and would badly skew the average if included.
+const MIN_BUYS_FOR_REAL_ROUND = 4;
+
+// The estimator needs the AVERAGE total fees a round actually distributes,
+// not the current wallet's partial progress toward the next one — using
+// the live snapshot (e.g. 1 SOL of 5) would understate a 30-day projection
+// by multiples. stonk5.com's own round history records each round's basket
+// spend (90% of that round's fee budget); scale back up to the full 100%
+// and average over the last several real rounds.
+async function fetchAverageRoundSol(): Promise<number | null> {
+  const json = (await fetchJson(`${STONK5_API_BASE}/rounds`)) as StonkRoundsResponse;
+  const realRounds = (json.rounds ?? [])
+    .filter((r) => (r.buys?.length ?? 0) >= MIN_BUYS_FOR_REAL_ROUND)
+    .slice(0, ROUND_HISTORY_SAMPLE_SIZE);
+  if (realRounds.length === 0) return null;
+
+  const totals = realRounds.map((r) => {
+    const basketSpentSol =
+      (r.buys ?? []).reduce((sum, b) => sum + Number(b.spentRaw ?? 0), 0) / 1e9;
+    return basketSpentSol / BASKET_SHARE_OF_ROUND;
+  });
+  return totals.reduce((a, b) => a + b, 0) / totals.length;
+}
+
 export async function getTokenStats(): Promise<TokenStats> {
   const warnings: string[] = [];
 
@@ -265,6 +304,7 @@ export async function getTokenStats(): Promise<TokenStats> {
     basketResult,
     enginePayoutResult,
     engineLockResult,
+    avgRoundSolResult,
   ] = await Promise.allSettled([
     fetchDexscreener(),
     fetchStonkfunMeta(),
@@ -272,6 +312,7 @@ export async function getTokenStats(): Promise<TokenStats> {
     fetchBasket(),
     fetchEnginePayout(),
     fetchEngineLock(),
+    fetchAverageRoundSol(),
   ]);
 
   const dex = dexResult.status === "fulfilled" ? dexResult.value : null;
@@ -283,6 +324,8 @@ export async function getTokenStats(): Promise<TokenStats> {
     enginePayoutResult.status === "fulfilled" ? enginePayoutResult.value : null;
   const engineLock =
     engineLockResult.status === "fulfilled" ? engineLockResult.value : null;
+  const avgRoundSol =
+    avgRoundSolResult.status === "fulfilled" ? avgRoundSolResult.value : null;
 
   // stonk5.com's own engine API is the authoritative source for the
   // round-trigger reserve/progress/timer — it knows things (the buying
@@ -300,6 +343,7 @@ export async function getTokenStats(): Promise<TokenStats> {
         lastRoundTimestamp: enginePayout?.lastRoundTimestamp ?? rpcOnchain.lastRoundTimestamp,
         lockedTokens: engineLock?.lockedTokens ?? null,
         inVaultTokens: engineLock?.inVaultTokens ?? null,
+        avgRoundSol,
       }
     : null;
 

@@ -3,10 +3,11 @@
 import { useState } from "react";
 import { useStats } from "@/lib/statsContext";
 import {
+  BASKET_SHARE_OF_ROUND,
   MIN_QUALIFY_TOKENS,
   MIN_QUALIFY_USD,
+  ROUND_HISTORY_SAMPLE_SIZE,
   ROUND_MAX_HOURS,
-  ROUND_SOL_THRESHOLD,
 } from "@/lib/constants";
 import type { BasketToken } from "@/lib/types";
 
@@ -14,7 +15,6 @@ import type { BasketToken } from "@/lib/types";
 // methodology rather than invented here — applied to our live on-chain
 // supply and engine-wallet figures instead of a static snapshot.
 const ELIGIBLE_SUPPLY_SHARE = 0.98; // ~98% of supply is held by wallets above the qualifying minimum
-const BASKET_SHARE_OF_ROUND = 0.9; // 18% x 5 slots
 const DELIVERY_COST_MAX = 0.05; // up to 5% withheld for delivery costs
 const POOL_TAX_APPROX = 0.07; // roughly 7% lost to pool costs and transfer taxes
 const ROUNDS_PER_30_DAYS = (30 * 24) / ROUND_MAX_HOURS; // if every round took exactly 5h to trigger
@@ -60,7 +60,7 @@ export default function Estimator() {
   const [heldInput, setHeldInput] = useState("10000000");
 
   const totalSupply = stats?.onchain?.totalSupply ?? null;
-  const feesTowardRound = stats?.onchain?.engineWalletSol ?? null;
+  const avgRoundSol = stats?.onchain?.avgRoundSol ?? null;
   const basket = stats?.basket ?? null;
   const priceUsd = stats?.priceUsd ?? null;
   const priceSol = stats?.priceSol ?? null;
@@ -72,10 +72,10 @@ export default function Estimator() {
   let sharePct: number | null = null;
   let receiveSolTotal: number | null = null;
 
-  if (eligible && totalSupply && feesTowardRound !== null) {
+  if (eligible && totalSupply && avgRoundSol !== null) {
     const eligibleSupply = totalSupply * ELIGIBLE_SUPPLY_SHARE;
     sharePct = (held / eligibleSupply) * 100;
-    const basketBudget = feesTowardRound * BASKET_SHARE_OF_ROUND;
+    const basketBudget = avgRoundSol * BASKET_SHARE_OF_ROUND;
     const netFactor = 1 - DELIVERY_COST_MAX - POOL_TAX_APPROX;
     receiveSolTotal = basketBudget * netFactor * (held / eligibleSupply);
   }
@@ -103,7 +103,7 @@ export default function Estimator() {
     <section className="wrap mt-16 sm:mt-22">
       <h2>What would you receive?</h2>
       <p className="lead mt-2">
-        Enter what you hold — this round&apos;s fees are fetched automatically.
+        Enter what you hold — the average round size is fetched automatically.
       </p>
 
       <div className="glass glass-lg mt-6 p-8">
@@ -136,15 +136,14 @@ export default function Estimator() {
             <div className="mt-4 rounded-2xl border border-[var(--line)] bg-[var(--fill-soft)] px-4 py-3">
               <div className="flex items-center gap-2 text-sm text-ink2">
                 <span className="dot-live" aria-hidden="true" style={{ width: 6, height: 6 }} />
-                Fees toward this round
+                Average fees per round
               </div>
               <div className="num mt-1.5 text-[15px] font-semibold text-ink">
-                {feesTowardRound !== null
-                  ? `${feesTowardRound.toFixed(2)} / ${ROUND_SOL_THRESHOLD} SOL`
-                  : "—"}
+                {avgRoundSol !== null ? `${avgRoundSol.toFixed(2)} SOL` : "—"}
               </div>
               <div className="mt-1.5 text-[12px] text-mute">
-                Fetched live — same source as the round trigger above
+                Averaged over the last {ROUND_HISTORY_SAMPLE_SIZE} real rounds — not the
+                current, still-filling round&apos;s partial amount
               </div>
             </div>
 

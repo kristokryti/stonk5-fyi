@@ -22,6 +22,7 @@ export interface OnchainStats {
   lastRoundTimestamp: string | null;
   lockedTokens: number | null;
   inVaultTokens: number | null;
+  avgRoundSol: number | null;
 }
 
 export interface LaunchInfo {

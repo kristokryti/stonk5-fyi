@@ -10,6 +10,10 @@ export const ROUND_SOL_THRESHOLD = 5;
 export const ROUND_MAX_HOURS = 5;
 export const MIN_QUALIFY_TOKENS = 50_000;
 export const MIN_QUALIFY_USD = 20;
+// 18% x 5 basket slots — the rest of a round's fees go to burn (5%) and lock (5%).
+export const BASKET_SHARE_OF_ROUND = 0.9;
+// How many recent real rounds the average-fees-per-round estimate is based on.
+export const ROUND_HISTORY_SAMPLE_SIZE = 10;
 
 export const STONKFUN_API_BASE =
   process.env.STONKFUN_API_BASE ?? "https://www.stonkfun.xyz/api/public/v1";
