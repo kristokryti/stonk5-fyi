@@ -142,7 +142,7 @@ export default function PayoutCard() {
         </div>
 
         <div>
-          <div className="label">Payout basket</div>
+          <div className="label">Current payout basket</div>
           <div className="mt-3 flex gap-2">
             {Array.from({ length: 5 }).map((_, i) => {
               const token = basket?.[i];
@@ -182,7 +182,7 @@ export default function PayoutCard() {
           </div>
           <p className="mt-3 text-[13px] leading-relaxed text-ink2">
             The five biggest StonkFun tokens at the moment of each round —
-            these are what you will currently receive for holding $STONK5.
+            you will receive these for holding $STONK5.
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
             <span className="chip chip-pos">5% burns $STONK5</span>
