@@ -117,42 +117,53 @@ export default function BuybackBurn() {
               const combinedPct = combined !== null ? (combined / ISSUED_SUPPLY) * 100 : null;
               return { tag, color, combinedPct };
             });
-            const barMaxPct = Math.max(
-              currentPct,
-              ...markers.map((m) => m.combinedPct ?? 0),
-              1
-            );
+            // Scaled to a fixed 0-120% headroom, not just to whatever the
+            // furthest projection happens to be — otherwise the 1-year
+            // figure would always stretch to fill the entire bar
+            // regardless of its actual value, which reads as "100% gone"
+            // even when it's really ~92%.
+            const barMaxPct = 120;
 
-            // Stacked, edge-to-edge segments: "now" fills up to the current
-            // burned+locked amount, then each horizon adds only the extra
-            // it projects on top of the one before it — so the full bar
-            // visually represents the furthest projection (1Y), divided up
-            // by how much of it is already done vs. still to come.
+            // What's actually happened (current) is a solid, fully-opaque
+            // segment in the site's usual bright gradient — it's real,
+            // verified on-chain. What's only projected (1 month, 1 year)
+            // fades in behind it as translucent bands, getting fainter the
+            // further out (and thus less certain) the horizon is — a
+            // preview of how much more supply this pace would remove,
+            // without asserting it as fact.
             let cursorPct = currentPct;
-            const segments = [
-              { key: "now", widthPct: (currentPct / barMaxPct) * 100, color: undefined },
-              ...markers.map(({ tag, color, combinedPct }) => {
-                const start = cursorPct;
-                const end = Math.max(combinedPct ?? start, start);
-                cursorPct = end;
-                return { key: tag, widthPct: ((end - start) / barMaxPct) * 100, color };
-              }),
-            ];
+            const projectedSegments = markers.map(({ tag, color, combinedPct }, i) => {
+              const start = cursorPct;
+              const end = Math.max(combinedPct ?? start, start);
+              cursorPct = end;
+              return {
+                key: tag,
+                widthPct: ((end - start) / barMaxPct) * 100,
+                color,
+                opacity: i === 0 ? 0.45 : 0.22,
+              };
+            });
 
             return (
               <div className="mt-6">
-                <div className="bar flex w-full">
-                  <i
-                    className="shrink-0"
-                    style={{ width: `${Math.max(0.5, segments[0].widthPct)}%` }}
-                  />
-                  {segments.slice(1).map((seg) => (
-                    <span
-                      key={seg.key}
-                      className="block h-full shrink-0"
-                      style={{ width: `${Math.max(0, seg.widthPct)}%`, backgroundColor: seg.color }}
+                <div className="bar relative max-w-[460px] overflow-hidden bg-[var(--fill-track)]">
+                  <div className="absolute inset-0 flex">
+                    <i
+                      className="shrink-0"
+                      style={{ width: `${Math.max(0.6, (currentPct / barMaxPct) * 100)}%` }}
                     />
-                  ))}
+                    {projectedSegments.map((seg) => (
+                      <span
+                        key={seg.key}
+                        className="block h-full shrink-0"
+                        style={{
+                          width: `${Math.max(0, seg.widthPct)}%`,
+                          backgroundColor: seg.color,
+                          opacity: seg.opacity,
+                        }}
+                      />
+                    ))}
+                  </div>
                 </div>
                 <div className="mt-2.5 flex flex-wrap gap-x-4 gap-y-1">
                   <span className="flex items-center gap-1.5 text-[11px] text-mute">
