@@ -12,16 +12,20 @@ export default function Chart() {
   const src = `https://dexscreener.com/${DEX_CHAIN}/${PAIR_ADDRESS}?embed=1&theme=dark&trades=0&info=0&_=${reloadKey}`;
   const reloadButtonRef = useRef<HTMLButtonElement>(null);
 
-  // The first load of the embed often gets stuck on "Loading pair..." but
-  // pressing "Reload chart" reliably clears it, so simulate that same click
-  // automatically shortly after this component mounts — i.e. right when the
-  // page loads, in the background, whether or not the user has scrolled
-  // down to the chart yet. (Waiting on the window "load" event instead was
-  // unreliable since that only fires once every resource on the whole page,
-  // including images, has finished loading.)
+  // DexScreener's embed is a cross-origin iframe, so the browser's
+  // same-origin policy blocks us from ever reading its content — there is
+  // no way to actually detect the text "Loading pair..." from this page.
+  // The closest honest substitute: retry the same reload a few times on a
+  // back-off schedule (1s, 4s, 9s after mount) instead of only once, then
+  // stop — most stuck loads clear within the first retry or two, and
+  // reloading indefinitely would just be disruptive for a chart that's
+  // already working fine.
   useEffect(() => {
-    const timer = setTimeout(() => reloadButtonRef.current?.click(), 1000);
-    return () => clearTimeout(timer);
+    const delays = [1000, 4000, 9000];
+    const timers = delays.map((ms) =>
+      setTimeout(() => reloadButtonRef.current?.click(), ms)
+    );
+    return () => timers.forEach(clearTimeout);
   }, []);
 
   return (
