@@ -5,7 +5,6 @@ import PayoutCard from "@/components/PayoutCard";
 import MarketBento from "@/components/MarketBento";
 import HowItWorks from "@/components/HowItWorks";
 import BuybackBurn from "@/components/BuybackBurn";
-import WhaleCap from "@/components/WhaleCap";
 import PairedWithSol from "@/components/PairedWithSol";
 import Chart from "@/components/Chart";
 import CopyAddress from "@/components/CopyAddress";
@@ -23,10 +22,7 @@ export default async function Home() {
       <HowItWorks />
       <BuybackBurn />
       <section className="wrap mt-16 sm:mt-22">
-        <div className="two-grid">
-          <WhaleCap />
-          <PairedWithSol />
-        </div>
+        <PairedWithSol />
       </section>
       <section className="wrap mt-16 sm:mt-22">
         <Chart />

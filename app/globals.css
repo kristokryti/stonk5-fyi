@@ -386,23 +386,6 @@ h3 {
   border: 1px solid rgba(255, 255, 255, 0.14);
 }
 
-.whale-bar {
-  position: relative;
-  height: 44px;
-  border-radius: 14px;
-  overflow: hidden;
-  display: flex;
-  background: rgba(255, 255, 255, 0.06);
-}
-.whale-bar .ok {
-  width: 62%;
-  background: linear-gradient(90deg, rgba(56, 189, 248, 0.5), rgba(129, 140, 248, 0.6));
-}
-.whale-bar .no {
-  flex: 1;
-  background: repeating-linear-gradient(135deg, rgba(251, 113, 133, 0.28) 0 6px, rgba(251, 113, 133, 0.1) 6px 12px);
-}
-
 .pay-grid {
   display: grid;
   grid-template-columns: 232px 1fr 300px;
