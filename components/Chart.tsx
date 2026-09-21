@@ -38,6 +38,9 @@ export default function Chart() {
         title="STONK5 price chart"
         className="mt-2 h-[420px] w-full rounded-[16px] sm:h-[500px]"
       />
+      <p className="mt-2 px-2 text-[13px] text-mute">
+        If stuck on &quot;Loading pair...&quot;, please press Reload chart.
+      </p>
     </div>
   );
 }

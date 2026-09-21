@@ -21,6 +21,7 @@ export default function PayoutCard() {
 
   const onchain = stats?.onchain ?? null;
   const walletSol = onchain?.engineWalletSol ?? null;
+  const rewardsSol = onchain?.roundRewardsSol ?? null;
   const walletPct = onchain?.roundProgressPercent ?? 0;
   const lastRoundTs = onchain?.lastRoundTimestamp ?? null;
 
@@ -116,14 +117,19 @@ export default function PayoutCard() {
             <div className="flex items-baseline justify-between">
               <span className="text-sm text-ink2">Engine wallet</span>
               <span className="num text-sm font-semibold text-ink">
-                {walletSol !== null
-                  ? `${walletSol.toFixed(2)} / ${ROUND_SOL_THRESHOLD} SOL`
+                {rewardsSol !== null
+                  ? `${rewardsSol.toFixed(2)} / ${ROUND_SOL_THRESHOLD} SOL`
                   : "—"}
               </span>
             </div>
             <div className="bar mt-2">
               <i style={{ width: `${walletPct}%` }} />
             </div>
+            <p className="mt-2 text-[13px] text-mute">
+              {walletSol !== null
+                ? `Wallet holds ${walletSol.toFixed(2)} SOL, of which ${rewardsSol?.toFixed(2)} SOL is round rewards (the rest is a rent reserve).`
+                : "Wallet balance unavailable"}
+            </p>
             <a
               href={LINKS.solscanEngineWallet}
               target="_blank"

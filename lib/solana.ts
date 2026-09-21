@@ -2,6 +2,7 @@ import {
   ENGINE_WALLET,
   ISSUED_SUPPLY,
   MINT,
+  ROUND_RENT_RESERVE_SOL,
   ROUND_SOL_THRESHOLD,
   SOLANA_RPC_URL,
 } from "./constants";
@@ -251,9 +252,14 @@ export async function getOnchainStats(): Promise<OnchainStats> {
   const burnedPercent = (burnedTokens / ISSUED_SUPPLY) * 100;
 
   const engineWalletSol = Number(balanceResult?.value ?? 0) / LAMPORTS_PER_SOL;
+  // Only the portion above the fixed rent reserve actually buys next round's
+  // tokens (per stonk5.com's own explainer) — the wallet also carries a
+  // variable manually-topped-up buffer we have no on-chain way to read, so
+  // this is as close as we can get without inventing a number for that part.
+  const roundRewardsSol = Math.max(0, engineWalletSol - ROUND_RENT_RESERVE_SOL);
   const roundProgressPercent = Math.min(
     100,
-    (engineWalletSol / ROUND_SOL_THRESHOLD) * 100
+    (roundRewardsSol / ROUND_SOL_THRESHOLD) * 100
   );
 
   const mintInfo = mintAccountResult?.value?.data?.parsed?.info;
@@ -271,6 +277,7 @@ export async function getOnchainStats(): Promise<OnchainStats> {
     burnedTokens,
     burnedPercent,
     engineWalletSol,
+    roundRewardsSol,
     roundProgressPercent,
     mintAuthorityRenounced: mintInfo?.mintAuthority === null,
     freezeAuthorityRenounced: mintInfo?.freezeAuthority === null,

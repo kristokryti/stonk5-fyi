@@ -8,6 +8,12 @@ export const ENGINE_WALLET = "gPYVhFeYVrfbAruwNVZthfnVdeWjgBUiaSabdpn77B6";
 export const ISSUED_SUPPLY = 1_000_000_000;
 export const ROUND_SOL_THRESHOLD = 5;
 export const ROUND_MAX_HOURS = 5;
+// Rent reserve the engine wallet keeps for opening the payout token accounts
+// each round — per stonk5.com's own explainer, this (plus a variable manual
+// top-up we have no way to read) sits in the wallet on top of the SOL that
+// actually counts toward the round threshold. Only the rent portion is a
+// fixed, non-arbitrary amount we can subtract with confidence.
+export const ROUND_RENT_RESERVE_SOL = 0.1;
 
 export const STONKFUN_API_BASE =
   process.env.STONKFUN_API_BASE ?? "https://www.stonkfun.xyz/api/public/v1";

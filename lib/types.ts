@@ -15,6 +15,7 @@ export interface OnchainStats {
   burnedTokens: number;
   burnedPercent: number;
   engineWalletSol: number;
+  roundRewardsSol: number;
   roundProgressPercent: number;
   mintAuthorityRenounced: boolean;
   freezeAuthorityRenounced: boolean;
