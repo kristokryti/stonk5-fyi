@@ -22,13 +22,13 @@ export default async function Home() {
       <MarketBento />
       <HowItWorks />
       <BuybackBurn />
-      <SafetyCard />
       <section className="wrap mt-16 sm:mt-22">
         <PairedWithSol />
       </section>
       <section className="wrap mt-16 sm:mt-22">
         <Chart />
       </section>
+      <SafetyCard />
       <section className="wrap mt-16 sm:mt-22">
         <CopyAddress />
       </section>
