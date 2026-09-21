@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useStats } from "@/lib/statsContext";
 import {
   BASKET_SHARE_OF_ROUND,
+  LINKS,
   MIN_QUALIFY_TOKENS,
   MIN_QUALIFY_USD,
   ROUND_HISTORY_SAMPLE_SIZE,
@@ -132,7 +133,13 @@ export default function Estimator() {
                   inputMode="decimal"
                   className="w-full rounded-2xl border border-[var(--line)] bg-[var(--fill-soft)] py-3 pl-4 pr-[108px] font-sans text-[15px] font-medium text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--c2)]"
                 />
-                <span className="pointer-events-none absolute inset-y-0 right-2 flex items-center gap-1.5 rounded-xl bg-[var(--fill-track)] px-2.5">
+                <a
+                  href={LINKS.stonkfun}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label="View $STONK5 on StonkFun"
+                  className="absolute inset-y-0 right-2 flex items-center gap-1.5 rounded-xl bg-[var(--fill-track)] px-2.5 transition-colors hover:bg-[var(--line-strong)]"
+                >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src="/stonk5-logo.png"
@@ -142,7 +149,7 @@ export default function Estimator() {
                     className="h-[18px] w-[18px] rounded-full"
                   />
                   <span className="text-[13px] font-medium text-ink2">STONK5</span>
-                </span>
+                </a>
               </div>
               {held !== null && priceUsd !== null && (
                 <div className="mt-1.5 text-[12px] text-ink2">
