@@ -1,6 +1,13 @@
+"use client";
+
 import { LINKS } from "@/lib/constants";
 
 export default function Hero() {
+  function scrollToHowItWorks(e: React.MouseEvent<HTMLAnchorElement>) {
+    e.preventDefault();
+    document.getElementById("how-it-works")?.scrollIntoView({ behavior: "smooth" });
+  }
+
   return (
     <section className="wrap pt-16 text-center sm:pt-24">
       <div className="pill-live mx-auto w-fit">
@@ -24,7 +31,7 @@ export default function Hero() {
         <a href={LINKS.claims} target="_blank" rel="noreferrer" className="btn btn-primary">
           Check my rewards ↗
         </a>
-        <a href="#how-it-works" className="btn btn-ghost">
+        <a href="#how-it-works" onClick={scrollToHowItWorks} className="btn btn-ghost">
           How it works
         </a>
       </div>
