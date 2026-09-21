@@ -20,6 +20,12 @@ export default async function Home() {
       <Hero />
       <PayoutCard />
       <MarketBento />
+      <section className="wrap mt-16 sm:mt-22">
+        <Chart />
+      </section>
+      <section className="wrap mt-16 sm:mt-22">
+        <CopyAddress />
+      </section>
       <HowItWorks />
       <BuybackBurn />
       <section className="wrap mt-16 sm:mt-22">
@@ -27,12 +33,6 @@ export default async function Home() {
           <WhaleCap />
           <PairedWithSol />
         </div>
-      </section>
-      <section className="wrap mt-16 sm:mt-22">
-        <Chart />
-      </section>
-      <section className="wrap mt-16 sm:mt-22">
-        <CopyAddress />
       </section>
     </PageShell>
   );
