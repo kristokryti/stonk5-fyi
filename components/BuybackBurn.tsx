@@ -7,9 +7,9 @@ import { ISSUED_SUPPLY } from "@/lib/constants";
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 const HORIZONS = [
-  { label: "1 week", days: 7 },
-  { label: "1 month", days: 30 },
-  { label: "1 year", days: 365 },
+  { tag: "1W", days: 7, color: "#fb923c" },
+  { tag: "1M", days: 30, color: "#38bdf8" },
+  { tag: "1Y", days: 365, color: "#c084fc" },
 ];
 
 function formatPct(pct: number | null): string {
@@ -92,73 +92,58 @@ export default function BuybackBurn() {
           </div>
         </div>
 
-        {onchain && (
-          <div className="bar mt-6 max-w-[400px]">
-            <i style={{ width: `${Math.max(0.5, onchain.burnedPercent)}%` }} />
-          </div>
-        )}
+        {onchain &&
+          (() => {
+            const currentBurnedPct = onchain.burnedPercent;
+            const markers = HORIZONS.map(({ tag, days, color }) => {
+              const projectedBurned = project(onchain.burnedTokens, burnedPerDay, days);
+              const projectedLocked = project(onchain.lockedTokens, lockedPerDay, days);
+              const combined =
+                projectedBurned !== null || projectedLocked !== null
+                  ? (projectedBurned ?? onchain.burnedTokens) +
+                    (projectedLocked ?? onchain.lockedTokens ?? 0)
+                  : null;
+              const combinedPct = combined !== null ? (combined / ISSUED_SUPPLY) * 100 : null;
+              return { tag, color, combinedPct };
+            });
+            const barMaxPct =
+              Math.max(currentBurnedPct, ...markers.map((m) => m.combinedPct ?? 0), 1) * 1.15;
 
-        {(burnedPerDay !== null || lockedPerDay !== null) && (
-          <div className="mt-6 border-t border-[var(--line)] pt-5">
-            <div className="label">At the current average pace</div>
-            <div className="mt-3 grid grid-cols-3 gap-3">
-              {HORIZONS.map(({ label, days }) => {
-                const projectedBurned = project(onchain!.burnedTokens, burnedPerDay, days);
-                const projectedLocked = project(
-                  onchain!.lockedTokens,
-                  lockedPerDay,
-                  days
-                );
-                return (
-                  <div
-                    key={label}
-                    className="rounded-2xl border border-[var(--line)] bg-[var(--fill-soft)] px-4 py-3"
-                  >
-                    <div className="text-[11px] font-semibold uppercase tracking-wide text-mute">
-                      In {label}
-                    </div>
-                    <div className="mt-2">
-                      <div className="text-[10px] uppercase tracking-wide text-mute">Burned</div>
-                      <div className="num text-[13px] font-semibold text-ink">
-                        {projectedBurned !== null
-                          ? `≈ ${formatCompactNumber(projectedBurned)}`
-                          : "—"}
-                      </div>
-                      <div className="text-[11px] text-mute">
-                        {formatPct(
-                          projectedBurned !== null
-                            ? (projectedBurned / ISSUED_SUPPLY) * 100
-                            : null
-                        )}{" "}
-                        of supply
-                      </div>
-                    </div>
-                    <div className="mt-2.5">
-                      <div className="text-[10px] uppercase tracking-wide text-mute">Locked</div>
-                      <div className="num text-[13px] font-semibold text-ink">
-                        {projectedLocked !== null
-                          ? `≈ ${formatCompactNumber(projectedLocked)}`
-                          : "—"}
-                      </div>
-                      <div className="text-[11px] text-mute">
-                        {formatPct(
-                          projectedLocked !== null
-                            ? (projectedLocked / ISSUED_SUPPLY) * 100
-                            : null
-                        )}{" "}
-                        of supply
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-            <p className="mt-3 text-[11px] leading-relaxed text-mute">
-              A simple projection from the average burn/lock rate observed so far — not a
-              forecast. Round sizes move with trading volume, so the real pace will vary.
-            </p>
-          </div>
-        )}
+            return (
+              <div className="mt-6">
+                <div className="bar relative max-w-[400px]">
+                  <i style={{ width: `${Math.max(0.5, (currentBurnedPct / barMaxPct) * 100)}%` }} />
+                  {markers.map(
+                    ({ tag, color, combinedPct }) =>
+                      combinedPct !== null && (
+                        <span
+                          key={tag}
+                          className="absolute top-1/2 h-4 w-[3px] -translate-x-1/2 -translate-y-1/2 rounded-full"
+                          style={{
+                            left: `${Math.min(100, (combinedPct / barMaxPct) * 100)}%`,
+                            backgroundColor: color,
+                          }}
+                        />
+                      )
+                  )}
+                </div>
+                <div className="mt-2.5 flex flex-wrap gap-x-4 gap-y-1">
+                  {markers.map(({ tag, color, combinedPct }) => (
+                    <span key={tag} className="flex items-center gap-1.5 text-[11px] text-mute">
+                      <span
+                        className="inline-block h-2 w-2 rounded-full"
+                        style={{ backgroundColor: color }}
+                      />
+                      {tag}: {formatPct(combinedPct)} burned + locked
+                    </span>
+                  ))}
+                </div>
+                <p className="mt-2 text-[11px] leading-relaxed text-mute">
+                  Estimated at the current average pace — not a forecast.
+                </p>
+              </div>
+            );
+          })()}
       </div>
     </section>
   );
