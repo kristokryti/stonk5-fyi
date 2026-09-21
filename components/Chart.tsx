@@ -5,6 +5,17 @@ import { CandlestickSeries, createChart, type IChartApi, type ISeriesApi } from 
 import { LINKS } from "@/lib/constants";
 import type { OhlcvBar } from "@/app/api/ohlcv/route";
 
+// STONK5 trades at a fraction of a cent, so the chart's default 2-decimal
+// price format would round it to 0.00. Pick enough decimals to show real
+// precision based on the actual price magnitude.
+function priceFormatFor(value: number) {
+  if (!Number.isFinite(value) || value <= 0) return { precision: 2, minMove: 0.01 };
+  if (value >= 1) return { precision: 2, minMove: 0.01 };
+  const magnitude = Math.floor(Math.log10(value));
+  const precision = Math.min(10, Math.max(2, -magnitude + 3));
+  return { precision, minMove: Math.pow(10, -precision) };
+}
+
 const TIMEFRAMES = [
   { key: "15m", label: "15m" },
   { key: "1h", label: "1H" },
@@ -69,6 +80,8 @@ export default function Chart() {
           setError(true);
           return;
         }
+        const lastClose = json.bars[json.bars.length - 1].close;
+        seriesRef.current?.applyOptions({ priceFormat: { type: "price", ...priceFormatFor(lastClose) } });
         seriesRef.current?.setData(
           json.bars.map((b) => ({
             time: b.time as never,
