@@ -16,6 +16,22 @@ function formatPct(pct: number | null): string {
   return `${pct < 0.01 ? "<0.01" : pct.toFixed(2)}%`;
 }
 
+function StatValue({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="num mt-1 flex items-center gap-1.5 text-2xl font-semibold text-ink">
+      {children}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="/stonk5-logo.png"
+        alt=""
+        width={18}
+        height={18}
+        className="h-[18px] w-[18px] rounded-full"
+      />
+    </div>
+  );
+}
+
 export default function BuybackBurn() {
   const { stats } = useStats();
   const onchain = stats?.onchain ?? null;
@@ -61,32 +77,28 @@ export default function BuybackBurn() {
         <div className="mt-6 flex flex-wrap gap-8">
           <div>
             <div className="label">Total burned</div>
-            <div className="num mt-1 text-2xl font-semibold text-ink">
-              {onchain ? formatCompactNumber(onchain.burnedTokens) : "—"}
-            </div>
+            <StatValue>{onchain ? formatCompactNumber(onchain.burnedTokens) : "—"}</StatValue>
             <div className="mt-0.5 text-[13px] text-mute">
               {onchain ? `${onchain.burnedPercent.toFixed(3)}% of issued supply` : "Verified on-chain"}
             </div>
           </div>
           <div>
             <div className="label">Locked</div>
-            <div className="num mt-1 text-2xl font-semibold text-ink">
+            <StatValue>
               {onchain?.lockedTokens != null ? formatCompactNumber(onchain.lockedTokens) : "—"}
-            </div>
+            </StatValue>
             <div className="mt-0.5 text-[13px] text-mute">In a 5-year Jupiter Lock escrow</div>
           </div>
           <div>
             <div className="label">In the vault</div>
-            <div className="num mt-1 text-2xl font-semibold text-ink">
+            <StatValue>
               {onchain?.inVaultTokens != null ? formatCompactNumber(onchain.inVaultTokens) : "—"}
-            </div>
+            </StatValue>
             <div className="mt-0.5 text-[13px] text-mute">Bought, waiting for the weekly lock</div>
           </div>
           <div>
             <div className="label">Circulating supply</div>
-            <div className="num mt-1 text-2xl font-semibold text-ink">
-              {onchain ? formatCompactNumber(onchain.totalSupply) : "—"}
-            </div>
+            <StatValue>{onchain ? formatCompactNumber(onchain.totalSupply) : "—"}</StatValue>
             <div className="mt-0.5 text-[13px] text-mute">Down from 1B issued</div>
           </div>
         </div>
