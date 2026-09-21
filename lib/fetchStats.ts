@@ -1,4 +1,10 @@
-import { DEXSCREENER_API_BASE, MINT, PAIR_ADDRESS, STONKFUN_API_BASE } from "./constants";
+import {
+  DEXSCREENER_API_BASE,
+  MINT,
+  PAIR_ADDRESS,
+  STONK5_API_BASE,
+  STONKFUN_API_BASE,
+} from "./constants";
 import { getOnchainStats } from "./solana";
 import type { BasketToken, LaunchInfo, OnchainStats, TimeframeStats, TokenStats } from "./types";
 
@@ -187,21 +193,80 @@ function pctDiff(a: number | null, b: number | null): number | null {
   return (Math.abs(a - b) / Math.abs(a)) * 100;
 }
 
+interface StonkPayoutResponse {
+  walletSol?: number;
+  reserveSol?: number;
+  progress?: number;
+  triggerSol?: number;
+  accumulationStartedAt?: number;
+  lastRoundAt?: number;
+  clockKnown?: boolean;
+}
+
+interface EnginePayoutData {
+  walletSol: number;
+  reserveSol: number;
+  roundProgressPercent: number;
+  lastRoundTimestamp: string | null;
+}
+
+// stonk5.com's own engine bookkeeping — the authoritative source for the
+// round-trigger reserve/progress/timer, since the split between "buying
+// reserve", rent, and hand-topped-up SOL isn't reconstructable from the
+// wallet's raw on-chain balance alone (verified: neither portion is a fixed
+// amount round to round).
+async function fetchEnginePayout(): Promise<EnginePayoutData> {
+  const json = (await fetchJson(`${STONK5_API_BASE}/payout`)) as StonkPayoutResponse;
+  if (json.walletSol === undefined || json.reserveSol === undefined) {
+    throw new Error("stonk5 payout: unexpected response shape");
+  }
+  const startedAtMs = json.accumulationStartedAt ?? json.lastRoundAt ?? null;
+  return {
+    walletSol: json.walletSol,
+    reserveSol: json.reserveSol,
+    roundProgressPercent: json.progress !== undefined ? json.progress * 100 : 0,
+    lastRoundTimestamp:
+      json.clockKnown !== false && startedAtMs !== null
+        ? new Date(startedAtMs).toISOString()
+        : null,
+  };
+}
+
 export async function getTokenStats(): Promise<TokenStats> {
   const warnings: string[] = [];
 
-  const [dexResult, stonkfunResult, onchainResult, basketResult] = await Promise.allSettled([
-    fetchDexscreener(),
-    fetchStonkfunMeta(),
-    getOnchainStats(),
-    fetchBasket(),
-  ]);
+  const [dexResult, stonkfunResult, onchainResult, basketResult, enginePayoutResult] =
+    await Promise.allSettled([
+      fetchDexscreener(),
+      fetchStonkfunMeta(),
+      getOnchainStats(),
+      fetchBasket(),
+      fetchEnginePayout(),
+    ]);
 
   const dex = dexResult.status === "fulfilled" ? dexResult.value : null;
   const stonkfun = stonkfunResult.status === "fulfilled" ? stonkfunResult.value : null;
-  const onchain: OnchainStats | null =
+  const rpcOnchain: OnchainStats | null =
     onchainResult.status === "fulfilled" ? onchainResult.value : null;
   const basket = basketResult.status === "fulfilled" ? basketResult.value : null;
+  const enginePayout =
+    enginePayoutResult.status === "fulfilled" ? enginePayoutResult.value : null;
+
+  // stonk5.com's own engine API is the authoritative source for the
+  // round-trigger reserve/progress/timer — it knows things (the buying
+  // reserve vs. rent vs. hand-topped-up SOL, the exact round-start instant)
+  // that can't be reconstructed from on-chain data alone. Prefer it, but
+  // fall back to the on-chain-derived figures if it's unreachable rather
+  // than losing the section entirely.
+  const onchain: OnchainStats | null = rpcOnchain
+    ? {
+        ...rpcOnchain,
+        engineWalletSol: enginePayout?.walletSol ?? rpcOnchain.engineWalletSol,
+        roundProgressPercent:
+          enginePayout?.roundProgressPercent ?? rpcOnchain.roundProgressPercent,
+        lastRoundTimestamp: enginePayout?.lastRoundTimestamp ?? rpcOnchain.lastRoundTimestamp,
+      }
+    : null;
 
   if (!dex && !stonkfun) {
     throw new Error(

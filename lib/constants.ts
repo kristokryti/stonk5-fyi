@@ -15,6 +15,12 @@ export const DEXSCREENER_API_BASE =
   process.env.DEXSCREENER_API_BASE ?? "https://api.dexscreener.com/latest/dex";
 export const SOLANA_RPC_URL =
   process.env.SOLANA_RPC_URL ?? "https://api.mainnet-beta.solana.com";
+// stonk5.com's own public engine API — its /api/payout endpoint is the
+// authoritative source for the round-trigger reserve/progress/timer (the
+// engine's own bookkeeping distinguishes "buying reserve" from rent and
+// manual top-ups in a way that can't be reconstructed from the wallet's raw
+// on-chain balance alone). Referenced directly in stonk5.com's own page.
+export const STONK5_API_BASE = process.env.STONK5_API_BASE ?? "https://stonk5.com/api";
 
 export const LINKS = {
   website: "https://stonk5.com/",
