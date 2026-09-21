@@ -54,9 +54,6 @@ export default function Nav() {
           >
             <XIcon className="h-4 w-4" />
           </a>
-          <a href={LINKS.website} target="_blank" rel="noreferrer" className="btn btn-ghost btn-sm">
-            STONK5.com
-          </a>
           <a href={LINKS.stonkfun} target="_blank" rel="noreferrer" className="btn btn-ghost btn-sm">
             Trade $STONK5
           </a>
