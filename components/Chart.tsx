@@ -14,16 +14,15 @@ export default function Chart() {
 
   // DexScreener's embed is a cross-origin iframe, so the browser's
   // same-origin policy blocks us from ever reading its content — there is
-  // no way to actually detect the text "Loading pair..." from this page.
-  // The closest substitute: retry the reload repeatedly on a back-off
-  // schedule for the first ~25s after mount, which clears the vast
-  // majority of stuck loads observed in practice.
+  // no way to actually detect the text "Loading pair..." from this page,
+  // or confirm a reload actually fixed it. Repeatedly reloading on a
+  // schedule was worse than the original problem: it kept resetting a
+  // chart that had already loaded fine. So: one automatic reload shortly
+  // after mount (catches the common first-load stall), then leave it
+  // alone — the manual button is there for anything that's still stuck.
   useEffect(() => {
-    const delays = [1000, 2500, 4500, 7000, 10500, 15000, 20000, 25000];
-    const timers = delays.map((ms) =>
-      setTimeout(() => reloadButtonRef.current?.click(), ms)
-    );
-    return () => timers.forEach(clearTimeout);
+    const timer = setTimeout(() => reloadButtonRef.current?.click(), 1500);
+    return () => clearTimeout(timer);
   }, []);
 
   return (
