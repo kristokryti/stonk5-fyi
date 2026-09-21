@@ -32,12 +32,6 @@ function formatApproxAmount(value: number): string {
   return value.toLocaleString("en-US", { maximumFractionDigits });
 }
 
-function formatApproxUsd(value: number): string {
-  if (!Number.isFinite(value) || value <= 0) return "—";
-  const maximumFractionDigits = value < 1 ? 4 : 2;
-  return `$${value.toLocaleString("en-US", { maximumFractionDigits })}`;
-}
-
 function TokenIcon({ symbol, imageUrl }: { symbol: string; imageUrl: string | null }) {
   const [failed, setFailed] = useState(false);
   if (imageUrl && !failed) {
@@ -63,7 +57,7 @@ function TokenIcon({ symbol, imageUrl }: { symbol: string; imageUrl: string | nu
 
 export default function Estimator() {
   const { stats } = useStats();
-  const [heldInput, setHeldInput] = useState("1000000");
+  const [heldInput, setHeldInput] = useState("10000000");
 
   const totalSupply = stats?.onchain?.totalSupply ?? null;
   const feesTowardRound = stats?.onchain?.engineWalletSol ?? null;
@@ -92,9 +86,7 @@ export default function Estimator() {
   interface TokenEstimate {
     token: BasketToken;
     amount: number | null;
-    amountUsd: number | null;
     monthlyAmount: number | null;
-    monthlyUsd: number | null;
   }
   const perTokenBreakdown: TokenEstimate[] =
     basket && receiveSolTotal !== null && solUsdRate !== null
@@ -102,10 +94,8 @@ export default function Estimator() {
           const perTokenSol = receiveSolTotal! / basket.length;
           const perTokenUsd = perTokenSol * solUsdRate;
           const amount = token.priceUsd ? perTokenUsd / token.priceUsd : null;
-          const amountUsd = amount !== null ? perTokenUsd : null;
           const monthlyAmount = amount !== null ? amount * ROUNDS_PER_30_DAYS : null;
-          const monthlyUsd = amountUsd !== null ? amountUsd * ROUNDS_PER_30_DAYS : null;
-          return { token, amount, amountUsd, monthlyAmount, monthlyUsd };
+          return { token, amount, monthlyAmount };
         })
       : [];
 
@@ -196,7 +186,7 @@ export default function Estimator() {
                       <span className="w-[92px]">Per 30 days</span>
                     </div>
                   </div>
-                  {perTokenBreakdown.map(({ token, amount, amountUsd, monthlyAmount, monthlyUsd }) => (
+                  {perTokenBreakdown.map(({ token, amount, monthlyAmount }) => (
                     <div
                       key={token.mint}
                       className="flex items-center justify-between gap-3 rounded-2xl border border-[var(--line)] bg-[var(--fill-soft)] px-4 py-2.5"
@@ -206,21 +196,11 @@ export default function Estimator() {
                         <span className="text-[13px] font-medium text-ink">{token.symbol}</span>
                       </div>
                       <div className="flex items-center gap-6 text-right">
-                        <div className="w-[92px]">
-                          <div className="num text-[13px] font-semibold text-pos">
-                            {amount !== null ? `≈ ${formatApproxAmount(amount)}` : "—"}
-                          </div>
-                          <div className="text-[11px] text-mute">
-                            {amountUsd !== null ? formatApproxUsd(amountUsd) : "—"}
-                          </div>
+                        <div className="w-[92px] num text-[13px] font-semibold text-pos">
+                          {amount !== null ? `≈ ${formatApproxAmount(amount)}` : "—"}
                         </div>
-                        <div className="w-[92px]">
-                          <div className="num text-[13px] font-semibold text-ink">
-                            {monthlyAmount !== null ? `≈ ${formatApproxAmount(monthlyAmount)}` : "—"}
-                          </div>
-                          <div className="text-[11px] text-mute">
-                            {monthlyUsd !== null ? formatApproxUsd(monthlyUsd) : "—"}
-                          </div>
+                        <div className="w-[92px] num text-[13px] font-semibold text-ink">
+                          {monthlyAmount !== null ? `≈ ${formatApproxAmount(monthlyAmount)}` : "—"}
                         </div>
                       </div>
                     </div>
