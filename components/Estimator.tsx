@@ -2,7 +2,12 @@
 
 import { useState } from "react";
 import { useStats } from "@/lib/statsContext";
-import { MIN_QUALIFY_TOKENS, MIN_QUALIFY_USD, ROUND_SOL_THRESHOLD } from "@/lib/constants";
+import {
+  MIN_QUALIFY_TOKENS,
+  MIN_QUALIFY_USD,
+  ROUND_MAX_HOURS,
+  ROUND_SOL_THRESHOLD,
+} from "@/lib/constants";
 import type { BasketToken } from "@/lib/types";
 
 // Model assumptions, taken from stonk5.com's own published estimator
@@ -12,6 +17,7 @@ const ELIGIBLE_SUPPLY_SHARE = 0.98; // ~98% of supply is held by wallets above t
 const BASKET_SHARE_OF_ROUND = 0.9; // 18% x 5 slots
 const DELIVERY_COST_MAX = 0.05; // up to 5% withheld for delivery costs
 const POOL_TAX_APPROX = 0.07; // roughly 7% lost to pool costs and transfer taxes
+const ROUNDS_PER_30_DAYS = (30 * 24) / ROUND_MAX_HOURS; // if every round took exactly 5h to trigger
 
 function parseHeld(input: string): number | null {
   const cleaned = input.replace(/,/g, "").trim();
@@ -24,6 +30,12 @@ function formatApproxAmount(value: number): string {
   if (!Number.isFinite(value) || value <= 0) return "—";
   const maximumFractionDigits = value < 1 ? 4 : value < 1000 ? 2 : 0;
   return value.toLocaleString("en-US", { maximumFractionDigits });
+}
+
+function formatApproxUsd(value: number): string {
+  if (!Number.isFinite(value) || value <= 0) return "—";
+  const maximumFractionDigits = value < 1 ? 4 : 2;
+  return `$${value.toLocaleString("en-US", { maximumFractionDigits })}`;
 }
 
 function TokenIcon({ symbol, imageUrl }: { symbol: string; imageUrl: string | null }) {
@@ -51,7 +63,7 @@ function TokenIcon({ symbol, imageUrl }: { symbol: string; imageUrl: string | nu
 
 export default function Estimator() {
   const { stats } = useStats();
-  const [heldInput, setHeldInput] = useState("250000");
+  const [heldInput, setHeldInput] = useState("1000000");
 
   const totalSupply = stats?.onchain?.totalSupply ?? null;
   const feesTowardRound = stats?.onchain?.engineWalletSol ?? null;
@@ -77,13 +89,23 @@ export default function Estimator() {
   // Each basket slot gets an equal 18% share of the round, so the
   // SOL-equivalent value per token is the total split evenly — converted
   // into an actual token count using that token's own live USD price.
-  const perTokenBreakdown: { token: BasketToken; amount: number | null }[] =
+  interface TokenEstimate {
+    token: BasketToken;
+    amount: number | null;
+    amountUsd: number | null;
+    monthlyAmount: number | null;
+    monthlyUsd: number | null;
+  }
+  const perTokenBreakdown: TokenEstimate[] =
     basket && receiveSolTotal !== null && solUsdRate !== null
       ? basket.map((token) => {
           const perTokenSol = receiveSolTotal! / basket.length;
           const perTokenUsd = perTokenSol * solUsdRate;
           const amount = token.priceUsd ? perTokenUsd / token.priceUsd : null;
-          return { token, amount };
+          const amountUsd = amount !== null ? perTokenUsd : null;
+          const monthlyAmount = amount !== null ? amount * ROUNDS_PER_30_DAYS : null;
+          const monthlyUsd = amountUsd !== null ? amountUsd * ROUNDS_PER_30_DAYS : null;
+          return { token, amount, amountUsd, monthlyAmount, monthlyUsd };
         })
       : [];
 
@@ -151,10 +173,11 @@ export default function Estimator() {
           </div>
 
           <div>
-            <div className="label">Per round, you&apos;d receive (modelled)</div>
+            <div className="label">You&apos;d receive (modelled)</div>
             <div className="mt-1 text-[12px] text-mute">
-              This is roughly what you&apos;d get <strong className="text-ink2">every round</strong> —
-              at least once every 5 hours, sooner if fees fill up faster.
+              Per round — <strong className="text-ink2">at least once every 5 hours</strong>,
+              sooner if fees fill up faster — plus what that adds up to over 30 days if
+              every round took the full 5 hours.
             </div>
 
             <div className="mt-3 flex flex-col gap-2">
@@ -165,20 +188,44 @@ export default function Estimator() {
                     : "Enter how much $STONK5 you hold to see this."}
                 </div>
               ) : perTokenBreakdown.length > 0 ? (
-                perTokenBreakdown.map(({ token, amount }) => (
-                  <div
-                    key={token.mint}
-                    className="flex items-center justify-between gap-3 rounded-2xl border border-[var(--line)] bg-[var(--fill-soft)] px-4 py-2.5"
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <TokenIcon symbol={token.symbol} imageUrl={token.imageUrl} />
-                      <span className="text-[13px] font-medium text-ink">{token.symbol}</span>
+                <>
+                  <div className="flex items-center justify-between gap-3 px-4 text-[10px] font-semibold uppercase tracking-wide text-mute">
+                    <span />
+                    <div className="flex items-center gap-6 text-right">
+                      <span className="w-[92px]">Per round</span>
+                      <span className="w-[92px]">Per 30 days</span>
                     </div>
-                    <span className="num text-[13px] font-semibold text-pos">
-                      {amount !== null ? `≈ ${formatApproxAmount(amount)}` : "—"}
-                    </span>
                   </div>
-                ))
+                  {perTokenBreakdown.map(({ token, amount, amountUsd, monthlyAmount, monthlyUsd }) => (
+                    <div
+                      key={token.mint}
+                      className="flex items-center justify-between gap-3 rounded-2xl border border-[var(--line)] bg-[var(--fill-soft)] px-4 py-2.5"
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <TokenIcon symbol={token.symbol} imageUrl={token.imageUrl} />
+                        <span className="text-[13px] font-medium text-ink">{token.symbol}</span>
+                      </div>
+                      <div className="flex items-center gap-6 text-right">
+                        <div className="w-[92px]">
+                          <div className="num text-[13px] font-semibold text-pos">
+                            {amount !== null ? `≈ ${formatApproxAmount(amount)}` : "—"}
+                          </div>
+                          <div className="text-[11px] text-mute">
+                            {amountUsd !== null ? formatApproxUsd(amountUsd) : "—"}
+                          </div>
+                        </div>
+                        <div className="w-[92px]">
+                          <div className="num text-[13px] font-semibold text-ink">
+                            {monthlyAmount !== null ? `≈ ${formatApproxAmount(monthlyAmount)}` : "—"}
+                          </div>
+                          <div className="text-[11px] text-mute">
+                            {monthlyUsd !== null ? formatApproxUsd(monthlyUsd) : "—"}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </>
               ) : (
                 <div className="rounded-2xl border border-[var(--line)] bg-[var(--fill-soft)] px-4 py-6 text-center text-[13px] text-mute">
                   —
