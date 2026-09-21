@@ -48,7 +48,13 @@ const LAST_ROUND_CACHE_TTL_MS = 5 * 60 * 1000;
 
 let lastRoundCache: { value: string | null; computedAt: number } | null = null;
 
-async function fetchFeePayers(
+// Some RPC providers (unlike the single-item batches used elsewhere in this
+// file) reject or silently fail an overly large batched JSON-RPC request —
+// this is the one place that needs dozens of getTransaction calls at once,
+// so it's chunked into smaller requests rather than one giant POST.
+const FEE_PAYER_CHUNK_SIZE = 20;
+
+async function fetchFeePayersChunk(
   signatures: string[]
 ): Promise<{ blockTime: number | null; feePayer: string | null }[]> {
   const res = await fetch(SOLANA_RPC_URL, {
@@ -68,8 +74,6 @@ async function fetchFeePayers(
   if (!res.ok) throw new Error(`Solana RPC batch responded ${res.status}`);
   const json = (await res.json()) as RpcResponseEntry[];
   const byId = new Map<number, RpcResponseEntry>(json.map((r) => [r.id, r]));
-  // Individual entries may fail (rate limits, pruned history) without
-  // failing the whole batch — a missing entry is just excluded downstream.
   return signatures.map((_, i) => {
     const result = byId.get(i)?.result as
       | { blockTime?: number; transaction?: { message?: { accountKeys?: string[] } } }
@@ -80,6 +84,25 @@ async function fetchFeePayers(
       feePayer: result.transaction?.message?.accountKeys?.[0] ?? null,
     };
   });
+}
+
+async function fetchFeePayers(
+  signatures: string[]
+): Promise<{ blockTime: number | null; feePayer: string | null }[]> {
+  const chunks: string[][] = [];
+  for (let i = 0; i < signatures.length; i += FEE_PAYER_CHUNK_SIZE) {
+    chunks.push(signatures.slice(i, i + FEE_PAYER_CHUNK_SIZE));
+  }
+
+  const results = await Promise.allSettled(chunks.map(fetchFeePayersChunk));
+  return results.flatMap((r, i) =>
+    r.status === "fulfilled"
+      ? r.value
+      // One chunk failing (rate limit, timeout) shouldn't sink the whole
+      // window — those signatures are just excluded, same as a missing
+      // individual entry.
+      : chunks[i].map(() => ({ blockTime: null, feePayer: null }))
+  );
 }
 
 // The countdown needs to know when the current round started. There's no
