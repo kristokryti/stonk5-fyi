@@ -91,11 +91,12 @@ export default function YourRounds() {
   const openEntries = holder ? Object.entries(holder.open) : [];
 
   return (
-    <section id="your-rounds" className="wrap mt-16 sm:mt-22">
-      <h2>Your rounds</h2>
+    <section id="your-rewards" className="wrap mt-16 sm:mt-22">
+      <h2>Your rewards</h2>
       <p className="lead mt-2">
-        Paste a wallet to see what it received, and what&apos;s still
-        carried, straight from the engine&apos;s own books.
+        Paste a public wallet address holding $STONK5 to see what rewards
+        it has received, and what&apos;s still carried, straight from the
+        engine&apos;s own books.
       </p>
 
       <div className="glass glass-lg mt-6 p-8">
@@ -109,7 +110,7 @@ export default function YourRounds() {
             autoComplete="off"
           />
           <button type="submit" className="btn btn-primary btn-sm" disabled={loading}>
-            {loading ? "Looking up…" : "Look up"}
+            {loading ? "Looking up…" : "See rewards"}
           </button>
         </form>
 

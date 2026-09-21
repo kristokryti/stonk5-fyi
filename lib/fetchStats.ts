@@ -166,7 +166,7 @@ interface StonkfunBasketToken {
   name?: string;
   symbol: string;
   imageUrl?: string;
-  market?: { marketCapUsd?: number; priceChange24h?: number };
+  market?: { marketCapUsd?: number; priceChange24h?: number; priceUsd?: number };
 }
 
 async function fetchBasket(): Promise<BasketToken[]> {
@@ -185,6 +185,7 @@ async function fetchBasket(): Promise<BasketToken[]> {
       : null,
     marketCapUsd: t.market?.marketCapUsd ?? null,
     priceChange24h: t.market?.priceChange24h ?? null,
+    priceUsd: t.market?.priceUsd ?? null,
   }));
 }
 

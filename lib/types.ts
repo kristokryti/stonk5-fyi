@@ -38,6 +38,7 @@ export interface BasketToken {
   imageUrl: string | null;
   marketCapUsd: number | null;
   priceChange24h: number | null;
+  priceUsd: number | null;
 }
 
 export interface ClaimsRuleInfo {

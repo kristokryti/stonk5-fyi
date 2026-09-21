@@ -29,7 +29,7 @@ export default function Hero() {
       </p>
 
       <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-        <a href="#your-rounds" onClick={scrollToSection("your-rounds")} className="btn btn-primary">
+        <a href="#your-rewards" onClick={scrollToSection("your-rewards")} className="btn btn-primary">
           Check my rewards
         </a>
         <a href="#how-it-works" onClick={scrollToSection("how-it-works")} className="btn btn-ghost">
