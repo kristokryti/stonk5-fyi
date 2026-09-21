@@ -57,7 +57,7 @@ function TokenIcon({ symbol, imageUrl }: { symbol: string; imageUrl: string | nu
 
 export default function Estimator() {
   const { stats } = useStats();
-  const [heldInput, setHeldInput] = useState("10000000");
+  const [heldInput, setHeldInput] = useState("1000000");
 
   const totalSupply = stats?.onchain?.totalSupply ?? null;
   const avgRoundSol = stats?.onchain?.avgRoundSol ?? null;
@@ -113,13 +113,26 @@ export default function Estimator() {
               <label className="mb-2 block text-sm text-ink2" htmlFor="held-input">
                 $STONK5 you hold
               </label>
-              <input
-                id="held-input"
-                value={heldInput}
-                onChange={(e) => setHeldInput(e.target.value)}
-                inputMode="decimal"
-                className="w-full rounded-2xl border border-[var(--line)] bg-[var(--fill-soft)] px-4 py-3 font-sans text-[15px] font-medium text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--c2)]"
-              />
+              <div className="relative">
+                <input
+                  id="held-input"
+                  value={heldInput}
+                  onChange={(e) => setHeldInput(e.target.value)}
+                  inputMode="decimal"
+                  className="w-full rounded-2xl border border-[var(--line)] bg-[var(--fill-soft)] py-3 pl-4 pr-[108px] font-sans text-[15px] font-medium text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--c2)]"
+                />
+                <span className="pointer-events-none absolute inset-y-0 right-2 flex items-center gap-1.5 rounded-xl bg-[var(--fill-track)] px-2.5">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src="/stonk5-logo.png"
+                    alt=""
+                    width={18}
+                    height={18}
+                    className="h-[18px] w-[18px] rounded-full"
+                  />
+                  <span className="text-[13px] font-medium text-ink2">STONK5</span>
+                </span>
+              </div>
               {held !== null && priceUsd !== null && (
                 <div className="mt-1.5 text-[12px] text-ink2">
                   ≈ $
@@ -142,8 +155,7 @@ export default function Estimator() {
                 {avgRoundSol !== null ? `${avgRoundSol.toFixed(2)} SOL` : "—"}
               </div>
               <div className="mt-1.5 text-[12px] text-mute">
-                Averaged over the last {ROUND_HISTORY_SAMPLE_SIZE} real rounds — not the
-                current, still-filling round&apos;s partial amount
+                Averaged over the last {ROUND_HISTORY_SAMPLE_SIZE} real rounds
               </div>
             </div>
 
