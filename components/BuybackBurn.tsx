@@ -7,8 +7,8 @@ import { ISSUED_SUPPLY } from "@/lib/constants";
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 const HORIZONS = [
-  { tag: "1 Month from now", days: 30, color: "#38bdf8" },
-  { tag: "1 Year from now", days: 365, color: "#c084fc" },
+  { tag: "1 Month", tick: "1M", days: 30 },
+  { tag: "1 Year", tick: "1Y", days: 365 },
 ];
 
 function formatPct(pct: number | null): string {
@@ -106,7 +106,7 @@ export default function BuybackBurn() {
         {onchain &&
           (() => {
             const currentPct = onchain.burnedPercent + (onchain.lockedTokens ?? 0) / ISSUED_SUPPLY * 100;
-            const markers = HORIZONS.map(({ tag, days, color }) => {
+            const markers = HORIZONS.map(({ tag, tick, days }) => {
               const projectedBurned = project(onchain.burnedTokens, burnedPerDay, days);
               const projectedLocked = project(onchain.lockedTokens, lockedPerDay, days);
               const combined =
@@ -115,71 +115,62 @@ export default function BuybackBurn() {
                     (projectedLocked ?? onchain.lockedTokens ?? 0)
                   : null;
               const combinedPct = combined !== null ? (combined / ISSUED_SUPPLY) * 100 : null;
-              return { tag, color, combinedPct };
+              return { tag, tick, combinedPct };
             });
+            const yearPct = markers[markers.length - 1]?.combinedPct ?? currentPct;
             // Scaled to a fixed 0-120% headroom, not just to whatever the
             // furthest projection happens to be — otherwise the 1-year
             // figure would always stretch to fill the entire bar
             // regardless of its actual value, which reads as "100% gone"
             // even when it's really ~92%.
             const barMaxPct = 120;
-
-            // What's actually happened (current) is a solid, fully-opaque
-            // segment in the site's usual bright gradient — it's real,
-            // verified on-chain. What's only projected (1 month, 1 year)
-            // fades in behind it as translucent bands, getting fainter the
-            // further out (and thus less certain) the horizon is — a
-            // preview of how much more supply this pace would remove,
-            // without asserting it as fact.
-            let cursorPct = currentPct;
-            const projectedSegments = markers.map(({ tag, color, combinedPct }, i) => {
-              const start = cursorPct;
-              const end = Math.max(combinedPct ?? start, start);
-              cursorPct = end;
-              return {
-                key: tag,
-                widthPct: ((end - start) / barMaxPct) * 100,
-                color,
-                opacity: i === 0 ? 0.45 : 0.22,
-              };
-            });
+            const fillPct = Math.max(0.6, (yearPct / barMaxPct) * 100);
 
             return (
-              <div className="mt-6">
-                <div className="bar relative max-w-[460px] overflow-hidden bg-[var(--fill-track)]">
-                  <div className="absolute inset-0 flex">
+              <div className="mt-8">
+                <div className="relative max-w-[460px] pt-4">
+                  {markers.map(({ tag, tick, combinedPct }) => (
+                    <span
+                      key={tag}
+                      className="absolute top-0 -translate-x-1/2 text-[10px] text-mute"
+                      style={{ left: `${Math.min(100, ((combinedPct ?? 0) / barMaxPct) * 100)}%` }}
+                    >
+                      {tick}
+                    </span>
+                  ))}
+                  <span
+                    className="absolute top-0 -translate-x-1/2 text-[10px] text-mute"
+                    style={{ left: `${(currentPct / barMaxPct) * 100}%` }}
+                  >
+                    Now
+                  </span>
+                  <div className="bar relative overflow-visible bg-[var(--fill-track)]">
                     <i
-                      className="shrink-0"
-                      style={{ width: `${Math.max(0.6, (currentPct / barMaxPct) * 100)}%` }}
+                      style={{
+                        width: `${fillPct}%`,
+                        background: "linear-gradient(90deg, #38bdf8 0%, #818cf8 45%, #c084fc 100%)",
+                      }}
                     />
-                    {projectedSegments.map((seg) => (
+                    {markers.map(({ tag, combinedPct }) => (
                       <span
-                        key={seg.key}
-                        className="block h-full shrink-0"
-                        style={{
-                          width: `${Math.max(0, seg.widthPct)}%`,
-                          backgroundColor: seg.color,
-                          opacity: seg.opacity,
-                        }}
+                        key={tag}
+                        className="absolute -top-1 -bottom-1 w-[2px] -translate-x-1/2 rounded-full bg-white shadow-[0_0_4px_rgba(255,255,255,0.6)]"
+                        style={{ left: `${Math.min(100, ((combinedPct ?? 0) / barMaxPct) * 100)}%` }}
                       />
                     ))}
+                    <span
+                      className="absolute -top-1 -bottom-1 w-[2px] -translate-x-1/2 rounded-full bg-white shadow-[0_0_4px_rgba(255,255,255,0.6)]"
+                      style={{ left: `${(currentPct / barMaxPct) * 100}%` }}
+                    />
                   </div>
                 </div>
-                <div className="mt-2.5 flex flex-wrap gap-x-4 gap-y-1">
-                  <span className="flex items-center gap-1.5 text-[11px] text-mute">
-                    <span
-                      className="inline-block h-2 w-2 rounded-full"
-                      style={{ background: "linear-gradient(90deg, #38bdf8, #818cf8)" }}
-                    />
-                    Current: {formatPct(currentPct)} of supply burned + locked
+                <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1">
+                  <span className="text-[11px] text-mute">
+                    Now: {formatPct(currentPct)} of supply burned+locked
                   </span>
-                  {markers.map(({ tag, color, combinedPct }) => (
-                    <span key={tag} className="flex items-center gap-1.5 text-[11px] text-mute">
-                      <span
-                        className="inline-block h-2 w-2 rounded-full"
-                        style={{ backgroundColor: color }}
-                      />
-                      {tag}: {formatPct(combinedPct)} of supply burned + locked
+                  {markers.map(({ tag, combinedPct }) => (
+                    <span key={tag} className="text-[11px] text-mute">
+                      {tag}: {formatPct(combinedPct)} of supply burned+locked
                     </span>
                   ))}
                 </div>

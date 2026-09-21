@@ -4,6 +4,30 @@ import { createContext, useContext, useEffect, useRef, useState } from "react";
 import type { TokenStats } from "./types";
 import { REFRESH_INTERVAL_MS } from "./constants";
 
+// Several fields come from third-party fetches (stonkfun launch info,
+// stonk5.com's lock/rounds history) that each occasionally fail on a single
+// poll independently of the rest of the response. Rather than let any one
+// of them flash to null/— for 30s while the others are fine, keep whatever
+// was last known good for exactly those fields.
+function mergeStats(prev: TokenStats | null, next: TokenStats): TokenStats {
+  if (!prev) return next;
+  return {
+    ...next,
+    launch: next.launch ?? prev.launch,
+    basket: next.basket ?? prev.basket,
+    onchain: next.onchain
+      ? {
+          ...next.onchain,
+          lockedTokens: next.onchain.lockedTokens ?? prev.onchain?.lockedTokens ?? null,
+          inVaultTokens: next.onchain.inVaultTokens ?? prev.onchain?.inVaultTokens ?? null,
+          avgRoundSol: next.onchain.avgRoundSol ?? prev.onchain?.avgRoundSol ?? null,
+          lastRoundTimestamp:
+            next.onchain.lastRoundTimestamp ?? prev.onchain?.lastRoundTimestamp ?? null,
+        }
+      : prev.onchain,
+  };
+}
+
 interface StatsContextValue {
   stats: TokenStats | null;
   error: string | null;
@@ -45,13 +69,7 @@ export function StatsProvider({
         if (!res.ok) throw new Error("stats endpoint error");
         const data = (await res.json()) as TokenStats;
         if (!cancelled) {
-          // getOnchainStats() occasionally fails a single poll (a transient
-          // RPC hiccup), which would otherwise flash the burn/lock/safety
-          // sections to "—" for 30s before recovering. Keep the last known
-          // on-chain data instead of blanking it out.
-          setStats((prev) =>
-            data.onchain === null && prev?.onchain ? { ...data, onchain: prev.onchain } : data
-          );
+          setStats((prev) => mergeStats(prev, data));
           setError(null);
           lastOkRef.current = Date.now();
         }

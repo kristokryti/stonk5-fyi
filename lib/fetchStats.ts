@@ -22,6 +22,29 @@ async function fetchJson(url: string): Promise<unknown> {
   return res.json();
 }
 
+// A handful of third-party fetches (stonkfun launch metadata, stonk5.com's
+// lock/rounds history) each fail independently on an occasional single
+// request. Falling back to a recent successful result — instead of losing
+// that field for this response — covers both the recurring poll and,
+// unlike a client-only fix, the very first page load too, where there's no
+// previous client state to fall back to yet.
+const staleFallbackCache = new Map<string, { value: unknown; at: number }>();
+const STALE_FALLBACK_MAX_AGE_MS = 10 * 60 * 1000;
+
+async function withStaleFallback<T>(key: string, fetcher: () => Promise<T>): Promise<T> {
+  try {
+    const value = await fetcher();
+    staleFallbackCache.set(key, { value, at: Date.now() });
+    return value;
+  } catch (err) {
+    const cached = staleFallbackCache.get(key);
+    if (cached && Date.now() - cached.at < STALE_FALLBACK_MAX_AGE_MS) {
+      return cached.value as T;
+    }
+    throw err;
+  }
+}
+
 interface DexData {
   priceUsd: number;
   priceSol: number | null;
@@ -133,6 +156,10 @@ interface StonkfunTokenResponse {
 }
 
 async function fetchStonkfunMeta(): Promise<StonkfunMeta> {
+  return withStaleFallback("stonkfunMeta", () => fetchStonkfunMetaLive());
+}
+
+async function fetchStonkfunMetaLive(): Promise<StonkfunMeta> {
   const tokenRes = (await fetchJson(
     `${STONKFUN_API_BASE}/tokens/${MINT}`
   )) as StonkfunTokenResponse;
@@ -250,11 +277,13 @@ interface EngineLockData {
 // weekly sweep into a lock) are two figures that only exist in the engine's
 // own records, not derivable from the mint account the way burns are.
 async function fetchEngineLock(): Promise<EngineLockData> {
-  const json = (await fetchJson(`${STONK5_API_BASE}/lock`)) as StonkLockResponse;
-  if (json.inVault === undefined || json.locked === undefined) {
-    throw new Error("stonk5 lock: unexpected response shape");
-  }
-  return { lockedTokens: json.locked, inVaultTokens: json.inVault };
+  return withStaleFallback("engineLock", async () => {
+    const json = (await fetchJson(`${STONK5_API_BASE}/lock`)) as StonkLockResponse;
+    if (json.inVault === undefined || json.locked === undefined) {
+      throw new Error("stonk5 lock: unexpected response shape");
+    }
+    return { lockedTokens: json.locked, inVaultTokens: json.inVault };
+  });
 }
 
 interface StonkRoundBuy {
@@ -280,18 +309,20 @@ const MIN_BUYS_FOR_REAL_ROUND = 4;
 // spend (90% of that round's fee budget); scale back up to the full 100%
 // and average over the last several real rounds.
 async function fetchAverageRoundSol(): Promise<number | null> {
-  const json = (await fetchJson(`${STONK5_API_BASE}/rounds`)) as StonkRoundsResponse;
-  const realRounds = (json.rounds ?? [])
-    .filter((r) => (r.buys?.length ?? 0) >= MIN_BUYS_FOR_REAL_ROUND)
-    .slice(0, ROUND_HISTORY_SAMPLE_SIZE);
-  if (realRounds.length === 0) return null;
+  return withStaleFallback("avgRoundSol", async () => {
+    const json = (await fetchJson(`${STONK5_API_BASE}/rounds`)) as StonkRoundsResponse;
+    const realRounds = (json.rounds ?? [])
+      .filter((r) => (r.buys?.length ?? 0) >= MIN_BUYS_FOR_REAL_ROUND)
+      .slice(0, ROUND_HISTORY_SAMPLE_SIZE);
+    if (realRounds.length === 0) return null;
 
-  const totals = realRounds.map((r) => {
-    const basketSpentSol =
-      (r.buys ?? []).reduce((sum, b) => sum + Number(b.spentRaw ?? 0), 0) / 1e9;
-    return basketSpentSol / BASKET_SHARE_OF_ROUND;
+    const totals = realRounds.map((r) => {
+      const basketSpentSol =
+        (r.buys ?? []).reduce((sum, b) => sum + Number(b.spentRaw ?? 0), 0) / 1e9;
+      return basketSpentSol / BASKET_SHARE_OF_ROUND;
+    });
+    return totals.reduce((a, b) => a + b, 0) / totals.length;
   });
-  return totals.reduce((a, b) => a + b, 0) / totals.length;
 }
 
 export async function getTokenStats(): Promise<TokenStats> {
