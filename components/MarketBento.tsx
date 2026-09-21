@@ -42,6 +42,10 @@ export default function MarketBento() {
     liquidity !== null && marketCap ? (liquidity / marketCap) * 100 : null;
   const volumeMultiple =
     volume24h !== null && marketCap ? volume24h / marketCap : null;
+  const drawdownPct =
+    peak !== null && marketCap !== null && peak > 0
+      ? ((marketCap - peak) / peak) * 100
+      : null;
 
   const changePositive = change24h !== null && change24h >= 0;
 
@@ -124,7 +128,17 @@ export default function MarketBento() {
           />
         )}
 
-        {peak !== null && <StatCard label="Peak market cap" value={formatCompactUsd(peak)} />}
+        {peak !== null && (
+          <StatCard
+            label="Peak market cap"
+            value={formatCompactUsd(peak)}
+            sub={
+              drawdownPct !== null
+                ? `${drawdownPct >= 0 ? "+" : "−"}${Math.abs(drawdownPct).toFixed(0)}% from peak`
+                : undefined
+            }
+          />
+        )}
       </div>
     </section>
   );
