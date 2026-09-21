@@ -23,8 +23,8 @@ export default function PairedWithSol() {
       <Image
         src="/stonk5-logo-badge.png"
         alt="STONK5"
-        width={112}
-        height={112}
+        width={72}
+        height={72}
         className="shrink-0 rounded-full"
       />
     </div>
