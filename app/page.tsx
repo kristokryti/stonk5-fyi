@@ -6,6 +6,7 @@ import MarketBento from "@/components/MarketBento";
 import HowItWorks from "@/components/HowItWorks";
 import BuybackBurn from "@/components/BuybackBurn";
 import YourRounds from "@/components/YourRounds";
+import Estimator from "@/components/Estimator";
 import Chart from "@/components/Chart";
 import CopyAddress from "@/components/CopyAddress";
 
@@ -22,6 +23,7 @@ export default async function Home() {
       <HowItWorks />
       <BuybackBurn />
       <YourRounds />
+      <Estimator />
       <section className="wrap mt-16 sm:mt-22">
         <Chart />
       </section>

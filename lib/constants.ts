@@ -8,6 +8,8 @@ export const ENGINE_WALLET = "gPYVhFeYVrfbAruwNVZthfnVdeWjgBUiaSabdpn77B6";
 export const ISSUED_SUPPLY = 1_000_000_000;
 export const ROUND_SOL_THRESHOLD = 5;
 export const ROUND_MAX_HOURS = 5;
+export const MIN_QUALIFY_TOKENS = 50_000;
+export const MIN_QUALIFY_USD = 20;
 
 export const STONKFUN_API_BASE =
   process.env.STONKFUN_API_BASE ?? "https://www.stonkfun.xyz/api/public/v1";
