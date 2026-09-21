@@ -14,7 +14,12 @@ export default function Chart() {
   return (
     <div className="glass overflow-hidden p-2">
       <div className="flex items-center justify-between gap-3 px-4 pt-3">
-        <div className="label">Chart</div>
+        <div className="flex items-baseline gap-2">
+          <div className="label">Chart</div>
+          <span className="text-[11px] text-mute">
+            If stuck, press Reload chart.
+          </span>
+        </div>
         <div className="flex items-center gap-3">
           <button
             onClick={() => setReloadKey(Date.now())}
@@ -38,9 +43,6 @@ export default function Chart() {
         title="STONK5 price chart"
         className="mt-2 h-[420px] w-full rounded-[16px] sm:h-[500px]"
       />
-      <p className="mt-2 px-2 text-[13px] text-mute">
-        If stuck on &quot;Loading pair...&quot;, please press Reload chart.
-      </p>
     </div>
   );
 }
