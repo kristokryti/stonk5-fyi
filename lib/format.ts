@@ -1,3 +1,14 @@
+/**
+ * Routes a third-party token logo through our own /api/token-image proxy,
+ * which always returns a valid image (the real logo, or a generated
+ * initials fallback if the upstream host is unreachable) — see that
+ * route for why. Returns null if there's no logo to show at all.
+ */
+export function proxiedTokenImage(url: string | null | undefined, symbol: string): string | null {
+  if (!url) return null;
+  return `/api/token-image?url=${encodeURIComponent(url)}&symbol=${encodeURIComponent(symbol)}`;
+}
+
 export function formatUsd(value: number | null, opts: { compact?: boolean } = {}): string {
   if (value === null || Number.isNaN(value)) return "—";
   if (opts.compact) {

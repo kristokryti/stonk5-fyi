@@ -10,6 +10,7 @@ import {
   ROUND_HISTORY_SAMPLE_SIZE,
   ROUND_MAX_HOURS,
 } from "@/lib/constants";
+import { proxiedTokenImage } from "@/lib/format";
 import type { BasketToken } from "@/lib/types";
 
 // Model assumptions, taken from stonk5.com's own published estimator
@@ -46,11 +47,12 @@ function formatApproxAmount(value: number): string {
 
 function TokenIcon({ symbol, imageUrl }: { symbol: string; imageUrl: string | null }) {
   const [failed, setFailed] = useState(false);
-  if (imageUrl && !failed) {
+  const src = proxiedTokenImage(imageUrl, symbol);
+  if (src && !failed) {
     return (
       // eslint-disable-next-line @next/next/no-img-element
       <img
-        src={imageUrl}
+        src={src}
         alt=""
         width={28}
         height={28}

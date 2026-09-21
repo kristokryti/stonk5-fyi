@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { LINKS } from "@/lib/constants";
-import { formatDate } from "@/lib/format";
+import { formatDate, proxiedTokenImage } from "@/lib/format";
 import type { ClaimsPayoutEntry, ClaimsResponse } from "@/lib/types";
 
 function formatTokenAmount(raw: string, decimals: number): string {
@@ -32,11 +32,12 @@ function groupPayoutsByRound(payouts: ClaimsPayoutEntry[]): [string, ClaimsPayou
 
 function TokenIcon({ symbol, imageUrl }: { symbol: string; imageUrl?: string | null }) {
   const [failed, setFailed] = useState(false);
-  if (imageUrl && !failed) {
+  const src = proxiedTokenImage(imageUrl, symbol);
+  if (src && !failed) {
     return (
       // eslint-disable-next-line @next/next/no-img-element
       <img
-        src={imageUrl}
+        src={src}
         alt=""
         width={22}
         height={22}

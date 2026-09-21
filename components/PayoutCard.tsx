@@ -3,15 +3,17 @@
 import { useEffect, useState } from "react";
 import { useStats } from "@/lib/statsContext";
 import { ENGINE_WALLET, LINKS, ROUND_MAX_HOURS, ROUND_SOL_THRESHOLD } from "@/lib/constants";
-import { formatCountdown, shortenAddress } from "@/lib/format";
+import { formatCountdown, proxiedTokenImage, shortenAddress } from "@/lib/format";
 import type { BasketToken } from "@/lib/types";
 
-// Token images come from third-party hosts (stonkfun/irys/etc.) that
-// occasionally fail to load or time out. Falls back to the ticker's
-// initials instead of a broken-image icon when that happens.
+// Token images are routed through /api/token-image, which always returns a
+// valid image (the real logo, proxied server-side, or a generated initials
+// fallback) — see that route for why. The client-side onError fallback
+// below is defense in depth in case our own route ever errors.
 function BasketSlot({ token }: { token: BasketToken }) {
   const [imgFailed, setImgFailed] = useState(false);
-  const showImage = token.imageUrl && !imgFailed;
+  const src = proxiedTokenImage(token.imageUrl, token.symbol);
+  const showImage = src && !imgFailed;
 
   return (
     <a
@@ -25,7 +27,7 @@ function BasketSlot({ token }: { token: BasketToken }) {
       {showImage ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img
-          src={token.imageUrl!}
+          src={src}
           alt=""
           width={44}
           height={44}
