@@ -26,6 +26,17 @@ function parseHeld(input: string): number | null {
   return Number.isFinite(n) && n >= 0 ? n : null;
 }
 
+// Reformats digits-as-typed into a comma-grouped string (e.g. "1000000" ->
+// "1,000,000") so large holdings are easy to read at a glance while typing.
+function formatHeldInput(raw: string): string {
+  const cleaned = raw.replace(/,/g, "");
+  if (cleaned === "" || cleaned === ".") return cleaned;
+  if (!/^\d*\.?\d*$/.test(cleaned)) return cleaned;
+  const [whole, ...rest] = cleaned.split(".");
+  const groupedWhole = whole === "" ? "" : Number(whole).toLocaleString("en-US");
+  return rest.length > 0 ? `${groupedWhole}.${rest.join("")}` : groupedWhole;
+}
+
 function formatApproxAmount(value: number): string {
   if (!Number.isFinite(value) || value <= 0) return "—";
   const maximumFractionDigits = value < 1 ? 4 : value < 1000 ? 2 : 0;
@@ -57,7 +68,7 @@ function TokenIcon({ symbol, imageUrl }: { symbol: string; imageUrl: string | nu
 
 export default function Estimator() {
   const { stats } = useStats();
-  const [heldInput, setHeldInput] = useState("1000000");
+  const [heldInput, setHeldInput] = useState(formatHeldInput("1000000"));
 
   const totalSupply = stats?.onchain?.totalSupply ?? null;
   const avgRoundSol = stats?.onchain?.avgRoundSol ?? null;
@@ -117,7 +128,7 @@ export default function Estimator() {
                 <input
                   id="held-input"
                   value={heldInput}
-                  onChange={(e) => setHeldInput(e.target.value)}
+                  onChange={(e) => setHeldInput(formatHeldInput(e.target.value))}
                   inputMode="decimal"
                   className="w-full rounded-2xl border border-[var(--line)] bg-[var(--fill-soft)] py-3 pl-4 pr-[108px] font-sans text-[15px] font-medium text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--c2)]"
                 />

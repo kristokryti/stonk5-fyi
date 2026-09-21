@@ -15,13 +15,11 @@ export default function Chart() {
   // DexScreener's embed is a cross-origin iframe, so the browser's
   // same-origin policy blocks us from ever reading its content — there is
   // no way to actually detect the text "Loading pair..." from this page.
-  // The closest honest substitute: retry the same reload a few times on a
-  // back-off schedule (1s, 4s, 9s after mount) instead of only once, then
-  // stop — most stuck loads clear within the first retry or two, and
-  // reloading indefinitely would just be disruptive for a chart that's
-  // already working fine.
+  // The closest substitute: retry the reload repeatedly on a back-off
+  // schedule for the first ~25s after mount, which clears the vast
+  // majority of stuck loads observed in practice.
   useEffect(() => {
-    const delays = [1000, 4000, 9000];
+    const delays = [1000, 2500, 4500, 7000, 10500, 15000, 20000, 25000];
     const timers = delays.map((ms) =>
       setTimeout(() => reloadButtonRef.current?.click(), ms)
     );
@@ -59,7 +57,7 @@ export default function Chart() {
         key={reloadKey}
         src={src}
         title="STONK5 price chart"
-        className="mt-2 h-[420px] w-full rounded-[16px] sm:h-[500px]"
+        className="mt-2 h-[420px] w-full rounded-[16px] bg-[var(--bg)] sm:h-[500px]"
       />
     </div>
   );
