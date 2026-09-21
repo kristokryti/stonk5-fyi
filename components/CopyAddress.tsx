@@ -17,7 +17,10 @@ export default function CopyAddress() {
   }
 
   return (
-    <div className="glass flex flex-col items-start justify-between gap-4 p-6 sm:flex-row sm:items-center">
+    <div
+      className="glass flex flex-col items-start justify-between gap-4 p-6 sm:flex-row sm:items-center"
+      style={{ backdropFilter: "none", WebkitBackdropFilter: "none", background: "#0e1426" }}
+    >
       <div className="min-w-0">
         <div className="label">Contract address</div>
         <div className="code mt-1.5 text-[15px] text-ink2" style={{ overflowWrap: "anywhere" }}>
