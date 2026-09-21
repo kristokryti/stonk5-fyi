@@ -11,7 +11,7 @@ export default function BuybackBurn() {
     <section className="wrap mt-16 sm:mt-22">
       <div className="glass p-8">
         <div className="label">Burn &amp; lock</div>
-        <h3 className="mt-2">Every round burns 5% and locks 5% of $STONK5.</h3>
+        <h3 className="mt-2">Every round burns 5% and locks 5%.</h3>
         <p className="mt-2 max-w-[60ch] text-sm leading-relaxed text-ink2">
           Every $STONK5 buy or sell pays a transfer tax, which funds each
           round. 18% of that goes to each of the top 5 in the basket, and
