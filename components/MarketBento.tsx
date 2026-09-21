@@ -90,19 +90,20 @@ export default function MarketBento() {
             </span>
           </div>
 
-          <p className="mt-6 max-w-[38ch] text-[13px] leading-relaxed text-mute">
-            Price and 24h change from DexScreener, refreshed automatically
-            while this tab is open.
-          </p>
-
-          <a
-            href={LINKS.stonkfun}
-            target="_blank"
-            rel="noreferrer"
-            className="btn btn-ghost btn-sm mt-5"
-          >
-            Trade $STONK5 ↗
-          </a>
+          <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
+            <p className="max-w-[38ch] text-[13px] leading-relaxed text-mute">
+              Price and 24h change from DexScreener, refreshed automatically
+              while this tab is open.
+            </p>
+            <a
+              href={LINKS.stonkfun}
+              target="_blank"
+              rel="noreferrer"
+              className="btn btn-ghost btn-sm shrink-0"
+            >
+              Trade $STONK5 ↗
+            </a>
+          </div>
         </div>
 
         {marketCap !== null && (
