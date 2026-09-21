@@ -4,6 +4,41 @@ import { useEffect, useState } from "react";
 import { useStats } from "@/lib/statsContext";
 import { ENGINE_WALLET, LINKS, ROUND_MAX_HOURS, ROUND_SOL_THRESHOLD } from "@/lib/constants";
 import { formatCountdown, shortenAddress } from "@/lib/format";
+import type { BasketToken } from "@/lib/types";
+
+// Token images come from third-party hosts (stonkfun/irys/etc.) that
+// occasionally fail to load or time out. Falls back to the ticker's
+// initials instead of a broken-image icon when that happens.
+function BasketSlot({ token }: { token: BasketToken }) {
+  const [imgFailed, setImgFailed] = useState(false);
+  const showImage = token.imageUrl && !imgFailed;
+
+  return (
+    <a
+      href={LINKS.stonkfunToken(token.mint)}
+      target="_blank"
+      rel="noreferrer"
+      className="slot overflow-hidden transition-transform hover:scale-105"
+      title={token.symbol}
+      aria-label={`View ${token.symbol} on StonkFun`}
+    >
+      {showImage ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={token.imageUrl!}
+          alt=""
+          width={44}
+          height={44}
+          loading="lazy"
+          className="h-full w-full object-cover"
+          onError={() => setImgFailed(true)}
+        />
+      ) : (
+        token.symbol.slice(0, 2).toUpperCase()
+      )}
+    </a>
+  );
+}
 
 const RING_SIZE = 232;
 const STROKE = 14;
@@ -147,31 +182,7 @@ export default function PayoutCard() {
                   </div>
                 );
               }
-              return (
-                <a
-                  key={token.mint}
-                  href={LINKS.stonkfunToken(token.mint)}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="slot overflow-hidden transition-transform hover:scale-105"
-                  title={token.symbol}
-                  aria-label={`View ${token.symbol} on StonkFun`}
-                >
-                  {token.imageUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={token.imageUrl}
-                      alt=""
-                      width={44}
-                      height={44}
-                      loading="lazy"
-                      className="h-full w-full object-cover"
-                    />
-                  ) : (
-                    token.symbol.slice(0, 2).toUpperCase()
-                  )}
-                </a>
-              );
+              return <BasketSlot key={token.mint} token={token} />;
             })}
           </div>
           <p className="mt-3 text-[13px] leading-relaxed text-ink2">
