@@ -11,6 +11,8 @@ const GECKOTERMINAL_API_BASE = "https://api.geckoterminal.com/api/v2";
 // content, invisible to us). This is a documented, free, public endpoint,
 // not scraping — see https://www.geckoterminal.com/dex-api for reference.
 const TIMEFRAMES: Record<string, { unit: "minute" | "hour" | "day"; aggregate: number }> = {
+  "1m": { unit: "minute", aggregate: 1 },
+  "5m": { unit: "minute", aggregate: 5 },
   "15m": { unit: "minute", aggregate: 15 },
   "1h": { unit: "hour", aggregate: 1 },
   "4h": { unit: "hour", aggregate: 4 },

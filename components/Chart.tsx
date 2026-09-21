@@ -1,7 +1,15 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { CandlestickSeries, createChart, type IChartApi, type ISeriesApi } from "lightweight-charts";
+import {
+  CandlestickSeries,
+  HistogramSeries,
+  createChart,
+  type CandlestickData,
+  type IChartApi,
+  type ISeriesApi,
+  type Time,
+} from "lightweight-charts";
 import { LINKS } from "@/lib/constants";
 import type { OhlcvBar } from "@/app/api/ohlcv/route";
 
@@ -16,23 +24,42 @@ function priceFormatFor(value: number) {
   return { precision, minMove: Math.pow(10, -precision) };
 }
 
+function formatPrice(value: number, precision: number): string {
+  return `$${value.toFixed(precision)}`;
+}
+
 const TIMEFRAMES = [
+  { key: "1m", label: "1m" },
+  { key: "5m", label: "5m" },
   { key: "15m", label: "15m" },
   { key: "1h", label: "1H" },
   { key: "4h", label: "4H" },
   { key: "1d", label: "1D" },
 ] as const;
 
+interface Ohlc {
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+  volume: number;
+  time: number;
+}
+
 export default function Chart() {
   const [timeframe, setTimeframe] = useState<(typeof TIMEFRAMES)[number]["key"]>("1h");
   const [error, setError] = useState(false);
+  const [hovered, setHovered] = useState<Ohlc | null>(null);
+  const [lastBar, setLastBar] = useState<Ohlc | null>(null);
+  const [firstClose, setFirstClose] = useState<number | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
   const seriesRef = useRef<ISeriesApi<"Candlestick"> | null>(null);
+  const volumeRef = useRef<ISeriesApi<"Histogram"> | null>(null);
 
-  // Our own candlestick chart, rendered client-side from real OHLCV data —
-  // no third-party iframe to get stuck on "Loading pair...". Data comes
-  // from GeckoTerminal's public OHLCV API via our own /api/ohlcv proxy.
+  // Our own candlestick + volume chart, rendered client-side from real
+  // OHLCV data — no third-party iframe to get stuck on "Loading pair...".
+  // Data comes from GeckoTerminal's public OHLCV API via /api/ohlcv.
   useEffect(() => {
     if (!containerRef.current) return;
     const chart = createChart(containerRef.current, {
@@ -57,13 +84,40 @@ export default function Chart() {
       wickUpColor: "#5eead4",
       wickDownColor: "#fb7185",
     });
+    series.priceScale().applyOptions({ scaleMargins: { top: 0.08, bottom: 0.28 } });
+
+    const volume = chart.addSeries(HistogramSeries, {
+      priceFormat: { type: "volume" },
+      priceScaleId: "volume",
+      color: "#38bdf850",
+    });
+    volume.priceScale().applyOptions({ scaleMargins: { top: 0.82, bottom: 0 } });
+
+    chart.subscribeCrosshairMove((param) => {
+      const bar = param.seriesData.get(series) as CandlestickData<Time> | undefined;
+      if (bar && "open" in bar) {
+        setHovered({
+          open: bar.open,
+          high: bar.high,
+          low: bar.low,
+          close: bar.close,
+          volume: 0,
+          time: 0,
+        });
+      } else {
+        setHovered(null);
+      }
+    });
+
     chartRef.current = chart;
     seriesRef.current = series;
+    volumeRef.current = volume;
 
     return () => {
       chart.remove();
       chartRef.current = null;
       seriesRef.current = null;
+      volumeRef.current = null;
     };
   }, []);
 
@@ -80,18 +134,30 @@ export default function Chart() {
           setError(true);
           return;
         }
-        const lastClose = json.bars[json.bars.length - 1].close;
-        seriesRef.current?.applyOptions({ priceFormat: { type: "price", ...priceFormatFor(lastClose) } });
+        const bars = json.bars;
+        const last = bars[bars.length - 1];
+        seriesRef.current?.applyOptions({
+          priceFormat: { type: "price", ...priceFormatFor(last.close) },
+        });
         seriesRef.current?.setData(
-          json.bars.map((b) => ({
-            time: b.time as never,
+          bars.map((b) => ({
+            time: b.time as Time,
             open: b.open,
             high: b.high,
             low: b.low,
             close: b.close,
           }))
         );
+        volumeRef.current?.setData(
+          bars.map((b) => ({
+            time: b.time as Time,
+            value: b.volume,
+            color: b.close >= b.open ? "#5eead430" : "#fb718530",
+          }))
+        );
         chartRef.current?.timeScale().fitContent();
+        setLastBar(last);
+        setFirstClose(bars[0].open);
       } catch {
         if (!cancelled) setError(true);
       }
@@ -105,10 +171,15 @@ export default function Chart() {
     };
   }, [timeframe]);
 
+  const displayBar = hovered ?? lastBar;
+  const precision = lastBar ? priceFormatFor(lastBar.close).precision : 6;
+  const windowChangePct =
+    lastBar && firstClose ? ((lastBar.close - firstClose) / firstClose) * 100 : null;
+
   return (
     <div className="glass overflow-hidden p-2">
       <div className="flex flex-wrap items-center justify-between gap-3 px-4 pt-3">
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <div className="label">Chart</div>
           <div className="flex gap-1">
             {TIMEFRAMES.map((tf) => (
@@ -125,6 +196,15 @@ export default function Chart() {
               </button>
             ))}
           </div>
+          {windowChangePct !== null && (
+            <span
+              className={`num text-[12px] font-semibold ${
+                windowChangePct >= 0 ? "text-[var(--pos)]" : "text-[var(--neg)]"
+              }`}
+            >
+              {windowChangePct >= 0 ? "▲" : "▼"} {Math.abs(windowChangePct).toFixed(2)}%
+            </span>
+          )}
         </div>
         <a
           href={LINKS.dexscreener}
@@ -135,6 +215,24 @@ export default function Chart() {
           Open on DexScreener ↗
         </a>
       </div>
+
+      {displayBar && (
+        <div className="num flex flex-wrap gap-x-4 gap-y-0.5 px-4 pt-2 text-[11px] text-mute">
+          <span>
+            O <span className="text-ink2">{formatPrice(displayBar.open, precision)}</span>
+          </span>
+          <span>
+            H <span className="text-ink2">{formatPrice(displayBar.high, precision)}</span>
+          </span>
+          <span>
+            L <span className="text-ink2">{formatPrice(displayBar.low, precision)}</span>
+          </span>
+          <span>
+            C <span className="text-ink2">{formatPrice(displayBar.close, precision)}</span>
+          </span>
+        </div>
+      )}
+
       <div className="relative mt-2 h-[420px] w-full sm:h-[500px]">
         <div ref={containerRef} className="h-full w-full" />
         {error && (
