@@ -9,7 +9,7 @@ const STEPS = [
   },
   {
     title: "Buys the top 5",
-    body: "The engine buys the current top 5 StonkFun tokens with the round's budget.",
+    body: "18% of the round's budget goes to each of the current top 5 StonkFun tokens — 90% total, paid to holders.",
   },
   {
     title: "Holders get paid",

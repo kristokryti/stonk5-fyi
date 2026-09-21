@@ -178,9 +178,10 @@ export default function PayoutCard() {
             The five biggest StonkFun tokens at the moment of each round —
             these are what you receive for holding $STONK5.
           </p>
-          <span className="chip chip-pos mt-3">
-            5% of each round&apos;s budget buys back &amp; burns $STONK5
-          </span>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <span className="chip chip-pos">5% burns $STONK5</span>
+            <span className="chip chip-pos">5% locks it for 5 years</span>
+          </div>
         </div>
       </div>
     </section>

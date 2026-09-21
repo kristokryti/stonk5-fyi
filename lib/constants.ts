@@ -19,6 +19,7 @@ export const SOLANA_RPC_URL =
 export const LINKS = {
   website: "https://stonk5.com/",
   claims: "https://stonk5.com/claims",
+  burnLock: "https://stonk5.com/burn-lock",
   twitter: "https://x.com/stonk5onsf",
   siteTwitter: "https://x.com/stonk5_fyi",
   stonkfun: `https://www.stonkfun.xyz/token/${MINT}`,
