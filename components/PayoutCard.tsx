@@ -2,13 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useStats } from "@/lib/statsContext";
-import {
-  ENGINE_WALLET,
-  LINKS,
-  ROUND_MAX_HOURS,
-  ROUND_RENT_RESERVE_SOL,
-  ROUND_SOL_THRESHOLD,
-} from "@/lib/constants";
+import { ENGINE_WALLET, LINKS, ROUND_MAX_HOURS, ROUND_SOL_THRESHOLD } from "@/lib/constants";
 import { formatCountdown, shortenAddress } from "@/lib/format";
 
 const RING_SIZE = 232;
@@ -27,7 +21,6 @@ export default function PayoutCard() {
 
   const onchain = stats?.onchain ?? null;
   const walletSol = onchain?.engineWalletSol ?? null;
-  const rewardsSol = onchain?.roundRewardsSol ?? null;
   const walletPct = onchain?.roundProgressPercent ?? 0;
   const lastRoundTs = onchain?.lastRoundTimestamp ?? null;
 
@@ -121,21 +114,16 @@ export default function PayoutCard() {
 
           <div className="mt-5">
             <div className="flex items-baseline justify-between">
-              <span className="text-sm text-ink2">Engine wallet</span>
+              <span className="text-sm text-ink2">Engine wallet holds</span>
               <span className="num text-sm font-semibold text-ink">
-                {rewardsSol !== null
-                  ? `${rewardsSol.toFixed(2)} / ${ROUND_SOL_THRESHOLD} SOL`
+                {walletSol !== null
+                  ? `${walletSol.toFixed(2)} / ${ROUND_SOL_THRESHOLD} SOL`
                   : "—"}
               </span>
             </div>
             <div className="bar mt-2">
               <i style={{ width: `${walletPct}%` }} />
             </div>
-            <p className="mt-2 text-[13px] text-mute">
-              {walletSol !== null
-                ? `Wallet holds ${walletSol.toFixed(2)} SOL. After the ${ROUND_RENT_RESERVE_SOL.toFixed(2)} SOL rent reserve, ~${rewardsSol?.toFixed(2)} SOL counts toward the round (may include a small untracked buffer).`
-                : "Wallet balance unavailable"}
-            </p>
             <a
               href={LINKS.solscanEngineWallet}
               target="_blank"

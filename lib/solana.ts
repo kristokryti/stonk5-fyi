@@ -2,7 +2,6 @@ import {
   ENGINE_WALLET,
   ISSUED_SUPPLY,
   MINT,
-  ROUND_RENT_RESERVE_SOL,
   ROUND_SOL_THRESHOLD,
   SOLANA_RPC_URL,
 } from "./constants";
@@ -44,7 +43,13 @@ async function rpcBatch(
 // than this are treated as part of the same round's payout burst (a round's
 // reward distribution to holders is many small transfers, not one
 // transaction). A gap larger than this marks the boundary before the round.
-const ROUND_CLUSTER_GAP_SECONDS = 45 * 60;
+// Verified on-chain that a round's straggler payouts (creating a token
+// account for a holder who didn't have one yet, then transferring into it)
+// can land over an hour after the round's main burst — a 45-minute gap
+// fragmented one real round into a false "new round" at the tail end of its
+// own distribution. Widened well past that, short of the 5-hour max
+// interval between rounds, so consecutive rounds still don't merge.
+const ROUND_CLUSTER_GAP_SECONDS = 4 * 60 * 60;
 const LAST_ROUND_CACHE_TTL_MS = 5 * 60 * 1000;
 
 let lastRoundCache: { value: string | null; computedAt: number } | null = null;
@@ -251,15 +256,16 @@ export async function getOnchainStats(): Promise<OnchainStats> {
   const burnedTokens = Math.max(0, ISSUED_SUPPLY - totalSupply);
   const burnedPercent = (burnedTokens / ISSUED_SUPPLY) * 100;
 
+  // The wallet's real balance also carries a rent reserve and a manually
+  // topped-up buffer (per stonk5.com's own explainer) that we have no
+  // reliable on-chain way to net out — the rent portion turned out not to be
+  // a fixed amount either (it scales with how many new payout accounts need
+  // opening that round). Rather than subtract a number that's sometimes
+  // right and sometimes badly wrong, show the real wallet balance as-is.
   const engineWalletSol = Number(balanceResult?.value ?? 0) / LAMPORTS_PER_SOL;
-  // Only the portion above the fixed rent reserve actually buys next round's
-  // tokens (per stonk5.com's own explainer) — the wallet also carries a
-  // variable manually-topped-up buffer we have no on-chain way to read, so
-  // this is as close as we can get without inventing a number for that part.
-  const roundRewardsSol = Math.max(0, engineWalletSol - ROUND_RENT_RESERVE_SOL);
   const roundProgressPercent = Math.min(
     100,
-    (roundRewardsSol / ROUND_SOL_THRESHOLD) * 100
+    (engineWalletSol / ROUND_SOL_THRESHOLD) * 100
   );
 
   const mintInfo = mintAccountResult?.value?.data?.parsed?.info;
@@ -277,7 +283,6 @@ export async function getOnchainStats(): Promise<OnchainStats> {
     burnedTokens,
     burnedPercent,
     engineWalletSol,
-    roundRewardsSol,
     roundProgressPercent,
     mintAuthorityRenounced: mintInfo?.mintAuthority === null,
     freezeAuthorityRenounced: mintInfo?.freezeAuthority === null,
