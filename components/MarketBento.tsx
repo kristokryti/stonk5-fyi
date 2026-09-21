@@ -99,7 +99,7 @@ export default function MarketBento() {
               href={LINKS.stonkfun}
               target="_blank"
               rel="noreferrer"
-              className="btn btn-ghost btn-sm shrink-0"
+              className="shrink-0 text-[13px] font-medium text-ink2 hover:text-ink"
             >
               Trade $STONK5 ↗
             </a>
