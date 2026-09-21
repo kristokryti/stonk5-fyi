@@ -12,14 +12,13 @@ function priceParts(p) {
   const [m, e] = p.toExponential(3).split("e");
   const digits = m.replace(".", "").replace(/0+$/, "") || "0";
   const zeros = -Number(e) - 1;
-  if (zeros < 3) return { text: "$0." + "0".repeat(zeros) + digits };
-  return { pre: "$0.0", zeros, digits };
+  return { text: "$0." + "0".repeat(zeros) + digits };
 }
 
 const cases = [
-  { input: 0.00007171, expect: { pre: "$0.0", zeros: 4, digits: "7171" } },
-  { input: 0.00004535, expect: { pre: "$0.0", zeros: 4, digits: "4535" } },
-  { input: 0.0000004188, expect: { pre: "$0.0", zeros: 6, digits: "4188" } },
+  { input: 0.00007171, expect: { text: "$0.00007171" } },
+  { input: 0.00004535, expect: { text: "$0.00004535" } },
+  { input: 0.0000004188, expect: { text: "$0.0000004188" } },
   { input: 0.0042, expect: { text: "$0.0042" } },
   { input: 0.5, expect: { text: "$0.5000" } },
   { input: 12.3456, expect: { text: "$12.35" } },

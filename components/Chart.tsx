@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { DEX_CHAIN, LINKS, PAIR_ADDRESS } from "@/lib/constants";
 
 export default function Chart() {
@@ -10,6 +10,14 @@ export default function Chart() {
   // that same broken response on later visits without this.
   const [reloadKey, setReloadKey] = useState(() => Date.now());
   const src = `https://dexscreener.com/${DEX_CHAIN}/${PAIR_ADDRESS}?embed=1&theme=dark&trades=0&info=0&_=${reloadKey}`;
+
+  // The first load of the embed often gets stuck on "Loading pair..." but a
+  // remount (same trigger as the Reload chart button) reliably fixes it, so
+  // do that once automatically shortly after the page loads.
+  useEffect(() => {
+    const timer = setTimeout(() => setReloadKey(Date.now()), 2500);
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <div className="glass overflow-hidden p-2">

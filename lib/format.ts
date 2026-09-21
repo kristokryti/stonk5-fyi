@@ -40,11 +40,12 @@ export function priceParts(p: number): PriceParts {
   if (!Number.isFinite(p) || p <= 0) return { text: "—" };
   if (p >= 1) return { text: "$" + p.toLocaleString("en-US", { maximumFractionDigits: 2 }) };
   if (p >= 0.01) return { text: "$" + p.toFixed(4) };
+  // Full decimal expansion, no subscript leading-zero-count notation — just
+  // a plain number like $0.0004461.
   const [m, e] = p.toExponential(3).split("e"); // "7.171", "-5"
   const digits = m.replace(".", "").replace(/0+$/, "") || "0";
   const zeros = -Number(e) - 1; // leading zeros after "0."
-  if (zeros < 3) return { text: "$0." + "0".repeat(zeros) + digits };
-  return { pre: "$0.0", zeros, digits }; // render pre + <sub>{zeros}</sub> + digits
+  return { text: "$0." + "0".repeat(zeros) + digits };
 }
 
 export function isPriceSubscriptShape(parts: PriceParts): parts is PriceSubscriptShape {
