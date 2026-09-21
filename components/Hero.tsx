@@ -1,12 +1,13 @@
 "use client";
 
-import { LINKS } from "@/lib/constants";
+function scrollToSection(id: string) {
+  return (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+  };
+}
 
 export default function Hero() {
-  function scrollToHowItWorks(e: React.MouseEvent<HTMLAnchorElement>) {
-    e.preventDefault();
-    document.getElementById("how-it-works")?.scrollIntoView({ behavior: "smooth" });
-  }
 
   return (
     <section className="wrap pt-16 text-center sm:pt-24">
@@ -28,10 +29,10 @@ export default function Hero() {
       </p>
 
       <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-        <a href={LINKS.claims} target="_blank" rel="noreferrer" className="btn btn-primary">
-          Check my rewards ↗
+        <a href="#your-rounds" onClick={scrollToSection("your-rounds")} className="btn btn-primary">
+          Check my rewards
         </a>
-        <a href="#how-it-works" onClick={scrollToHowItWorks} className="btn btn-ghost">
+        <a href="#how-it-works" onClick={scrollToSection("how-it-works")} className="btn btn-ghost">
           How it works
         </a>
       </div>

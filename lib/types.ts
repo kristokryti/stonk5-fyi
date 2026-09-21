@@ -40,6 +40,82 @@ export interface BasketToken {
   priceChange24h: number | null;
 }
 
+export interface ClaimsRuleInfo {
+  minBalanceTokens: number;
+  minBalanceUsd: number;
+  maxBalanceTokens: number;
+  floorTokens: number;
+  rewardTokenDecimals: number;
+  rentSol: number;
+  rentMultiple: number;
+  maxCostRatioBps: number;
+  maxAccumulationSeconds: number;
+  buyTriggerSol: number;
+}
+
+export interface ClaimsTokenMeta {
+  symbol: string;
+  name: string;
+  decimals: number;
+  transferFeeBps: number;
+  priceUsd: number;
+  imageUrl?: string | null;
+}
+
+export interface ClaimsReceivedEntry {
+  netRaw: string;
+  count: number;
+  last: { signature: string; ts: string };
+}
+
+export interface ClaimsOpenEntry {
+  grossRaw: string;
+  netRaw: string;
+  valueUsd: number;
+  status: string;
+  detail: string;
+  needsAccount: boolean;
+  floorUsd: number;
+}
+
+export interface ClaimsPayoutEntry {
+  mint: string;
+  netRaw: string;
+  signature: string;
+  ts: string;
+}
+
+export interface ClaimsHolder {
+  balanceRaw: string;
+  averageRaw: string;
+  eligible: boolean;
+  reason: string | null;
+  open: Record<string, ClaimsOpenEntry>;
+  received: Record<string, ClaimsReceivedEntry>;
+  payouts: ClaimsPayoutEntry[];
+}
+
+// From stonk5.com's own /api/claims?wallet=<address> endpoint — the
+// authoritative source for what a wallet has actually received, judged by
+// the engine's own rules. We proxy it server-side (no CORS headers on
+// their end) and enrich `tokens[].imageUrl` from stonkfun ourselves.
+export interface ClaimsResponse {
+  wallet: string;
+  generatedAt: string;
+  rule: ClaimsRuleInfo;
+  cycle: { from: string; to: string; lastRoundAt: string | null };
+  counts: {
+    holders: number;
+    everHeld: number;
+    eligible: number;
+    owed: number;
+    paid: number;
+  };
+  tokens: Record<string, ClaimsTokenMeta>;
+  holder: ClaimsHolder | null;
+  stale: boolean;
+}
+
 export interface TokenStats {
   name: string;
   symbol: string;
