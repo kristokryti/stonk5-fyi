@@ -2,6 +2,7 @@
 
 import { useStats } from "@/lib/statsContext";
 import { formatRelativeTime } from "@/lib/format";
+import { LINKS } from "@/lib/constants";
 
 export default function Footer() {
   const { stats, stale } = useStats();
@@ -16,9 +17,14 @@ export default function Footer() {
         stonkfun.xyz, burns &amp; authorities verified on-chain.
       </p>
       <p>
-        <strong className="font-medium text-ink2">
+        <a
+          href={LINKS.siteTwitter}
+          target="_blank"
+          rel="noreferrer"
+          className="font-medium text-ink2 underline hover:text-ink"
+        >
           Unofficial community tracker
-        </strong>{" "}
+        </a>{" "}
         for STONK5. Not affiliated with StonkFun or the STONK5 team. Not
         financial advice.
       </p>
