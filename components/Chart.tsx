@@ -6,6 +6,7 @@ import {
   CandlestickSeries,
   HistogramSeries,
   PriceScaleMode,
+  TickMarkType,
   createChart,
   type IChartApi,
   type ISeriesApi,
@@ -112,7 +113,25 @@ export default function Chart() {
         horzLines: { color: "rgba(255,255,255,0.05)" },
       },
       rightPriceScale: { borderColor: "rgba(255,255,255,0.1)" },
-      timeScale: { borderColor: "rgba(255,255,255,0.1)", timeVisible: true },
+      timeScale: {
+        borderColor: "rgba(255,255,255,0.1)",
+        timeVisible: true,
+        tickMarkFormatter: (time: number, tickMarkType: TickMarkType) => {
+          const d = new Date(time * 1000);
+          switch (tickMarkType) {
+            case TickMarkType.Year:
+              return d.getFullYear().toString();
+            case TickMarkType.Month:
+              return d.toLocaleDateString("en-US", { month: "short" });
+            case TickMarkType.DayOfMonth:
+              return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+            case TickMarkType.TimeWithSeconds:
+              return d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+            default:
+              return d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+          }
+        },
+      },
       crosshair: { mode: 0 },
       autoSize: true,
     });
