@@ -54,9 +54,21 @@ let lastRoundCache: { value: string | null; computedAt: number } | null = null;
 // so it's chunked into smaller requests rather than one giant POST.
 const FEE_PAYER_CHUNK_SIZE = 20;
 
-async function fetchFeePayersChunk(
-  signatures: string[]
-): Promise<{ blockTime: number | null; feePayer: string | null }[]> {
+// Wrapped SOL. The engine periodically sweeps accumulated wSOL into native
+// SOL (create a temp wSOL account, transfer into it, close it) — that's
+// engine-authored housekeeping, not a reward round, and needs to be told
+// apart from real round activity (which moves the STONK5 mint or a basket
+// token, never just wSOL).
+const WRAPPED_SOL_MINT = "So11111111111111111111111111111111111111112";
+
+interface ParsedInstruction {
+  program?: string;
+  parsed?: { type?: string; info?: { mint?: string } };
+}
+
+async function fetchFeePayersChunk(signatures: string[]): Promise<
+  { blockTime: number | null; feePayer: string | null; isRoundActivity: boolean }[]
+> {
   const res = await fetch(SOLANA_RPC_URL, {
     method: "POST",
     cache: "no-store",
@@ -67,7 +79,7 @@ async function fetchFeePayersChunk(
         jsonrpc: "2.0",
         id: i,
         method: "getTransaction",
-        params: [sig, { encoding: "json", maxSupportedTransactionVersion: 0 }],
+        params: [sig, { encoding: "jsonParsed", maxSupportedTransactionVersion: 0 }],
       }))
     ),
   });
@@ -76,18 +88,35 @@ async function fetchFeePayersChunk(
   const byId = new Map<number, RpcResponseEntry>(json.map((r) => [r.id, r]));
   return signatures.map((_, i) => {
     const result = byId.get(i)?.result as
-      | { blockTime?: number; transaction?: { message?: { accountKeys?: string[] } } }
+      | {
+          blockTime?: number;
+          transaction?: {
+            message?: {
+              accountKeys?: (string | { pubkey: string })[];
+              instructions?: ParsedInstruction[];
+            };
+          };
+        }
       | undefined;
-    if (!result) return { blockTime: null, feePayer: null };
+    if (!result) return { blockTime: null, feePayer: null, isRoundActivity: false };
+    const firstKey = result.transaction?.message?.accountKeys?.[0];
+    const feePayer = typeof firstKey === "string" ? firstKey : firstKey?.pubkey ?? null;
+    const instructions = result.transaction?.message?.instructions ?? [];
+    const isRoundActivity = instructions.some(
+      (ins) =>
+        (ins.parsed?.type === "transferChecked" || ins.parsed?.type === "burnChecked") &&
+        ins.parsed?.info?.mint !== WRAPPED_SOL_MINT
+    );
     return {
       blockTime: result.blockTime ?? null,
-      feePayer: result.transaction?.message?.accountKeys?.[0] ?? null,
+      feePayer,
+      isRoundActivity,
     };
   });
 }
 
 async function fetchFeePayers(signatures: string[]): Promise<{
-  entries: { blockTime: number | null; feePayer: string | null }[];
+  entries: { blockTime: number | null; feePayer: string | null; isRoundActivity: boolean }[];
   anyChunkFailed: boolean;
 }> {
   const chunks: string[][] = [];
@@ -103,20 +132,23 @@ async function fetchFeePayers(signatures: string[]): Promise<{
       // A failed chunk's signatures are excluded from this result, but
       // anyChunkFailed tells the caller not to treat "no engine activity
       // found" as a trustworthy negative — some of the window is missing.
-      : chunks[i].map(() => ({ blockTime: null, feePayer: null }))
+      : chunks[i].map(() => ({ blockTime: null, feePayer: null, isRoundActivity: false }))
   );
   return { entries, anyChunkFailed };
 }
 
 // The countdown needs to know when the current round started. There's no
-// single "round" transaction to look for: a round's 95% reward payout goes
+// single "round" transaction to look for: a round's 90% reward payout goes
 // out as many separate transfers to holders, sent by the engine wallet over
 // a span of time. We detect this by clustering the engine wallet's own
-// recent transactions (where it's the fee payer, i.e. it initiated the tx —
-// this excludes incoming trade-fee deposits from other wallets) and take the
+// round-related transactions (where it's the fee payer, i.e. it initiated
+// the tx — this excludes incoming trade-fee deposits from other wallets —
+// and the transaction actually moves the STONK5 mint or a basket token via
+// transferChecked/burnChecked, which excludes the engine's own periodic
+// wrapped-SOL housekeeping sweeps that aren't a round at all) and take the
 // earliest timestamp in the most recent cluster as the round start. If we
-// can't find any engine-initiated activity in the sampled window, we return
-// null rather than guess — the UI shows "—" for the timer in that case.
+// can't find any qualifying activity in the sampled window, we return null
+// rather than guess — the UI shows "—" for the timer in that case.
 async function getLastRoundTimestamp(): Promise<string | null> {
   const now = Date.now();
   if (lastRoundCache && now - lastRoundCache.computedAt < LAST_ROUND_CACHE_TTL_MS) {
@@ -146,7 +178,9 @@ async function getLastRoundTimestamp(): Promise<string | null> {
     }
 
     const engineTimestamps = txs
-      .filter((t) => t.feePayer === ENGINE_WALLET && t.blockTime !== null)
+      .filter(
+        (t) => t.feePayer === ENGINE_WALLET && t.blockTime !== null && t.isRoundActivity
+      )
       .map((t) => t.blockTime as number)
       .sort((a, b) => b - a);
 
