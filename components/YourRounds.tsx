@@ -104,7 +104,7 @@ export default function YourRounds() {
           <input
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="e.g. H5GnZkkaW2Ph2fVWbNP6PdppaVFSHiRP18nSvjtyX4qY"
+            placeholder="Solana wallet address, e.g. H5GnZkkaW2Ph2fVWbNP6PdppaVFSHiRP18nSvjtyX4qY"
             className="min-w-0 flex-1 rounded-2xl border border-[var(--line)] bg-[var(--fill-soft)] px-4 py-3 font-mono text-[13px] text-ink placeholder:text-mute focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--c2)]"
             spellCheck={false}
             autoComplete="off"
