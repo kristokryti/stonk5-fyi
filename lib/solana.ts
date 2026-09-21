@@ -86,23 +86,26 @@ async function fetchFeePayersChunk(
   });
 }
 
-async function fetchFeePayers(
-  signatures: string[]
-): Promise<{ blockTime: number | null; feePayer: string | null }[]> {
+async function fetchFeePayers(signatures: string[]): Promise<{
+  entries: { blockTime: number | null; feePayer: string | null }[];
+  anyChunkFailed: boolean;
+}> {
   const chunks: string[][] = [];
   for (let i = 0; i < signatures.length; i += FEE_PAYER_CHUNK_SIZE) {
     chunks.push(signatures.slice(i, i + FEE_PAYER_CHUNK_SIZE));
   }
 
   const results = await Promise.allSettled(chunks.map(fetchFeePayersChunk));
-  return results.flatMap((r, i) =>
+  const anyChunkFailed = results.some((r) => r.status === "rejected");
+  const entries = results.flatMap((r, i) =>
     r.status === "fulfilled"
       ? r.value
-      // One chunk failing (rate limit, timeout) shouldn't sink the whole
-      // window — those signatures are just excluded, same as a missing
-      // individual entry.
+      // A failed chunk's signatures are excluded from this result, but
+      // anyChunkFailed tells the caller not to treat "no engine activity
+      // found" as a trustworthy negative — some of the window is missing.
       : chunks[i].map(() => ({ blockTime: null, feePayer: null }))
   );
+  return { entries, anyChunkFailed };
 }
 
 // The countdown needs to know when the current round started. There's no
@@ -132,7 +135,7 @@ async function getLastRoundTimestamp(): Promise<string | null> {
       return null;
     }
 
-    const txs = await fetchFeePayers(signatures);
+    const { entries: txs, anyChunkFailed } = await fetchFeePayers(signatures);
 
     // If every single transaction in the batch came back without a blockTime,
     // that's not "no recent round" — it's the batch fetch itself failing
@@ -148,6 +151,13 @@ async function getLastRoundTimestamp(): Promise<string | null> {
       .sort((a, b) => b - a);
 
     if (engineTimestamps.length === 0) {
+      // A partial fetch (some chunks failed) finding zero engine timestamps
+      // isn't trustworthy enough to cache as "no recent round" — the missing
+      // chunks could easily be where the round's activity was. Only cache a
+      // definitive null when the whole window was actually checked.
+      if (anyChunkFailed) {
+        return lastRoundCache?.value ?? null;
+      }
       lastRoundCache = { value: null, computedAt: now };
       return null;
     }
