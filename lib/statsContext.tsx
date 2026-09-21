@@ -45,7 +45,13 @@ export function StatsProvider({
         if (!res.ok) throw new Error("stats endpoint error");
         const data = (await res.json()) as TokenStats;
         if (!cancelled) {
-          setStats(data);
+          // getOnchainStats() occasionally fails a single poll (a transient
+          // RPC hiccup), which would otherwise flash the burn/lock/safety
+          // sections to "—" for 30s before recovering. Keep the last known
+          // on-chain data instead of blanking it out.
+          setStats((prev) =>
+            data.onchain === null && prev?.onchain ? { ...data, onchain: prev.onchain } : data
+          );
           setError(null);
           lastOkRef.current = Date.now();
         }

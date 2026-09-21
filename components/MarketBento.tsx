@@ -70,7 +70,7 @@ export default function MarketBento() {
               Stonk5 Index
             </a>
             <span className="chip">Solana</span>
-            <span className="chip chip-pos">Paired with SOL</span>
+            <span className="chip chip-info">Paired with SOL</span>
           </div>
 
           <div className="price mt-4 break-all text-[clamp(2.5rem,9vw,4.5rem)] font-semibold leading-none text-ink">
@@ -94,6 +94,15 @@ export default function MarketBento() {
             Price and 24h change from DexScreener, refreshed automatically
             while this tab is open.
           </p>
+
+          <a
+            href={LINKS.stonkfun}
+            target="_blank"
+            rel="noreferrer"
+            className="btn btn-ghost btn-sm mt-5"
+          >
+            Trade $STONK5 ↗
+          </a>
         </div>
 
         {marketCap !== null && (
