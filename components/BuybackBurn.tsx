@@ -7,9 +7,8 @@ import { ISSUED_SUPPLY } from "@/lib/constants";
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 const HORIZONS = [
-  { tag: "1W", days: 7, color: "#fb923c" },
-  { tag: "1M", days: 30, color: "#38bdf8" },
-  { tag: "1Y", days: 365, color: "#c084fc" },
+  { tag: "1 Month from now", days: 30, color: "#38bdf8" },
+  { tag: "1 Year from now", days: 365, color: "#c084fc" },
 ];
 
 function formatPct(pct: number | null): string {
@@ -94,7 +93,7 @@ export default function BuybackBurn() {
 
         {onchain &&
           (() => {
-            const currentBurnedPct = onchain.burnedPercent;
+            const currentPct = onchain.burnedPercent + (onchain.lockedTokens ?? 0) / ISSUED_SUPPLY * 100;
             const markers = HORIZONS.map(({ tag, days, color }) => {
               const projectedBurned = project(onchain.burnedTokens, burnedPerDay, days);
               const projectedLocked = project(onchain.lockedTokens, lockedPerDay, days);
@@ -106,35 +105,58 @@ export default function BuybackBurn() {
               const combinedPct = combined !== null ? (combined / ISSUED_SUPPLY) * 100 : null;
               return { tag, color, combinedPct };
             });
-            const barMaxPct =
-              Math.max(currentBurnedPct, ...markers.map((m) => m.combinedPct ?? 0), 1) * 1.15;
+            const barMaxPct = Math.max(
+              currentPct,
+              ...markers.map((m) => m.combinedPct ?? 0),
+              1
+            );
+
+            // Stacked, edge-to-edge segments: "now" fills up to the current
+            // burned+locked amount, then each horizon adds only the extra
+            // it projects on top of the one before it — so the full bar
+            // visually represents the furthest projection (1Y), divided up
+            // by how much of it is already done vs. still to come.
+            let cursorPct = currentPct;
+            const segments = [
+              { key: "now", widthPct: (currentPct / barMaxPct) * 100, color: undefined },
+              ...markers.map(({ tag, color, combinedPct }) => {
+                const start = cursorPct;
+                const end = Math.max(combinedPct ?? start, start);
+                cursorPct = end;
+                return { key: tag, widthPct: ((end - start) / barMaxPct) * 100, color };
+              }),
+            ];
 
             return (
               <div className="mt-6">
-                <div className="bar relative max-w-[400px]">
-                  <i style={{ width: `${Math.max(0.5, (currentBurnedPct / barMaxPct) * 100)}%` }} />
-                  {markers.map(
-                    ({ tag, color, combinedPct }) =>
-                      combinedPct !== null && (
-                        <span
-                          key={tag}
-                          className="absolute top-1/2 h-4 w-[3px] -translate-x-1/2 -translate-y-1/2 rounded-full"
-                          style={{
-                            left: `${Math.min(100, (combinedPct / barMaxPct) * 100)}%`,
-                            backgroundColor: color,
-                          }}
-                        />
-                      )
-                  )}
+                <div className="bar flex w-full">
+                  <i
+                    className="shrink-0"
+                    style={{ width: `${Math.max(0.5, segments[0].widthPct)}%` }}
+                  />
+                  {segments.slice(1).map((seg) => (
+                    <span
+                      key={seg.key}
+                      className="block h-full shrink-0"
+                      style={{ width: `${Math.max(0, seg.widthPct)}%`, backgroundColor: seg.color }}
+                    />
+                  ))}
                 </div>
                 <div className="mt-2.5 flex flex-wrap gap-x-4 gap-y-1">
+                  <span className="flex items-center gap-1.5 text-[11px] text-mute">
+                    <span
+                      className="inline-block h-2 w-2 rounded-full"
+                      style={{ background: "linear-gradient(90deg, #38bdf8, #818cf8)" }}
+                    />
+                    Current: {formatPct(currentPct)} of supply burned + locked
+                  </span>
                   {markers.map(({ tag, color, combinedPct }) => (
                     <span key={tag} className="flex items-center gap-1.5 text-[11px] text-mute">
                       <span
                         className="inline-block h-2 w-2 rounded-full"
                         style={{ backgroundColor: color }}
                       />
-                      {tag}: {formatPct(combinedPct)} burned + locked
+                      {tag}: {formatPct(combinedPct)} of supply burned + locked
                     </span>
                   ))}
                 </div>
