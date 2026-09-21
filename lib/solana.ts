@@ -99,7 +99,7 @@ async function getLastRoundTimestamp(): Promise<string | null> {
 
   try {
     const [sigResult] = await rpcBatch([
-      { method: "getSignaturesForAddress", params: [ENGINE_WALLET, { limit: 60 }] },
+      { method: "getSignaturesForAddress", params: [ENGINE_WALLET, { limit: 100 }] },
     ]);
     const signatures: string[] = ((sigResult as { signature: string }[] | null) ?? []).map(
       (s) => s.signature
@@ -110,6 +110,15 @@ async function getLastRoundTimestamp(): Promise<string | null> {
     }
 
     const txs = await fetchFeePayers(signatures);
+
+    // If every single transaction in the batch came back without a blockTime,
+    // that's not "no recent round" — it's the batch fetch itself failing
+    // wholesale (rate limit, RPC hiccup). Treat it like the catch block below
+    // instead of caching a false negative.
+    if (txs.every((t) => t.blockTime === null)) {
+      return lastRoundCache?.value ?? null;
+    }
+
     const engineTimestamps = txs
       .filter((t) => t.feePayer === ENGINE_WALLET && t.blockTime !== null)
       .map((t) => t.blockTime as number)
