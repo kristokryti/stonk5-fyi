@@ -14,6 +14,7 @@ import type {
   BasketToken,
   LaunchInfo,
   OnchainStats,
+  RecentTradeVolumeStats,
   TimeframeStats,
   TokenStats,
   Traders24hStats,
@@ -321,6 +322,54 @@ async function fetchGeckoTraders(): Promise<Traders24hStats | null> {
   });
 }
 
+interface GeckoTrade {
+  attributes?: {
+    kind?: "buy" | "sell";
+    volume_in_usd?: string;
+    block_timestamp?: string;
+  };
+}
+interface GeckoTradesResponse {
+  data?: GeckoTrade[];
+}
+
+const GECKO_TRADES_LIMIT = 300;
+
+// GeckoTerminal's free trades endpoint only returns the most recent ~300
+// trades (no real pagination beyond that), so this can't cover a full 24h
+// on an active pool. Summing per-trade volume_in_usd by side is still real
+// data — just over whatever window that batch happens to span, which we
+// compute and report rather than mislabeling it "24h".
+async function fetchGeckoTradeVolume(): Promise<RecentTradeVolumeStats | null> {
+  return withStaleFallback("geckoTradeVolume", async () => {
+    const json = (await fetchJson(
+      `${GECKOTERMINAL_API_BASE}/networks/${DEX_CHAIN}/pools/${PAIR_ADDRESS}/trades`
+    )) as GeckoTradesResponse;
+    const trades = json.data ?? [];
+    if (trades.length === 0) throw new Error("geckoterminal trades: empty response");
+
+    let buyUsd = 0;
+    let sellUsd = 0;
+    let oldestMs = Infinity;
+    for (const t of trades) {
+      const usd = Number(t.attributes?.volume_in_usd ?? 0);
+      if (t.attributes?.kind === "buy") buyUsd += usd;
+      else if (t.attributes?.kind === "sell") sellUsd += usd;
+      const ts = t.attributes?.block_timestamp ? Date.parse(t.attributes.block_timestamp) : NaN;
+      if (!Number.isNaN(ts)) oldestMs = Math.min(oldestMs, ts);
+    }
+    if (!Number.isFinite(oldestMs)) throw new Error("geckoterminal trades: no timestamps");
+
+    return {
+      buyUsd,
+      sellUsd,
+      sinceMinutesAgo: Math.round((Date.now() - oldestMs) / 60_000),
+      tradeCount: trades.length,
+      capped: trades.length >= GECKO_TRADES_LIMIT,
+    };
+  });
+}
+
 interface StonkRoundBuy {
   spentRaw?: string;
 }
@@ -372,6 +421,7 @@ export async function getTokenStats(): Promise<TokenStats> {
     engineLockResult,
     avgRoundSolResult,
     geckoTradersResult,
+    geckoTradeVolumeResult,
   ] = await Promise.allSettled([
     fetchDexscreener(),
     fetchStonkfunMeta(),
@@ -381,6 +431,7 @@ export async function getTokenStats(): Promise<TokenStats> {
     fetchEngineLock(),
     fetchAverageRoundSol(),
     fetchGeckoTraders(),
+    fetchGeckoTradeVolume(),
   ]);
 
   const dex = dexResult.status === "fulfilled" ? dexResult.value : null;
@@ -396,6 +447,8 @@ export async function getTokenStats(): Promise<TokenStats> {
     avgRoundSolResult.status === "fulfilled" ? avgRoundSolResult.value : null;
   const geckoTraders =
     geckoTradersResult.status === "fulfilled" ? geckoTradersResult.value : null;
+  const geckoTradeVolume =
+    geckoTradeVolumeResult.status === "fulfilled" ? geckoTradeVolumeResult.value : null;
 
   // stonk5.com's own engine API is the authoritative source for the
   // round-trigger reserve/progress/timer — it knows things (the buying
@@ -469,6 +522,7 @@ export async function getTokenStats(): Promise<TokenStats> {
     priceChange: dex?.priceChange ?? null,
     volume: dex?.volume ?? null,
     traders24h: geckoTraders,
+    recentTradeVolume: geckoTradeVolume,
 
     peakMarketCapUsd: stonkfun?.peakMarketCapUsd ?? null,
     status: stonkfun?.status ?? null,

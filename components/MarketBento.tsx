@@ -32,12 +32,14 @@ function SplitStat({
   leftValue,
   rightLabel,
   rightValue,
+  formatValue = (v) => v.toLocaleString(),
 }: {
   label: string;
   leftLabel: string;
   leftValue: number;
   rightLabel: string;
   rightValue: number;
+  formatValue?: (value: number) => string;
 }) {
   const total = leftValue + rightValue;
   const leftPct = total > 0 ? (leftValue / total) * 100 : 50;
@@ -47,10 +49,10 @@ function SplitStat({
       <div className="label">{label}</div>
       <div className="mt-2 flex items-baseline justify-between gap-3">
         <span className="num text-2xl font-semibold text-[var(--pos)]">
-          {leftValue.toLocaleString()}
+          {formatValue(leftValue)}
         </span>
         <span className="num text-2xl font-semibold text-[var(--neg)]">
-          {rightValue.toLocaleString()}
+          {formatValue(rightValue)}
         </span>
       </div>
       <div className="bar mt-2 flex">
@@ -71,6 +73,13 @@ function SplitStat({
   );
 }
 
+function formatMinutesSpan(minutes: number): string {
+  if (minutes < 60) return `${minutes}m`;
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  return m > 0 ? `${h}h ${m}m` : `${h}h`;
+}
+
 export default function MarketBento() {
   const { stats } = useStats();
 
@@ -82,6 +91,7 @@ export default function MarketBento() {
   const change24h = stats?.priceChange?.h24 ?? null;
   const priceUsd = stats?.priceUsd ?? null;
   const priceSol = stats?.priceSol ?? null;
+  const tradeVolume = stats?.recentTradeVolume ?? null;
   const traders = stats?.traders24h ?? null;
 
   const liquidityPct =
@@ -198,28 +208,37 @@ export default function MarketBento() {
 
       {traders && (
         <div className="glass mt-6 p-8">
-          <div className="label">Trading activity (24h)</div>
+          <div className="label">Trading activity</div>
           <h3 className="mt-2">Who&apos;s buying and selling</h3>
           <p className="mt-2 max-w-[60ch] text-sm leading-relaxed text-ink2">
-            Unique wallets and transactions on the STONK5/SOL pool, from
-            GeckoTerminal.
+            Unique wallets and transactions on the STONK5/SOL pool.
           </p>
 
-          <div className="mt-6 grid gap-8 sm:grid-cols-2">
+          <div className="mt-6 grid gap-8 sm:grid-cols-3">
             <SplitStat
-              label="Traders"
+              label="Traders (24h)"
               leftLabel="Buyers"
               leftValue={traders.buyers}
               rightLabel="Sellers"
               rightValue={traders.sellers}
             />
             <SplitStat
-              label="Transactions"
+              label="Transactions (24h)"
               leftLabel="Buys"
               leftValue={traders.buys}
               rightLabel="Sells"
               rightValue={traders.sells}
             />
+            {tradeVolume && (
+              <SplitStat
+                label={`Volume (last ${formatMinutesSpan(tradeVolume.sinceMinutesAgo)})`}
+                leftLabel="Buy vol"
+                leftValue={tradeVolume.buyUsd}
+                rightLabel="Sell vol"
+                rightValue={tradeVolume.sellUsd}
+                formatValue={(v) => formatCompactUsd(v)}
+              />
+            )}
           </div>
         </div>
       )}

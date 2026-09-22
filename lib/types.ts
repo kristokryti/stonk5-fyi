@@ -14,6 +14,18 @@ export interface Traders24hStats {
   sellers: number;
 }
 
+// From GeckoTerminal's trades endpoint — real per-trade volume summed by
+// side, but only over the ~300 most recent trades it returns (no full-24h
+// pagination on the free tier), so `sinceMinutesAgo` reports the actual
+// window that batch spans instead of assuming it's a full day.
+export interface RecentTradeVolumeStats {
+  buyUsd: number;
+  sellUsd: number;
+  sinceMinutesAgo: number;
+  tradeCount: number;
+  capped: boolean;
+}
+
 export interface HolderConcentration {
   topHolderPercent: number;
   accountsSampled: number;
@@ -141,6 +153,7 @@ export interface TokenStats {
   priceChange: TimeframeStats | null;
   volume: TimeframeStats | null;
   traders24h: Traders24hStats | null;
+  recentTradeVolume: RecentTradeVolumeStats | null;
 
   peakMarketCapUsd: number | null;
   status: string | null;

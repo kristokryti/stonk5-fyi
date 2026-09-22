@@ -13,10 +13,10 @@ export default function Footer() {
         {stats
           ? `Updated ${formatRelativeTime(stats.updatedAt)}`
           : "No live data"}{" "}
-        · price &amp; volume from DexScreener, chart &amp; buyer/seller data
-        from GeckoTerminal, status &amp; launch data from stonkfun.xyz,
-        round &amp; lock data from stonk5.com&apos;s own engine, burns &amp;
-        authorities verified on-chain.
+        · price &amp; volume from DexScreener, chart, buyer/seller, and trade
+        volume data from GeckoTerminal, status &amp; launch data from
+        stonkfun.xyz, round &amp; lock data from stonk5.com&apos;s own
+        engine, burns &amp; authorities verified on-chain.
       </p>
       <p>
         <a
