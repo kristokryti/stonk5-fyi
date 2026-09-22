@@ -116,8 +116,8 @@ export default function YourRounds() {
         </form>
 
         <p className="mt-3 text-[13px] text-mute">
-          For your full reward history — including anything still owed — see
-          the Claims section on the official{" "}
+          For full reward history (incl. what is owed + more), check your
+          wallet on the Claims section of the official{" "}
           <a
             href={LINKS.claims}
             target="_blank"
