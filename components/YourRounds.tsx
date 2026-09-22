@@ -115,6 +115,19 @@ export default function YourRounds() {
           </button>
         </form>
 
+        <p className="mt-3 text-[13px] text-mute">
+          For your full rewards, check your wallet on the official{" "}
+          <a
+            href={LINKS.website}
+            target="_blank"
+            rel="noreferrer"
+            className="text-ink2 underline underline-offset-2 hover:text-ink"
+          >
+            stonk5.com
+          </a>{" "}
+          page.
+        </p>
+
         {error && <p className="mt-3 text-[13px] text-[var(--neg)]">{error}</p>}
 
         {data && !holder && (
