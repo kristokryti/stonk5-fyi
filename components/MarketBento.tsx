@@ -26,6 +26,51 @@ function StatCard({
   );
 }
 
+function SplitStat({
+  label,
+  leftLabel,
+  leftValue,
+  rightLabel,
+  rightValue,
+}: {
+  label: string;
+  leftLabel: string;
+  leftValue: number;
+  rightLabel: string;
+  rightValue: number;
+}) {
+  const total = leftValue + rightValue;
+  const leftPct = total > 0 ? (leftValue / total) * 100 : 50;
+
+  return (
+    <div>
+      <div className="label">{label}</div>
+      <div className="mt-2 flex items-baseline justify-between gap-3">
+        <span className="num text-2xl font-semibold text-[var(--pos)]">
+          {leftValue.toLocaleString()}
+        </span>
+        <span className="num text-2xl font-semibold text-[var(--neg)]">
+          {rightValue.toLocaleString()}
+        </span>
+      </div>
+      <div className="bar mt-2 flex">
+        <i style={{ width: `${leftPct}%`, background: "var(--pos)", borderRadius: "99px 0 0 99px" }} />
+        <i
+          style={{
+            width: `${100 - leftPct}%`,
+            background: "var(--neg)",
+            borderRadius: "0 99px 99px 0",
+          }}
+        />
+      </div>
+      <div className="mt-1.5 flex justify-between text-[11px] text-mute">
+        <span>{leftLabel}</span>
+        <span>{rightLabel}</span>
+      </div>
+    </div>
+  );
+}
+
 export default function MarketBento() {
   const { stats } = useStats();
 
@@ -37,10 +82,7 @@ export default function MarketBento() {
   const change24h = stats?.priceChange?.h24 ?? null;
   const priceUsd = stats?.priceUsd ?? null;
   const priceSol = stats?.priceSol ?? null;
-  const buyers = stats?.traders24h?.buyers ?? null;
-  const sellers = stats?.traders24h?.sellers ?? null;
-  const buyTxns = stats?.traders24h?.buys ?? null;
-  const sellTxns = stats?.traders24h?.sells ?? null;
+  const traders = stats?.traders24h ?? null;
 
   const liquidityPct =
     liquidity !== null && marketCap ? (liquidity / marketCap) * 100 : null;
@@ -50,9 +92,6 @@ export default function MarketBento() {
     peak !== null && marketCap !== null && peak > 0
       ? ((marketCap - peak) / peak) * 100
       : null;
-  const totalTraders = buyers !== null && sellers !== null ? buyers + sellers : null;
-  const buyerSharePct =
-    totalTraders !== null && totalTraders > 0 ? (buyers! / totalTraders) * 100 : null;
 
   const changePositive = change24h !== null && change24h >= 0;
 
@@ -144,25 +183,6 @@ export default function MarketBento() {
           />
         )}
 
-        {buyers !== null && sellers !== null && (
-          <StatCard
-            label="Buyers / sellers (24h)"
-            value={`${buyers.toLocaleString()} / ${sellers.toLocaleString()}`}
-            sub={
-              buyTxns !== null && sellTxns !== null
-                ? `${buyTxns.toLocaleString()} buy txns · ${sellTxns.toLocaleString()} sell txns`
-                : undefined
-            }
-            subClassName={
-              buyerSharePct !== null
-                ? buyerSharePct >= 50
-                  ? "text-[var(--pos)]"
-                  : "text-[var(--neg)]"
-                : "text-mute"
-            }
-          />
-        )}
-
         {peak !== null && (
           <StatCard
             label="Peak market cap"
@@ -175,6 +195,34 @@ export default function MarketBento() {
           />
         )}
       </div>
+
+      {traders && (
+        <div className="glass mt-6 p-8">
+          <div className="label">Trading activity (24h)</div>
+          <h3 className="mt-2">Who&apos;s buying and selling</h3>
+          <p className="mt-2 max-w-[60ch] text-sm leading-relaxed text-ink2">
+            Unique wallets and transactions on the STONK5/SOL pool, from
+            GeckoTerminal.
+          </p>
+
+          <div className="mt-6 grid gap-8 sm:grid-cols-2">
+            <SplitStat
+              label="Traders"
+              leftLabel="Buyers"
+              leftValue={traders.buyers}
+              rightLabel="Sellers"
+              rightValue={traders.sellers}
+            />
+            <SplitStat
+              label="Transactions"
+              leftLabel="Buys"
+              leftValue={traders.buys}
+              rightLabel="Sells"
+              rightValue={traders.sells}
+            />
+          </div>
+        </div>
+      )}
     </section>
   );
 }
