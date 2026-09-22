@@ -98,7 +98,7 @@ export default function MarketBento() {
           <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
             <p className="max-w-[38ch] text-[13px] leading-relaxed text-mute">
               Price and 24h change from DexScreener, refreshed automatically
-              while this tab is open.
+              every 30s while this tab is open.
             </p>
             <a
               href={LINKS.stonkfun}

@@ -41,13 +41,6 @@ export default function HowItWorks() {
           </div>
         ))}
       </div>
-
-      <p className="mt-6 max-w-[70ch] text-[13px] leading-relaxed text-mute">
-        A payout is held back until it&apos;s worth more than twice the rent
-        of the account it lands in — below that it rolls into the next
-        round instead of being sent as dust. Selling before a round settles
-        forfeits that round&apos;s payout.
-      </p>
     </section>
   );
 }
