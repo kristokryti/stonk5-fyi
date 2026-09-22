@@ -79,7 +79,7 @@ export default function Chart() {
   const { stats } = useStats();
   const totalSupply = stats?.onchain?.totalSupply ?? null;
 
-  const [timeframe, setTimeframe] = useState<(typeof TIMEFRAMES)[number]["key"]>("1h");
+  const [timeframe, setTimeframe] = useState<(typeof TIMEFRAMES)[number]["key"]>("15m");
   const [displayMode, setDisplayMode] = useState<DisplayMode>("price");
   const [chartType, setChartType] = useState<ChartType>("candles");
   const [logScale, setLogScale] = useState(false);
