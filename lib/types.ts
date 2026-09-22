@@ -5,6 +5,15 @@ export interface TimeframeStats {
   h24: number | null;
 }
 
+// From GeckoTerminal's pool endpoint — the only source we found with
+// unique buyer/seller wallet counts, not just transaction counts.
+export interface Traders24hStats {
+  buys: number;
+  sells: number;
+  buyers: number;
+  sellers: number;
+}
+
 export interface HolderConcentration {
   topHolderPercent: number;
   accountsSampled: number;
@@ -131,7 +140,7 @@ export interface TokenStats {
   volume24hUsd: number | null;
   priceChange: TimeframeStats | null;
   volume: TimeframeStats | null;
-  txns24h: { buys: number; sells: number } | null;
+  traders24h: Traders24hStats | null;
 
   peakMarketCapUsd: number | null;
   status: string | null;

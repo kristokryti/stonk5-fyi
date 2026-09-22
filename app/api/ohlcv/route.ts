@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
-import { DEX_CHAIN, PAIR_ADDRESS } from "@/lib/constants";
+import { DEX_CHAIN, GECKOTERMINAL_API_BASE, PAIR_ADDRESS } from "@/lib/constants";
 
 const FETCH_TIMEOUT_MS = 8_000;
-const GECKOTERMINAL_API_BASE = "https://api.geckoterminal.com/api/v2";
 
 // GeckoTerminal's official public OHLCV API — used to render our own
 // candlestick chart client-side instead of depending on DexScreener's

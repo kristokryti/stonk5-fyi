@@ -37,8 +37,10 @@ export default function MarketBento() {
   const change24h = stats?.priceChange?.h24 ?? null;
   const priceUsd = stats?.priceUsd ?? null;
   const priceSol = stats?.priceSol ?? null;
-  const buys = stats?.txns24h?.buys ?? null;
-  const sells = stats?.txns24h?.sells ?? null;
+  const buyers = stats?.traders24h?.buyers ?? null;
+  const sellers = stats?.traders24h?.sellers ?? null;
+  const buyTxns = stats?.traders24h?.buys ?? null;
+  const sellTxns = stats?.traders24h?.sells ?? null;
 
   const liquidityPct =
     liquidity !== null && marketCap ? (liquidity / marketCap) * 100 : null;
@@ -48,9 +50,9 @@ export default function MarketBento() {
     peak !== null && marketCap !== null && peak > 0
       ? ((marketCap - peak) / peak) * 100
       : null;
-  const totalTxns = buys !== null && sells !== null ? buys + sells : null;
-  const buyPct =
-    totalTxns !== null && totalTxns > 0 ? (buys! / totalTxns) * 100 : null;
+  const totalTraders = buyers !== null && sellers !== null ? buyers + sellers : null;
+  const buyerSharePct =
+    totalTraders !== null && totalTraders > 0 ? (buyers! / totalTraders) * 100 : null;
 
   const changePositive = change24h !== null && change24h >= 0;
 
@@ -97,8 +99,7 @@ export default function MarketBento() {
 
           <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
             <p className="max-w-[38ch] text-[13px] leading-relaxed text-mute">
-              Price and 24h change from DexScreener, refreshed automatically
-              every 30s while this tab is open.
+              Price and 24h change from DexScreener.
             </p>
             <a
               href={LINKS.stonkfun}
@@ -143,14 +144,18 @@ export default function MarketBento() {
           />
         )}
 
-        {buys !== null && sells !== null && (
+        {buyers !== null && sellers !== null && (
           <StatCard
-            label="Buy / sell txns (24h)"
-            value={`${buys.toLocaleString()} / ${sells.toLocaleString()}`}
-            sub={buyPct !== null ? `${buyPct.toFixed(0)}% were buys` : undefined}
+            label="Buyers / sellers (24h)"
+            value={`${buyers.toLocaleString()} / ${sellers.toLocaleString()}`}
+            sub={
+              buyTxns !== null && sellTxns !== null
+                ? `${buyTxns.toLocaleString()} buy txns · ${sellTxns.toLocaleString()} sell txns`
+                : undefined
+            }
             subClassName={
-              buyPct !== null
-                ? buyPct >= 50
+              buyerSharePct !== null
+                ? buyerSharePct >= 50
                   ? "text-[var(--pos)]"
                   : "text-[var(--neg)]"
                 : "text-mute"

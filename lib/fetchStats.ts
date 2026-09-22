@@ -1,6 +1,8 @@
 import {
   BASKET_SHARE_OF_ROUND,
+  DEX_CHAIN,
   DEXSCREENER_API_BASE,
+  GECKOTERMINAL_API_BASE,
   MINT,
   PAIR_ADDRESS,
   ROUND_HISTORY_SAMPLE_SIZE,
@@ -8,7 +10,14 @@ import {
   STONKFUN_API_BASE,
 } from "./constants";
 import { getOnchainStats } from "./solana";
-import type { BasketToken, LaunchInfo, OnchainStats, TimeframeStats, TokenStats } from "./types";
+import type {
+  BasketToken,
+  LaunchInfo,
+  OnchainStats,
+  TimeframeStats,
+  TokenStats,
+  Traders24hStats,
+} from "./types";
 
 const FETCH_TIMEOUT_MS = 8_000;
 
@@ -54,7 +63,6 @@ interface DexData {
   volume24hUsd: number | null;
   priceChange: TimeframeStats;
   volume: TimeframeStats;
-  txns24h: { buys: number; sells: number } | null;
   imageUrl: string | null;
   name: string;
   symbol: string;
@@ -69,7 +77,6 @@ interface DexPair {
   liquidity?: { usd?: number };
   volume?: { m5?: number; h1?: number; h6?: number; h24?: number };
   priceChange?: { m5?: number; h1?: number; h6?: number; h24?: number };
-  txns?: { h24?: { buys?: number; sells?: number } };
   info?: { imageUrl?: string };
   baseToken?: { name?: string; symbol?: string };
 }
@@ -104,9 +111,6 @@ async function fetchDexscreener(): Promise<DexData> {
       h6: pair.volume?.h6 ?? null,
       h24: pair.volume?.h24 ?? null,
     },
-    txns24h: pair.txns?.h24
-      ? { buys: pair.txns.h24.buys ?? 0, sells: pair.txns.h24.sells ?? 0 }
-      : null,
     imageUrl: pair.info?.imageUrl ?? null,
     name: pair.baseToken?.name ?? "Stonk5 Index",
     symbol: pair.baseToken?.symbol ?? "STONK5",
@@ -286,6 +290,37 @@ async function fetchEngineLock(): Promise<EngineLockData> {
   });
 }
 
+interface GeckoPoolResponse {
+  data?: {
+    attributes?: {
+      transactions?: {
+        h24?: { buys?: number; sells?: number; buyers?: number; sellers?: number };
+      };
+    };
+  };
+}
+
+// GeckoTerminal's pool endpoint — the only source we found that reports
+// unique buyer/seller wallet counts rather than just transaction counts
+// (DexScreener's public API only has the latter).
+async function fetchGeckoTraders(): Promise<Traders24hStats | null> {
+  return withStaleFallback("geckoTraders", async () => {
+    const json = (await fetchJson(
+      `${GECKOTERMINAL_API_BASE}/networks/${DEX_CHAIN}/pools/${PAIR_ADDRESS}`
+    )) as GeckoPoolResponse;
+    const h24 = json.data?.attributes?.transactions?.h24;
+    if (
+      h24?.buys === undefined ||
+      h24?.sells === undefined ||
+      h24?.buyers === undefined ||
+      h24?.sellers === undefined
+    ) {
+      throw new Error("geckoterminal pool: unexpected response shape");
+    }
+    return { buys: h24.buys, sells: h24.sells, buyers: h24.buyers, sellers: h24.sellers };
+  });
+}
+
 interface StonkRoundBuy {
   spentRaw?: string;
 }
@@ -336,6 +371,7 @@ export async function getTokenStats(): Promise<TokenStats> {
     enginePayoutResult,
     engineLockResult,
     avgRoundSolResult,
+    geckoTradersResult,
   ] = await Promise.allSettled([
     fetchDexscreener(),
     fetchStonkfunMeta(),
@@ -344,6 +380,7 @@ export async function getTokenStats(): Promise<TokenStats> {
     fetchEnginePayout(),
     fetchEngineLock(),
     fetchAverageRoundSol(),
+    fetchGeckoTraders(),
   ]);
 
   const dex = dexResult.status === "fulfilled" ? dexResult.value : null;
@@ -357,6 +394,8 @@ export async function getTokenStats(): Promise<TokenStats> {
     engineLockResult.status === "fulfilled" ? engineLockResult.value : null;
   const avgRoundSol =
     avgRoundSolResult.status === "fulfilled" ? avgRoundSolResult.value : null;
+  const geckoTraders =
+    geckoTradersResult.status === "fulfilled" ? geckoTradersResult.value : null;
 
   // stonk5.com's own engine API is the authoritative source for the
   // round-trigger reserve/progress/timer — it knows things (the buying
@@ -429,7 +468,7 @@ export async function getTokenStats(): Promise<TokenStats> {
     volume24hUsd: dex?.volume24hUsd ?? stonkfun?.volume24hUsd ?? null,
     priceChange: dex?.priceChange ?? null,
     volume: dex?.volume ?? null,
-    txns24h: dex?.txns24h ?? null,
+    traders24h: geckoTraders,
 
     peakMarketCapUsd: stonkfun?.peakMarketCapUsd ?? null,
     status: stonkfun?.status ?? null,

@@ -15,6 +15,7 @@ function mergeStats(prev: TokenStats | null, next: TokenStats): TokenStats {
     ...next,
     launch: next.launch ?? prev.launch,
     basket: next.basket ?? prev.basket,
+    traders24h: next.traders24h ?? prev.traders24h,
     onchain: next.onchain
       ? {
           ...next.onchain,

@@ -27,6 +27,12 @@ export const SOLANA_RPC_URL =
 // manual top-ups in a way that can't be reconstructed from the wallet's raw
 // on-chain balance alone). Referenced directly in stonk5.com's own page.
 export const STONK5_API_BASE = process.env.STONK5_API_BASE ?? "https://stonk5.com/api";
+// GeckoTerminal's public DEX API — free, documented, no key required
+// (https://www.geckoterminal.com/dex-api). Used for chart OHLCV and for
+// per-wallet buyer/seller counts, which DexScreener's public API doesn't
+// expose (only transaction counts).
+export const GECKOTERMINAL_API_BASE =
+  process.env.GECKOTERMINAL_API_BASE ?? "https://api.geckoterminal.com/api/v2";
 
 export const LINKS = {
   website: "https://stonk5.com/",
