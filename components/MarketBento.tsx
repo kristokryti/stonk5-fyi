@@ -37,6 +37,8 @@ export default function MarketBento() {
   const change24h = stats?.priceChange?.h24 ?? null;
   const priceUsd = stats?.priceUsd ?? null;
   const priceSol = stats?.priceSol ?? null;
+  const buys = stats?.txns24h?.buys ?? null;
+  const sells = stats?.txns24h?.sells ?? null;
 
   const liquidityPct =
     liquidity !== null && marketCap ? (liquidity / marketCap) * 100 : null;
@@ -46,6 +48,9 @@ export default function MarketBento() {
     peak !== null && marketCap !== null && peak > 0
       ? ((marketCap - peak) / peak) * 100
       : null;
+  const totalTxns = buys !== null && sells !== null ? buys + sells : null;
+  const buyPct =
+    totalTxns !== null && totalTxns > 0 ? (buys! / totalTxns) * 100 : null;
 
   const changePositive = change24h !== null && change24h >= 0;
 
@@ -134,6 +139,21 @@ export default function MarketBento() {
               volumeMultiple !== null
                 ? `${volumeMultiple.toFixed(2)}× market cap`
                 : undefined
+            }
+          />
+        )}
+
+        {buys !== null && sells !== null && (
+          <StatCard
+            label="Buy / sell txns (24h)"
+            value={`${buys.toLocaleString()} / ${sells.toLocaleString()}`}
+            sub={buyPct !== null ? `${buyPct.toFixed(0)}% were buys` : undefined}
+            subClassName={
+              buyPct !== null
+                ? buyPct >= 50
+                  ? "text-[var(--pos)]"
+                  : "text-[var(--neg)]"
+                : "text-mute"
             }
           />
         )}
