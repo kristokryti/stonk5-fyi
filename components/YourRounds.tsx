@@ -105,7 +105,7 @@ export default function YourRounds() {
           <input
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Solana wallet address, e.g. H5GnZkkaW2Ph2fVWbNP6PdppaVFSHiRP18nSvjtyX4qY"
+            placeholder="Solana wallet address, e.g. 7xKXtg2CW87d97TXJSDpb...D4Y1YqCM"
             className="min-w-0 flex-1 rounded-2xl border border-[var(--line)] bg-[var(--fill-soft)] px-4 py-3 font-mono text-[13px] text-ink placeholder:text-mute focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--c2)]"
             spellCheck={false}
             autoComplete="off"
@@ -116,16 +116,17 @@ export default function YourRounds() {
         </form>
 
         <p className="mt-3 text-[13px] text-mute">
-          For your full rewards, check your wallet on the official{" "}
+          For your full reward history — including anything still owed — see
+          the Claims section on the official{" "}
           <a
-            href={LINKS.website}
+            href={LINKS.claims}
             target="_blank"
             rel="noreferrer"
             className="text-ink2 underline underline-offset-2 hover:text-ink"
           >
             stonk5.com
           </a>{" "}
-          page.
+          website.
         </p>
 
         {error && <p className="mt-3 text-[13px] text-[var(--neg)]">{error}</p>}
