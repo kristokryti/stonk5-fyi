@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { LINKS } from "@/lib/constants";
 import { formatDate, formatUsd, proxiedTokenImage } from "@/lib/format";
-import type { ClaimsPayoutEntry, ClaimsResponse } from "@/lib/types";
+import type { ClaimsOpenEntry, ClaimsPayoutEntry, ClaimsResponse } from "@/lib/types";
 
 function formatTokenAmount(raw: string, decimals: number): string {
   const value = Number(raw) / 10 ** decimals;
@@ -13,9 +13,29 @@ function formatTokenAmount(raw: string, decimals: number): string {
 }
 
 function openStatusLabel(status: string): string {
+  if (status === "ready") return "Ready — sent next round";
   if (status === "below-minimum-payout") return "Below delivery floor";
   if (status === "cost-exceeds-value") return "Delivery cost too high";
   return "Carried to next round";
+}
+
+// The claims API's own `detail` field is an internal/debug string (raw
+// token amounts, no formatting — e.g. "net 28241168207 below floor
+// 61880087087"), not meant for display. Build the actual explanation from
+// the same structured fields the official site's version of this text
+// draws from: what it's worth, why it's not going out yet, and the real
+// dollar floor it needs to clear.
+function openExplainer(entry: ClaimsOpenEntry): string | null {
+  if (entry.status === "ready") {
+    return "Already clears the floor to deliver — goes out with the next round, no separate action needed.";
+  }
+  if (entry.floorUsd == null) return null;
+  const worth = formatUsd(entry.valueUsd);
+  const floor = formatUsd(entry.floorUsd);
+  if (entry.needsAccount) {
+    return `Worth ${worth}. Sending it means opening you a token account, which only makes sense once it's worth at least ${floor} — it grows with every round until then.`;
+  }
+  return `Worth ${worth}. The cost of sending it is still more than it's worth right now — it grows with every round until it clears ${floor}.`;
 }
 
 function groupPayoutsByRound(payouts: ClaimsPayoutEntry[]): [string, ClaimsPayoutEntry[]][] {
@@ -139,8 +159,8 @@ export default function YourRounds() {
         </form>
 
         <p className="mt-3 text-[13px] text-mute">
-          For full reward history (incl. what is owed + more), check your
-          wallet on the Claims section of the official{" "}
+          For full reward history, check your wallet address in the Claims
+          section of the official{" "}
           <a
             href={LINKS.website}
             target="_blank"
@@ -209,18 +229,54 @@ export default function YourRounds() {
             {openEntries.length > 0 && (
               <div className="mt-6">
                 <div className="label">Carried — not yet delivered</div>
-                <div className="mt-3 flex flex-wrap gap-2">
+                <p className="mt-1 text-[12px] leading-relaxed text-mute">
+                  A payout that&apos;s too small to deliver yet — either it
+                  doesn&apos;t clear the cost of opening you a token account,
+                  or (once you have one) it doesn&apos;t clear the cost of
+                  sending it — rides along and grows with every round until
+                  it does, or gets paid out earlier if a bigger round pushes
+                  it over the line.
+                </p>
+                <div className="mt-3 space-y-3">
                   {openEntries.map(([mint, entry]) => {
                     const meta = data.tokens[mint];
+                    const explainer = openExplainer(entry);
+                    const pct =
+                      entry.floorUsd != null && entry.floorUsd > 0
+                        ? Math.min(100, (entry.valueUsd / entry.floorUsd) * 100)
+                        : null;
                     return (
-                      <span
+                      <div
                         key={mint}
-                        title={entry.detail}
-                        className="chip inline-flex items-center gap-2"
+                        className="rounded-2xl border border-[var(--line)] bg-[var(--fill-soft)] p-4"
                       >
-                        <TokenIcon symbol={meta?.symbol ?? "?"} imageUrl={meta?.imageUrl} />
-                        {meta?.symbol ?? mint.slice(0, 4)} · {openStatusLabel(entry.status)}
-                      </span>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <TokenIcon symbol={meta?.symbol ?? "?"} imageUrl={meta?.imageUrl} />
+                          <span className="text-sm font-semibold text-ink">
+                            {meta?.symbol ?? mint.slice(0, 4)}
+                          </span>
+                          <span className="chip text-[11px]">{openStatusLabel(entry.status)}</span>
+                        </div>
+                        {explainer && (
+                          <p className="mt-2 text-[12px] leading-relaxed text-mute">{explainer}</p>
+                        )}
+                        {pct !== null && (
+                          <div className="bar mt-3">
+                            <i style={{ width: `${pct}%` }} />
+                          </div>
+                        )}
+                        <div className="mt-1.5 flex flex-wrap items-center justify-between gap-x-3 text-[11px] text-mute">
+                          <span>
+                            {formatTokenAmount(entry.netRaw, meta?.decimals ?? 6)}{" "}
+                            {meta?.symbol ?? ""} · about {formatUsd(entry.valueUsd)}
+                          </span>
+                          {pct !== null && entry.floorUsd != null && (
+                            <span>
+                              {pct.toFixed(0)}% of the way to {formatUsd(entry.floorUsd)}
+                            </span>
+                          )}
+                        </div>
+                      </div>
                     );
                   })}
                 </div>

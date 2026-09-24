@@ -98,7 +98,9 @@ export interface ClaimsOpenEntry {
   status: string;
   detail: string;
   needsAccount: boolean;
-  floorUsd: number;
+  // null for a "ready" entry — it already clears the floor, so there's no
+  // threshold left to report.
+  floorUsd: number | null;
 }
 
 export interface ClaimsPayoutEntry {
