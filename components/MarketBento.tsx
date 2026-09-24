@@ -125,7 +125,6 @@ export default function MarketBento() {
               />
               Stonk5 Index
             </a>
-            <span className="chip">Solana</span>
             <span className="chip chip-info">Paired with SOL</span>
           </div>
 

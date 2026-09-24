@@ -48,20 +48,27 @@ export async function GET(req: Request) {
     return fallbackResponse(symbol);
   }
 
-  try {
-    const res = await fetch(upstream, {
-      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
-      headers: { accept: "image/*" },
-    });
-    const contentType = res.headers.get("content-type") ?? "";
-    if (!res.ok || !contentType.startsWith("image/")) {
-      throw new Error(`upstream responded ${res.status} (${contentType})`);
+  const ATTEMPTS = 2;
+  // These upstream gateways occasionally fail or time out on a single
+  // request; without a retry that single blip replaces a real logo with the
+  // initials fallback until the next request happens to re-fetch it.
+  for (let attempt = 1; attempt <= ATTEMPTS; attempt++) {
+    try {
+      const res = await fetch(upstream, {
+        signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+        headers: { accept: "image/*" },
+      });
+      const contentType = res.headers.get("content-type") ?? "";
+      if (!res.ok || !contentType.startsWith("image/")) {
+        throw new Error(`upstream responded ${res.status} (${contentType})`);
+      }
+      const buf = await res.arrayBuffer();
+      return new NextResponse(buf, {
+        headers: { "content-type": contentType, "cache-control": CACHE_CONTROL },
+      });
+    } catch {
+      if (attempt === ATTEMPTS) return fallbackResponse(symbol);
     }
-    const buf = await res.arrayBuffer();
-    return new NextResponse(buf, {
-      headers: { "content-type": contentType, "cache-control": CACHE_CONTROL },
-    });
-  } catch {
-    return fallbackResponse(symbol);
   }
+  return fallbackResponse(symbol);
 }
