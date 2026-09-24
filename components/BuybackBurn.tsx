@@ -114,14 +114,23 @@ export default function BuybackBurn() {
 
         {onchain &&
           (() => {
-            const currentPct = onchain.burnedPercent + (onchain.lockedTokens ?? 0) / ISSUED_SUPPLY * 100;
+            // The vault is a rotating buffer (bought weekly, swept into the
+            // escrow weekly), not something that grows monotonically the
+            // way burned/locked-escrow do — so it's held at its current
+            // snapshot value at every point on the bar (now, 1M, 1Y) rather
+            // than projected forward, which would assume a growth pattern
+            // we have no real basis for.
+            const inVault = onchain.inVaultTokens ?? 0;
+            const currentPct =
+              onchain.burnedPercent + ((onchain.lockedTokens ?? 0) + inVault) / ISSUED_SUPPLY * 100;
             const markers = HORIZONS.map(({ tag, tick, days }) => {
               const projectedBurned = project(onchain.burnedTokens, burnedPerDay, days);
               const projectedLocked = project(onchain.lockedTokens, lockedPerDay, days);
               const combined =
                 projectedBurned !== null || projectedLocked !== null
                   ? (projectedBurned ?? onchain.burnedTokens) +
-                    (projectedLocked ?? onchain.lockedTokens ?? 0)
+                    (projectedLocked ?? onchain.lockedTokens ?? 0) +
+                    inVault
                   : null;
               const combinedPct = combined !== null ? (combined / ISSUED_SUPPLY) * 100 : null;
               return { tag, tick, combinedPct };
@@ -175,11 +184,11 @@ export default function BuybackBurn() {
                 </div>
                 <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1">
                   <span className="text-[11px] text-mute">
-                    Now: {formatPct(currentPct)} of supply burned+locked
+                    Now: {formatPct(currentPct)} of supply burned+locked+vault
                   </span>
                   {markers.map(({ tag, combinedPct }) => (
                     <span key={tag} className="text-[11px] text-mute">
-                      {tag}: {formatPct(combinedPct)} of supply burned+locked
+                      {tag}: {formatPct(combinedPct)} of supply burned+locked+vault
                     </span>
                   ))}
                 </div>
