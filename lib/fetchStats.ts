@@ -204,6 +204,10 @@ interface StonkfunBasketToken {
 }
 
 async function fetchBasket(): Promise<BasketToken[]> {
+  return withStaleFallback("basket", () => fetchBasketLive());
+}
+
+async function fetchBasketLive(): Promise<BasketToken[]> {
   const json = (await fetchJson(`${STONKFUN_API_BASE}/tokens?sort=marketCap&pageSize=5`)) as {
     data?: { tokens?: StonkfunBasketToken[] };
   };

@@ -119,7 +119,7 @@ export default function YourRounds() {
           For full reward history (incl. what is owed + more), check your
           wallet on the Claims section of the official{" "}
           <a
-            href={LINKS.claims}
+            href={LINKS.website}
             target="_blank"
             rel="noreferrer"
             className="text-ink2 underline underline-offset-2 hover:text-ink"
