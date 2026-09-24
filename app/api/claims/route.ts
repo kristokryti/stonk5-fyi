@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { STONK5_API_BASE, STONKFUN_API_BASE } from "@/lib/constants";
+import { resolveTokenImage } from "@/lib/tokenImageOverrides";
 import type { ClaimsResponse } from "@/lib/types";
 
 const WALLET_RE = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/;
@@ -56,7 +57,8 @@ export async function GET(req: Request) {
   imageResults.forEach((result, i) => {
     const mint = mints[i];
     if (data.tokens[mint]) {
-      data.tokens[mint].imageUrl = result.status === "fulfilled" ? result.value.imageUrl : null;
+      const liveImageUrl = result.status === "fulfilled" ? result.value.imageUrl : null;
+      data.tokens[mint].imageUrl = resolveTokenImage(mint, liveImageUrl);
     }
   });
 

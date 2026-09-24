@@ -11,6 +11,7 @@ import {
 } from "./constants";
 import { getOnchainStats } from "./solana";
 import basketFallbackData from "./basketFallback.json";
+import { resolveTokenImage } from "./tokenImageOverrides";
 import type {
   BasketToken,
   LaunchInfo,
@@ -247,21 +248,8 @@ function basketFromLocalSnapshot(): BasketToken[] {
   }));
 }
 
-// Manually curated logo replacements, keyed by mint. Used when a token's
-// official image is real but poorly suited to a small circular slot (e.g.
-// a sticker-style asset with a lot of padding around the actual mark) —
-// the source is re-cropped once and saved locally, then always preferred
-// here over whatever stonkfun's live API reports, so the basket doesn't
-// keep reverting to the awkward original whenever the live fetch succeeds.
-const CURATED_IMAGE_OVERRIDES: Record<string, string> = {
-  HTmQz7My6MehV7bjhJ6jde8nDND1yvsz68d24LP7YgUQ: // GP (RuneScape Gold)
-    "/token-fallback/HTmQz7My6MehV7bjhJ6jde8nDND1yvsz68d24LP7YgUQ.jpg",
-};
-
 function applyImageOverrides(basket: BasketToken[]): BasketToken[] {
-  return basket.map((t) =>
-    CURATED_IMAGE_OVERRIDES[t.mint] ? { ...t, imageUrl: CURATED_IMAGE_OVERRIDES[t.mint] } : t
-  );
+  return basket.map((t) => ({ ...t, imageUrl: resolveTokenImage(t.mint, t.imageUrl) }));
 }
 
 function pctDiff(a: number | null, b: number | null): number | null {

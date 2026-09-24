@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { LINKS } from "@/lib/constants";
-import { formatDate, proxiedTokenImage } from "@/lib/format";
+import { formatDate, formatUsd, proxiedTokenImage } from "@/lib/format";
 import type { ClaimsPayoutEntry, ClaimsResponse } from "@/lib/types";
 
 function formatTokenAmount(raw: string, decimals: number): string {
@@ -91,9 +91,32 @@ export default function YourRounds() {
   const rounds = holder ? groupPayoutsByRound(holder.payouts) : [];
   const openEntries = holder ? Object.entries(holder.open) : [];
 
+  // Per-token running totals (already summed by the claims API across every
+  // round, not just the last few shown below), plus their combined value —
+  // tokens can't be added together directly, but their USD values can,
+  // using the same live prices the claims API already reports per token.
+  const receivedEntries = holder
+    ? Object.entries(holder.received).sort(([mintA], [mintB]) => {
+        const valueOf = (mint: string) => {
+          const entry = holder.received[mint];
+          const meta = data?.tokens[mint];
+          if (!meta) return 0;
+          return (Number(entry.netRaw) / 10 ** meta.decimals) * meta.priceUsd;
+        };
+        return valueOf(mintB) - valueOf(mintA);
+      })
+    : [];
+  const totalReceivedUsd = receivedEntries.reduce((sum, [mint, entry]) => {
+    const meta = data?.tokens[mint];
+    if (!meta) return sum;
+    const amount = Number(entry.netRaw) / 10 ** meta.decimals;
+    if (!Number.isFinite(amount)) return sum;
+    return sum + amount * meta.priceUsd;
+  }, 0);
+
   return (
     <section id="your-rewards" className="wrap mt-16 sm:mt-22">
-      <h2>Your rewards</h2>
+      <h2>My rewards</h2>
       <p className="lead mt-2">
         Paste a public wallet address holding $STONK5 to see what rewards
         it has received, and what&apos;s still carried, straight from the
@@ -153,6 +176,35 @@ export default function YourRounds() {
                 {holder.eligible ? "Eligible" : "Not currently eligible"}
               </span>
             </div>
+
+            {receivedEntries.length > 0 && (
+              <div className="mt-6">
+                <div className="flex flex-wrap items-baseline justify-between gap-3">
+                  <div className="label">Total received</div>
+                  <div className="num text-sm font-semibold text-ink">
+                    ≈ {formatUsd(totalReceivedUsd)}{" "}
+                    <span className="font-normal text-mute">across every round</span>
+                  </div>
+                </div>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {receivedEntries.map(([mint, entry]) => {
+                    const meta = data.tokens[mint];
+                    return (
+                      <span
+                        key={mint}
+                        className="inline-flex items-center gap-2 rounded-full border border-[var(--line)] bg-[var(--fill-soft)] py-1 pl-1 pr-3 text-[13px] font-medium text-ink"
+                      >
+                        <TokenIcon symbol={meta?.symbol ?? "?"} imageUrl={meta?.imageUrl} />
+                        {meta?.symbol ?? mint.slice(0, 4)}{" "}
+                        <span className="font-normal text-mute">
+                          {formatTokenAmount(entry.netRaw, meta?.decimals ?? 6)}
+                        </span>
+                      </span>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
             {openEntries.length > 0 && (
               <div className="mt-6">
