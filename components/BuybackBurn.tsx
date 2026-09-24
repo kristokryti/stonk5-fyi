@@ -184,11 +184,11 @@ export default function BuybackBurn() {
                 </div>
                 <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1">
                   <span className="text-[11px] text-mute">
-                    Now: {formatPct(currentPct)} of supply burned+locked+vault
+                    Now: {formatPct(currentPct)} of supply burned+locked
                   </span>
                   {markers.map(({ tag, combinedPct }) => (
                     <span key={tag} className="text-[11px] text-mute">
-                      {tag}: {formatPct(combinedPct)} of supply burned+locked+vault
+                      {tag}: {formatPct(combinedPct)} of supply burned+locked
                     </span>
                   ))}
                 </div>
