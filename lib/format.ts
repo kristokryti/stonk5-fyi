@@ -3,9 +3,14 @@
  * which always returns a valid image (the real logo, or a generated
  * initials fallback if the upstream host is unreachable) — see that
  * route for why. Returns null if there's no logo to show at all.
+ *
+ * A same-origin path (e.g. /token-fallback/<mint>.png, from the local
+ * basket snapshot) is already a static asset — serve it directly instead
+ * of wrapping it in the proxy, which expects an absolute upstream URL.
  */
 export function proxiedTokenImage(url: string | null | undefined, symbol: string): string | null {
   if (!url) return null;
+  if (url.startsWith("/")) return url;
   return `/api/token-image?url=${encodeURIComponent(url)}&symbol=${encodeURIComponent(symbol)}`;
 }
 

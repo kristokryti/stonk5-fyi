@@ -10,6 +10,7 @@ import {
   STONKFUN_API_BASE,
 } from "./constants";
 import { getOnchainStats } from "./solana";
+import basketFallbackData from "./basketFallback.json";
 import type {
   BasketToken,
   LaunchInfo,
@@ -224,6 +225,25 @@ async function fetchBasketLive(): Promise<BasketToken[]> {
     marketCapUsd: t.market?.marketCapUsd ?? null,
     priceChange24h: t.market?.priceChange24h ?? null,
     priceUsd: t.market?.priceUsd ?? null,
+  }));
+}
+
+// Ultimate fallback when stonkfun's tokens-list is unreachable and no
+// recent stale value is cached either (e.g. a sustained outage spanning
+// this whole server's uptime). Backed by a local snapshot of the top ~30
+// tokens' mint/name/symbol + logo, refreshed occasionally by
+// scripts/refresh-basket-fallback.mjs — see lib/basketFallback.json. No
+// market cap/price/24h change: those would just be stale numbers dressed
+// up as live ones, so they're left null rather than invented.
+function basketFromLocalSnapshot(): BasketToken[] {
+  return basketFallbackData.tokens.slice(0, 5).map((t) => ({
+    mint: t.mint,
+    name: t.name,
+    symbol: t.symbol,
+    imageUrl: t.imageFile ? `/token-fallback/${t.imageFile}` : null,
+    marketCapUsd: null,
+    priceChange24h: null,
+    priceUsd: null,
   }));
 }
 
@@ -491,6 +511,13 @@ export async function getTokenStats(): Promise<TokenStats> {
     warnings.push("Solana RPC unreachable — burn and engine-round data unavailable.");
   }
 
+  const resolvedBasket = basket ?? basketFromLocalSnapshot();
+  if (!basket) {
+    warnings.push(
+      "Live payout-basket data unreachable — showing a recent saved snapshot of the top tokens."
+    );
+  }
+
   const marketCapDiscrepancy = pctDiff(
     dex?.marketCapUsd ?? null,
     stonkfun?.marketCapUsd ?? null
@@ -534,7 +561,7 @@ export async function getTokenStats(): Promise<TokenStats> {
     launch: stonkfun?.launch ?? null,
 
     onchain,
-    basket,
+    basket: resolvedBasket,
     basketAvgChange24h,
     basketTotalMarketCapUsd,
 
