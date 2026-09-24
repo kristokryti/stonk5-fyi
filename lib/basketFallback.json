@@ -1,185 +1,215 @@
 {
-  "generatedAt": "2026-09-24T16:02:06.331Z",
+  "generatedAt": "2026-09-24T17:06:49.822Z",
   "tokens": [
     {
       "mint": "6GmAFSYs4gk3FDao5FzzySQpPZaWsa4rUJHacpMpUNgx",
       "name": "STONK",
       "symbol": "STONK",
-      "imageFile": "6GmAFSYs4gk3FDao5FzzySQpPZaWsa4rUJHacpMpUNgx.png"
+      "imageFile": "6GmAFSYs4gk3FDao5FzzySQpPZaWsa4rUJHacpMpUNgx.png",
+      "sourceUrl": "https://www.stonkfun.xyz/api/asset/quote-logo/6GmAFSYs4gk3FDao5FzzySQpPZaWsa4rUJHacpMpUNgx?v=c3c81410"
     },
     {
       "mint": "HcRLc9VDgjLeK154xDawfb1dmVJ98DoSqcwTHGqiDeJR",
       "name": "Anonymous Cat",
       "symbol": "ZCAT",
-      "imageFile": "HcRLc9VDgjLeK154xDawfb1dmVJ98DoSqcwTHGqiDeJR.jpg"
+      "imageFile": "HcRLc9VDgjLeK154xDawfb1dmVJ98DoSqcwTHGqiDeJR.jpg",
+      "sourceUrl": "https://gateway.irys.xyz/7uFsXwyuyzKDiqdda4L2cq3DcpcdRqYhwe4m8ZoVJ1BQ"
     },
     {
       "mint": "HTmQz7My6MehV7bjhJ6jde8nDND1yvsz68d24LP7YgUQ",
       "name": "RuneScape Gold",
       "symbol": "GP",
-      "imageFile": "HTmQz7My6MehV7bjhJ6jde8nDND1yvsz68d24LP7YgUQ.jpg"
+      "imageFile": "HTmQz7My6MehV7bjhJ6jde8nDND1yvsz68d24LP7YgUQ.jpg",
+      "sourceUrl": "https://gateway.irys.xyz/5wTHVjcQcbpWaKGLe2w8T1hpGoQsLAxhTvSMpXuKHPUx"
     },
     {
       "mint": "8RVBk8vxLiUHueLUW1f4izFVqN3nWippLhkohKg6EGkS",
       "name": "KNOTS",
       "symbol": "KNOTS",
-      "imageFile": "8RVBk8vxLiUHueLUW1f4izFVqN3nWippLhkohKg6EGkS.png"
-    },
-    {
-      "mint": "DEW9dSN6QpWyNthphCpMmAbZP1Q4cEKR9xQXAri98WDP",
-      "name": "Super Inu",
-      "symbol": "SI",
-      "imageFile": "DEW9dSN6QpWyNthphCpMmAbZP1Q4cEKR9xQXAri98WDP.webp"
-    },
-    {
-      "mint": "6UtY9iTZMQQ5QZVrbzFnNaJntV7oySm9k97mvwnuZcxr",
-      "name": "NearKat",
-      "symbol": "NEARKAT",
-      "imageFile": "6UtY9iTZMQQ5QZVrbzFnNaJntV7oySm9k97mvwnuZcxr.jpg"
+      "imageFile": "8RVBk8vxLiUHueLUW1f4izFVqN3nWippLhkohKg6EGkS.png",
+      "sourceUrl": "https://gateway.irys.xyz/3KNgu99JvZ961wXUxcZ8LXDXjaWK4651Wo9oUZSA5U4L"
     },
     {
       "mint": "4MMQY9bwkxxTtsK3W227Q5ABT6yFY8Pmn9Ze7wmAXKY8",
       "name": "ALLINU",
       "symbol": "ALLINU",
-      "imageFile": "4MMQY9bwkxxTtsK3W227Q5ABT6yFY8Pmn9Ze7wmAXKY8.webp"
+      "imageFile": "4MMQY9bwkxxTtsK3W227Q5ABT6yFY8Pmn9Ze7wmAXKY8.webp",
+      "sourceUrl": "https://axiomtrading.sfo3.cdn.digitaloceanspaces.com/3jt62QcVQvTu2gCCYFWPBnVNgQ2uv5fVxkSa9hFepump.webp"
     },
     {
-      "mint": "4rkGWJNSUPBcMicXMRAzohEyeJLFG8gUjwiWaz7Pddr3",
-      "name": "Christmas Cracker",
-      "symbol": "CRACKER",
-      "imageFile": "4rkGWJNSUPBcMicXMRAzohEyeJLFG8gUjwiWaz7Pddr3.jpg"
+      "mint": "6UtY9iTZMQQ5QZVrbzFnNaJntV7oySm9k97mvwnuZcxr",
+      "name": "NearKat",
+      "symbol": "NEARKAT",
+      "imageFile": "6UtY9iTZMQQ5QZVrbzFnNaJntV7oySm9k97mvwnuZcxr.jpg",
+      "sourceUrl": "https://gateway.irys.xyz/EiwGr8C8Jf1MqrB1GbCCEjNXzXpr1NNhcitM6u39DQEA"
     },
     {
       "mint": "8RNUw4N655VSrZKuhGdywhbSMDTrheguFPfxbpE2NZHQ",
       "name": "Hypurr",
       "symbol": "PURR",
-      "imageFile": "8RNUw4N655VSrZKuhGdywhbSMDTrheguFPfxbpE2NZHQ.jpg"
+      "imageFile": "8RNUw4N655VSrZKuhGdywhbSMDTrheguFPfxbpE2NZHQ.jpg",
+      "sourceUrl": "https://gateway.irys.xyz/ENbdipSawCZv6Z4Lv1hvGpppmnbS3pArfrpJtcTi7p3a"
+    },
+    {
+      "mint": "DEW9dSN6QpWyNthphCpMmAbZP1Q4cEKR9xQXAri98WDP",
+      "name": "Super Inu",
+      "symbol": "SI",
+      "imageFile": "DEW9dSN6QpWyNthphCpMmAbZP1Q4cEKR9xQXAri98WDP.webp",
+      "sourceUrl": "https://axiomtrading.sfo3.cdn.digitaloceanspaces.com/7ovByu4CKE2ogdbYTRx8o9z1XarkNMA3hXyxThWamoon.webp"
     },
     {
       "mint": "HuAXPyDWDaMYFKuwQHpqL1oPnj93zdzWmtvFGzCeCUa7",
       "name": "Nullmask",
       "symbol": "MASK",
-      "imageFile": "HuAXPyDWDaMYFKuwQHpqL1oPnj93zdzWmtvFGzCeCUa7.jpg"
+      "imageFile": "HuAXPyDWDaMYFKuwQHpqL1oPnj93zdzWmtvFGzCeCUa7.jpg",
+      "sourceUrl": "https://gateway.irys.xyz/7Dbdj8EPHEmf3bmRGnZMdeYTbDcKy7qGwrpDuqVzeKii"
     },
     {
-      "mint": "6HU4CmRb15C2nQDx8Ld2f2W2wTdmog6aZiiXdrT5Pzi8",
-      "name": "Grokification",
-      "symbol": "GROK",
-      "imageFile": null
+      "mint": "4rkGWJNSUPBcMicXMRAzohEyeJLFG8gUjwiWaz7Pddr3",
+      "name": "Christmas Cracker",
+      "symbol": "CRACKER",
+      "imageFile": "4rkGWJNSUPBcMicXMRAzohEyeJLFG8gUjwiWaz7Pddr3.jpg",
+      "sourceUrl": "https://gateway.irys.xyz/9zetBQCLPPcGHPtR28MuHRqQB1byXPdY6x4KfRzMZCTo"
     },
     {
       "mint": "CFNRDaxFcvRwRSNnA5cHrCCr6AHhk9dNkHWpRUjNupFL",
       "name": "Raydium Cat",
       "symbol": "RAYCAT",
-      "imageFile": "CFNRDaxFcvRwRSNnA5cHrCCr6AHhk9dNkHWpRUjNupFL.png"
+      "imageFile": "CFNRDaxFcvRwRSNnA5cHrCCr6AHhk9dNkHWpRUjNupFL.png",
+      "sourceUrl": "https://gateway.irys.xyz/B77x6QzyvAbwR6RXZyQajSN6TppjKsRxTa5YfVqCss5W"
     },
     {
-      "mint": "72yxYmhLgDGwdyi2b9GjDynBB6VuG3kDxNKqDbzXh5bi",
-      "name": "WoW Gold",
-      "symbol": "WOW",
-      "imageFile": "72yxYmhLgDGwdyi2b9GjDynBB6VuG3kDxNKqDbzXh5bi.jpg"
+      "mint": "6HU4CmRb15C2nQDx8Ld2f2W2wTdmog6aZiiXdrT5Pzi8",
+      "name": "Grokification",
+      "symbol": "GROK",
+      "imageFile": null,
+      "sourceUrl": "https://axiomtrading-v2.axiom-cdn.io/9QcuEErCatXYn49iSb8FU9kZiSe4zi8FexhCPaWZEF1b.webp"
     },
     {
       "mint": "ZesMGYmokFiEuDvNzWeMhB7jxF6eUW8c512vwSKSTNK",
       "name": "Just a Backpack",
       "symbol": "🎒",
-      "imageFile": "ZesMGYmokFiEuDvNzWeMhB7jxF6eUW8c512vwSKSTNK.webp"
+      "imageFile": "ZesMGYmokFiEuDvNzWeMhB7jxF6eUW8c512vwSKSTNK.webp",
+      "sourceUrl": "https://axiomtrading.sfo3.cdn.digitaloceanspaces.com/CYGw4sDm5vX1JeQ7uyiZo3qniYwmsPJg3MHSKcNQpump.webp"
     },
     {
-      "mint": "HgcxVs6kJhPAaGqnPNGaa7zYgNT49hJrLufiqcNMuYZT",
-      "name": "Feels Good Man",
-      "symbol": "FEELSGOOD",
-      "imageFile": "HgcxVs6kJhPAaGqnPNGaa7zYgNT49hJrLufiqcNMuYZT.jpg"
-    },
-    {
-      "mint": "E4Ap4icMLwKot8rkkTbq5JkS5kZxt5XCE3yfxbzYBjHx",
-      "name": "Buy The Cat",
-      "symbol": "BTC",
-      "imageFile": "E4Ap4icMLwKot8rkkTbq5JkS5kZxt5XCE3yfxbzYBjHx.jpg"
+      "mint": "72yxYmhLgDGwdyi2b9GjDynBB6VuG3kDxNKqDbzXh5bi",
+      "name": "WoW Gold",
+      "symbol": "WOW",
+      "imageFile": "72yxYmhLgDGwdyi2b9GjDynBB6VuG3kDxNKqDbzXh5bi.jpg",
+      "sourceUrl": "https://gateway.irys.xyz/88ShZYXEEX2YxhJnzqEijVkoCgLeVMHYwQUMLYAeZ4QS"
     },
     {
       "mint": "FjTfaSH861nVcbAxdFAHTvhoSL4kyR6wgTWynuJkapht",
       "name": "DividendCoin",
       "symbol": "DIVI",
-      "imageFile": "FjTfaSH861nVcbAxdFAHTvhoSL4kyR6wgTWynuJkapht.png"
+      "imageFile": "FjTfaSH861nVcbAxdFAHTvhoSL4kyR6wgTWynuJkapht.png",
+      "sourceUrl": "https://gateway.irys.xyz/FT9XVQdFwpkKMfEvi2rEKwEP7mNbXgtXvNUk2B3dWA9v"
+    },
+    {
+      "mint": "E4Ap4icMLwKot8rkkTbq5JkS5kZxt5XCE3yfxbzYBjHx",
+      "name": "Buy The Cat",
+      "symbol": "BTC",
+      "imageFile": "E4Ap4icMLwKot8rkkTbq5JkS5kZxt5XCE3yfxbzYBjHx.jpg",
+      "sourceUrl": "https://gateway.irys.xyz/DzqTc3JmkcToAq4b4dXnvYAwTUpbtZud15rHLzbURG5E"
+    },
+    {
+      "mint": "HgcxVs6kJhPAaGqnPNGaa7zYgNT49hJrLufiqcNMuYZT",
+      "name": "Feels Good Man",
+      "symbol": "FEELSGOOD",
+      "imageFile": "HgcxVs6kJhPAaGqnPNGaa7zYgNT49hJrLufiqcNMuYZT.jpg",
+      "sourceUrl": "https://gateway.irys.xyz/Acn9o3D97T6ukMdULBJw7HZkCNhi26MhHpAggVa4iFQu"
     },
     {
       "mint": "9h5AzEQzYu9CV5K6uLtFRMD1KcbxZSFNxZEgBTNfw5Na",
       "name": "Stonk Cats",
       "symbol": "STONKCATS",
-      "imageFile": "9h5AzEQzYu9CV5K6uLtFRMD1KcbxZSFNxZEgBTNfw5Na.png"
-    },
-    {
-      "mint": "7Qy2cXpdj4Fu2DUPVWdN3oogM3JSwLUV2LZaKVgVcPZh",
-      "name": "HYPERCAT",
-      "symbol": "HYPERCAT",
-      "imageFile": "7Qy2cXpdj4Fu2DUPVWdN3oogM3JSwLUV2LZaKVgVcPZh.jpg"
-    },
-    {
-      "mint": "CASs9vMniGPtsnnKrV9uziBHA7JU5dS9MQY15WsRqVfx",
-      "name": "Duel Arena",
-      "symbol": "DUEL",
-      "imageFile": null
+      "imageFile": "9h5AzEQzYu9CV5K6uLtFRMD1KcbxZSFNxZEgBTNfw5Na.png",
+      "sourceUrl": "https://gateway.irys.xyz/4hmTbSyA46UDqNoKqr4cnUoXsgaCFkNKj4Mx7qaPGNkg"
     },
     {
       "mint": "AGi2s9zPRPHs3zEDPhPTroumTEXK5ufymYSfEFndCSSW",
       "name": "Leveraged Cat",
       "symbol": "LEVERCAT",
-      "imageFile": "AGi2s9zPRPHs3zEDPhPTroumTEXK5ufymYSfEFndCSSW.png"
+      "imageFile": "AGi2s9zPRPHs3zEDPhPTroumTEXK5ufymYSfEFndCSSW.png",
+      "sourceUrl": "https://gateway.irys.xyz/72ipFM6nub2FJEzQjhLSG2KGq7YDFQ2qmp8ZpYwcNKyh"
     },
     {
-      "mint": "Ddd4Qy8N5nNtteaHfESfmjsynz5qEGFQZMLQuLj49EzL",
-      "name": "RICH OFF GTA 6",
-      "symbol": "RICH",
-      "imageFile": "Ddd4Qy8N5nNtteaHfESfmjsynz5qEGFQZMLQuLj49EzL.jpg"
-    },
-    {
-      "mint": "3c7mmVSyEH8jfZXgxvpLsETtko1Y16DyRJ5XYB4snhGt",
-      "name": "SANTA",
-      "symbol": "SANTA",
-      "imageFile": "3c7mmVSyEH8jfZXgxvpLsETtko1Y16DyRJ5XYB4snhGt.png"
-    },
-    {
-      "mint": "At541hRZhK9LWKj9w2dqN2wCdpFyZgRa1Un2yG7xa43m",
-      "name": "V-BUCKS",
-      "symbol": "VBUCKS",
-      "imageFile": "At541hRZhK9LWKj9w2dqN2wCdpFyZgRa1Un2yG7xa43m.png"
+      "mint": "CASs9vMniGPtsnnKrV9uziBHA7JU5dS9MQY15WsRqVfx",
+      "name": "Duel Arena",
+      "symbol": "DUEL",
+      "imageFile": null,
+      "sourceUrl": "https://proximaimage.hel1.your-objectstorage.com/launch-images/c8d4678e-a11f-44a1-91da-14099dbd3833"
     },
     {
       "mint": "7MCgYMzq3fov6oERdtTMAYbN2U9LZrrSYS1MBhjixZFr",
       "name": "Pudgy Polly",
       "symbol": "POLLY",
-      "imageFile": "7MCgYMzq3fov6oERdtTMAYbN2U9LZrrSYS1MBhjixZFr.jpg"
+      "imageFile": "7MCgYMzq3fov6oERdtTMAYbN2U9LZrrSYS1MBhjixZFr.jpg",
+      "sourceUrl": "https://gateway.irys.xyz/6qay2UucsX5aqBixwSCkdpqN5z5F5VpnLff4DqrW2Zzc"
+    },
+    {
+      "mint": "Ddd4Qy8N5nNtteaHfESfmjsynz5qEGFQZMLQuLj49EzL",
+      "name": "RICH OFF GTA 6",
+      "symbol": "RICH",
+      "imageFile": "Ddd4Qy8N5nNtteaHfESfmjsynz5qEGFQZMLQuLj49EzL.jpg",
+      "sourceUrl": "https://gateway.irys.xyz/4Cwbu2PHtxbRAV1c9RDj1L6dHFHSW7ZMbLNYqKHKW4mA"
+    },
+    {
+      "mint": "7Qy2cXpdj4Fu2DUPVWdN3oogM3JSwLUV2LZaKVgVcPZh",
+      "name": "HYPERCAT",
+      "symbol": "HYPERCAT",
+      "imageFile": "7Qy2cXpdj4Fu2DUPVWdN3oogM3JSwLUV2LZaKVgVcPZh.jpg",
+      "sourceUrl": "https://gateway.irys.xyz/D6uqJBkBFtXhEUwpsTe9U8NnDvmTTWBSeJhb2USZKwuK"
     },
     {
       "mint": "FvhorDts9M8uJekzs3pBcYUPUjWtCTrGLhdv3ADHyeRY",
       "name": "LinkedInu",
       "symbol": "LinkedInu",
-      "imageFile": null
-    },
-    {
-      "mint": "GKeUT73KRsvWVYNfQPdghxdHTKKGUAESf3t8BZmfXvih",
-      "name": "GROK",
-      "symbol": "GROK",
-      "imageFile": "GKeUT73KRsvWVYNfQPdghxdHTKKGUAESf3t8BZmfXvih.webp"
-    },
-    {
-      "mint": "6kNNgyrdvjkRC8eRGQqx5sLfZG2jTmg3NCFmkX2hYP4j",
-      "name": "SOMETHING THE CAT",
-      "symbol": "SOMETHING",
-      "imageFile": "6kNNgyrdvjkRC8eRGQqx5sLfZG2jTmg3NCFmkX2hYP4j.png"
-    },
-    {
-      "mint": "AVXPQqxd32ABAP5F7shHKNeWBpos9miktdH3uKqgXYJZ",
-      "name": "suit",
-      "symbol": "suit",
-      "imageFile": null
+      "imageFile": null,
+      "sourceUrl": "https://axiomtrading-v2.axiom-cdn.io/mMHUFPJma7sGuFxYteoHJkfzb5iW6oLxsvVnUYfSTNK.webp"
     },
     {
       "mint": "2pouN3by7twkiZGy5aEKYUpf78ALDpKRTNu2WsQkpkqt",
       "name": "Buttensor",
       "symbol": "BUTT",
-      "imageFile": null
+      "imageFile": null,
+      "sourceUrl": "https://edge.uxento.io/image/9T8hbMk8dV6wmUfPqTqZBYP7bjx4cKv42eTE29fhzXLX"
+    },
+    {
+      "mint": "3c7mmVSyEH8jfZXgxvpLsETtko1Y16DyRJ5XYB4snhGt",
+      "name": "SANTA",
+      "symbol": "SANTA",
+      "imageFile": "3c7mmVSyEH8jfZXgxvpLsETtko1Y16DyRJ5XYB4snhGt.png",
+      "sourceUrl": "https://gateway.irys.xyz/AKY9WFU9N81E4a4539yYAxWWtLURRmKKb3NF9fU3oLjz"
+    },
+    {
+      "mint": "GKeUT73KRsvWVYNfQPdghxdHTKKGUAESf3t8BZmfXvih",
+      "name": "GROK",
+      "symbol": "GROK",
+      "imageFile": "GKeUT73KRsvWVYNfQPdghxdHTKKGUAESf3t8BZmfXvih.webp",
+      "sourceUrl": "https://gateway.irys.xyz/9QdsBbw3ru98QF8zyZMsj394y5qEpbDHfY5EnMM3fYnW"
+    },
+    {
+      "mint": "527PdUTGwcFxVEMXt8tyRJA1nYbVedgSiSfh4s2LWTWz",
+      "name": "Bop",
+      "symbol": "BOP",
+      "imageFile": null,
+      "sourceUrl": "https://proximaimage.hel1.your-objectstorage.com/launch-images/32f5f961-5eb5-4862-b4ac-97284878c4a1"
+    },
+    {
+      "mint": "At541hRZhK9LWKj9w2dqN2wCdpFyZgRa1Un2yG7xa43m",
+      "name": "V-BUCKS",
+      "symbol": "VBUCKS",
+      "imageFile": "At541hRZhK9LWKj9w2dqN2wCdpFyZgRa1Un2yG7xa43m.png",
+      "sourceUrl": "https://gateway.irys.xyz/8RTV3CNQ4kc2apZs1D5BUsPaZeS6CwpB5kLudchDK3M2"
+    },
+    {
+      "mint": "6kNNgyrdvjkRC8eRGQqx5sLfZG2jTmg3NCFmkX2hYP4j",
+      "name": "SOMETHING THE CAT",
+      "symbol": "SOMETHING",
+      "imageFile": "6kNNgyrdvjkRC8eRGQqx5sLfZG2jTmg3NCFmkX2hYP4j.png",
+      "sourceUrl": "https://gateway.irys.xyz/2qzBDARdxfnXUwkbwyxmmWF4Dmb6XS2Zh2gzSkRrqGvk"
     }
   ]
 }

@@ -56,6 +56,7 @@ async function main() {
   if (tokens.length === 0) throw new Error("stonkfun returned no tokens — refusing to overwrite snapshot");
 
   await mkdir(OUT_DIR, { recursive: true });
+  const filesBefore = await readdir(OUT_DIR).catch(() => []);
 
   const manifest = [];
   const keepFiles = new Set();
@@ -70,23 +71,33 @@ async function main() {
         : `https://www.stonkfun.xyz${t.imageUrl}`
       : null;
 
-    let imageFile = null;
+    // A token already has a saved logo from a previous run if any file here
+    // starts with its mint — reuse that as the starting point so a flaky
+    // upstream on THIS run doesn't throw away a perfectly good image.
+    let imageFile = filesBefore.find((f) => f.startsWith(`${mint}.`)) ?? null;
+
     if (rawImageUrl) {
       try {
         const image = await fetchImageViaProxy(rawImageUrl, symbol);
         if (image) {
           imageFile = `${mint}.${image.ext}`;
           await writeFile(path.join(OUT_DIR, imageFile), image.buf);
-          keepFiles.add(imageFile);
-        } else {
+        } else if (!imageFile) {
           console.warn(`skipped image for ${symbol} (${mint}): not a usable image response`);
+        } else {
+          console.warn(`upstream failed for ${symbol} (${mint}), keeping previously-saved image`);
         }
       } catch (err) {
-        console.warn(`skipped image for ${symbol} (${mint}):`, err.message);
+        if (imageFile) {
+          console.warn(`upstream errored for ${symbol} (${mint}), keeping previously-saved image:`, err.message);
+        } else {
+          console.warn(`skipped image for ${symbol} (${mint}):`, err.message);
+        }
       }
     }
 
-    manifest.push({ mint, name, symbol, imageFile });
+    if (imageFile) keepFiles.add(imageFile);
+    manifest.push({ mint, name, symbol, imageFile, sourceUrl: rawImageUrl });
   }
 
   // Drop stale images for tokens that fell out of the top N.

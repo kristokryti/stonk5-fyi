@@ -1,4 +1,7 @@
+import { readFile } from "node:fs/promises";
+import path from "node:path";
 import { NextResponse } from "next/server";
+import basketFallbackData from "@/lib/basketFallback.json";
 
 const FETCH_TIMEOUT_MS = 4_000;
 const RETRY_DELAY_MS = 300;
@@ -36,6 +39,39 @@ function fallbackResponse(symbol: string) {
 
 function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+const EXT_CONTENT_TYPES: Record<string, string> = {
+  png: "image/png",
+  jpg: "image/jpeg",
+  jpeg: "image/jpeg",
+  webp: "image/webp",
+  gif: "image/gif",
+};
+
+// A locally-saved copy of this exact upstream URL from the top-30 basket
+// snapshot (see scripts/refresh-basket-fallback.mjs) — the last resort
+// before generating initials, for a URL flaky enough that even 3 retries
+// and the in-memory cache below have nothing to reuse.
+const localSnapshotByUrl = new Map(
+  basketFallbackData.tokens
+    .filter((t) => t.sourceUrl && t.imageFile)
+    .map((t) => [t.sourceUrl as string, t.imageFile as string])
+);
+
+async function localSnapshotResponse(cacheKey: string): Promise<NextResponse | null> {
+  const imageFile = localSnapshotByUrl.get(cacheKey);
+  if (!imageFile) return null;
+  try {
+    const buf = await readFile(path.join(process.cwd(), "public", "token-fallback", imageFile));
+    const ext = imageFile.split(".").pop() ?? "";
+    const contentType = EXT_CONTENT_TYPES[ext] ?? "application/octet-stream";
+    return new NextResponse(buf, {
+      headers: { "content-type": contentType, "cache-control": FALLBACK_CACHE_CONTROL },
+    });
+  } catch {
+    return null;
+  }
 }
 
 interface CachedImage {
@@ -98,5 +134,9 @@ export async function GET(req: Request) {
       headers: { "content-type": stale.contentType, "cache-control": FALLBACK_CACHE_CONTROL },
     });
   }
+
+  const fromSnapshot = await localSnapshotResponse(cacheKey);
+  if (fromSnapshot) return fromSnapshot;
+
   return fallbackResponse(symbol);
 }
