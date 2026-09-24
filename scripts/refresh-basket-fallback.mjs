@@ -25,6 +25,8 @@ const STONKFUN_API_BASE =
 const SITE_ORIGIN = process.env.SITE_ORIGIN ?? "https://stonk5-fyi.vercel.app";
 const TOP_N = 30;
 const OUT_DIR = path.join(process.cwd(), "public", "token-fallback");
+// Keep in sync with CURATED_IMAGE_OVERRIDES in lib/fetchStats.ts.
+const CURATED_MINTS = new Set(["HTmQz7My6MehV7bjhJ6jde8nDND1yvsz68d24LP7YgUQ"]);
 const MANIFEST_PATH = path.join(process.cwd(), "lib", "basketFallback.json");
 
 function extFromContentType(contentType) {
@@ -75,6 +77,18 @@ async function main() {
     // starts with its mint — reuse that as the starting point so a flaky
     // upstream on THIS run doesn't throw away a perfectly good image.
     let imageFile = filesBefore.find((f) => f.startsWith(`${mint}.`)) ?? null;
+
+    // Some tokens' official images are manually re-cropped and hardcoded in
+    // lib/fetchStats.ts's CURATED_IMAGE_OVERRIDES (e.g. GP — the raw source
+    // has a lot of padding around the actual mark). Re-fetching here would
+    // overwrite that curation with the original, uncropped image the next
+    // time this script runs — so skip those mints entirely and leave their
+    // saved file untouched.
+    if (CURATED_MINTS.has(mint)) {
+      manifest.push({ mint, name, symbol, imageFile, sourceUrl: rawImageUrl });
+      if (imageFile) keepFiles.add(imageFile);
+      continue;
+    }
 
     if (rawImageUrl) {
       try {

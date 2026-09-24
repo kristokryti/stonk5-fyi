@@ -97,6 +97,15 @@ export default function BuybackBurn() {
             <div className="mt-0.5 text-[13px] text-mute">Bought, waiting for the weekly lock</div>
           </div>
           <div>
+            <div className="label">Total locked</div>
+            <StatValue>
+              {onchain?.lockedTokens != null && onchain?.inVaultTokens != null
+                ? formatCompactNumber(onchain.lockedTokens + onchain.inVaultTokens)
+                : "—"}
+            </StatValue>
+            <div className="mt-0.5 text-[13px] text-mute">Already locked + in the vault</div>
+          </div>
+          <div>
             <div className="label">Circulating supply</div>
             <StatValue>{onchain ? formatCompactNumber(onchain.totalSupply) : "—"}</StatValue>
             <div className="mt-0.5 text-[13px] text-mute">Down from 1B issued</div>

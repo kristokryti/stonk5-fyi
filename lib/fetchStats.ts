@@ -247,6 +247,23 @@ function basketFromLocalSnapshot(): BasketToken[] {
   }));
 }
 
+// Manually curated logo replacements, keyed by mint. Used when a token's
+// official image is real but poorly suited to a small circular slot (e.g.
+// a sticker-style asset with a lot of padding around the actual mark) —
+// the source is re-cropped once and saved locally, then always preferred
+// here over whatever stonkfun's live API reports, so the basket doesn't
+// keep reverting to the awkward original whenever the live fetch succeeds.
+const CURATED_IMAGE_OVERRIDES: Record<string, string> = {
+  HTmQz7My6MehV7bjhJ6jde8nDND1yvsz68d24LP7YgUQ: // GP (RuneScape Gold)
+    "/token-fallback/HTmQz7My6MehV7bjhJ6jde8nDND1yvsz68d24LP7YgUQ.jpg",
+};
+
+function applyImageOverrides(basket: BasketToken[]): BasketToken[] {
+  return basket.map((t) =>
+    CURATED_IMAGE_OVERRIDES[t.mint] ? { ...t, imageUrl: CURATED_IMAGE_OVERRIDES[t.mint] } : t
+  );
+}
+
 function pctDiff(a: number | null, b: number | null): number | null {
   if (a === null || b === null || a === 0) return null;
   return (Math.abs(a - b) / Math.abs(a)) * 100;
@@ -511,7 +528,7 @@ export async function getTokenStats(): Promise<TokenStats> {
     warnings.push("Solana RPC unreachable — burn and engine-round data unavailable.");
   }
 
-  const resolvedBasket = basket ?? basketFromLocalSnapshot();
+  const resolvedBasket = applyImageOverrides(basket ?? basketFromLocalSnapshot());
   if (!basket) {
     warnings.push(
       "Live payout-basket data unreachable — showing a recent saved snapshot of the top tokens."
