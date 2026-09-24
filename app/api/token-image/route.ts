@@ -2,6 +2,10 @@ import { NextResponse } from "next/server";
 
 const FETCH_TIMEOUT_MS = 6_000;
 const CACHE_CONTROL = "public, max-age=86400, s-maxage=604800, stale-while-revalidate=2592000";
+// Short-lived: a fallback here usually means a transient upstream hiccup, not
+// a permanently missing logo. Caching it as long as a real image would lock
+// in that one failure (client + edge) for up to a week.
+const FALLBACK_CACHE_CONTROL = "public, max-age=30, s-maxage=30";
 
 // Token logos are hosted on a handful of third-party gateways (stonkfun,
 // Arweave/irys, a DigitalOcean space) that each occasionally fail or time
@@ -25,7 +29,7 @@ function fallbackSvg(symbol: string): string {
 
 function fallbackResponse(symbol: string) {
   return new NextResponse(fallbackSvg(symbol), {
-    headers: { "content-type": "image/svg+xml", "cache-control": CACHE_CONTROL },
+    headers: { "content-type": "image/svg+xml", "cache-control": FALLBACK_CACHE_CONTROL },
   });
 }
 
