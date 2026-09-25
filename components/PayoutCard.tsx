@@ -69,10 +69,15 @@ export default function PayoutCard() {
   if (lastRoundTs) {
     const roundStart = new Date(lastRoundTs).getTime();
     const elapsed = Math.max(0, now - roundStart);
+    // The round can run past ROUND_MAX_HOURS while overdue (the engine
+    // triggers on whichever condition it notices next, not instantly at the
+    // deadline) — cap the displayed elapsed time at the max so it doesn't
+    // read as "7h 0m of 5h" once the countdown has already hit zero.
+    const cappedElapsed = Math.min(elapsed, timerDueMs);
     timerPct = Math.min(100, (elapsed / timerDueMs) * 100);
     timerRemainingMs = Math.max(0, timerDueMs - elapsed);
-    const elapsedHours = Math.floor(elapsed / (60 * 60 * 1000));
-    const elapsedMinutes = Math.floor((elapsed % (60 * 60 * 1000)) / (60 * 1000));
+    const elapsedHours = Math.floor(cappedElapsed / (60 * 60 * 1000));
+    const elapsedMinutes = Math.floor((cappedElapsed % (60 * 60 * 1000)) / (60 * 1000));
     timerElapsedValue = `${elapsedHours}h ${elapsedMinutes}m`;
   }
 
