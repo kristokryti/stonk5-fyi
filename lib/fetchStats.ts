@@ -578,7 +578,16 @@ export async function getTokenStats(): Promise<TokenStats> {
     marketCapUsd: dex?.marketCapUsd ?? stonkfun?.marketCapUsd ?? null,
     fdvUsd: dex?.fdvUsd ?? stonkfun?.fdvUsd ?? null,
     liquidityUsd: dex?.liquidityUsd ?? stonkfun?.liquidityUsd ?? null,
-    volume24hUsd: dex?.volume24hUsd ?? stonkfun?.volume24hUsd ?? null,
+    // When Birdeye's buy/sell split is available, derive the headline total
+    // from it directly (buyUsd + sellUsd) so the two figures always agree —
+    // DexScreener/stonkfun's own volume24hUsd is a different indexer's
+    // number and can drift slightly from Birdeye's. Falls back to
+    // DexScreener/stonkfun's total when Birdeye's split isn't available
+    // (which is also when the split itself isn't shown, so there's nothing
+    // to visibly disagree with).
+    volume24hUsd: tradeVolume
+      ? tradeVolume.buyUsd + tradeVolume.sellUsd
+      : dex?.volume24hUsd ?? stonkfun?.volume24hUsd ?? null,
     priceChange: dex?.priceChange ?? null,
     volume: dex?.volume ?? null,
     traders24h: geckoTraders,
