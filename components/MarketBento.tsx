@@ -150,7 +150,7 @@ export default function MarketBento() {
               Price and 24h change from DexScreener.
             </p>
             <a
-              href={LINKS.stonkfun}
+              href={LINKS.jupiterSwap}
               target="_blank"
               rel="noreferrer"
               className="shrink-0 text-[13px] font-medium text-ink2 hover:text-ink"

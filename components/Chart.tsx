@@ -77,9 +77,15 @@ function IconBtn({
 
 export default function Chart() {
   const { stats } = useStats();
-  const totalSupply = stats?.onchain?.totalSupply ?? null;
+  // Implied from the already-reliable market-cap/price stats (DexScreener/
+  // stonkfun) rather than onchain.totalSupply, which depends on a direct
+  // Solana RPC call that's frequently null in production (the default public
+  // RPC endpoint rate-limits easily) — that made "Mkt Cap" mode silently
+  // collapse every price to $0.00 whenever that one RPC call failed.
+  const impliedSupply =
+    stats?.marketCapUsd && stats?.priceUsd ? stats.marketCapUsd / stats.priceUsd : null;
 
-  const [timeframe, setTimeframe] = useState<(typeof TIMEFRAMES)[number]["key"]>("15m");
+  const [timeframe, setTimeframe] = useState<(typeof TIMEFRAMES)[number]["key"]>("5m");
   const [displayMode, setDisplayMode] = useState<DisplayMode>("price");
   const [chartType, setChartType] = useState<ChartType>("candles");
   const [logScale, setLogScale] = useState(false);
@@ -95,7 +101,7 @@ export default function Chart() {
   const areaRef = useRef<ISeriesApi<"Area"> | null>(null);
   const volumeRef = useRef<ISeriesApi<"Histogram"> | null>(null);
 
-  const scale = displayMode === "mcap" && totalSupply ? totalSupply : 1;
+  const scale = displayMode === "mcap" && impliedSupply ? impliedSupply : 1;
 
   // Our own candlestick + volume chart, rendered client-side from real
   // OHLCV data — no third-party iframe to get stuck on "Loading pair...".

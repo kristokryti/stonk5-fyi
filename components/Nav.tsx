@@ -54,14 +54,14 @@ export default function Nav() {
           >
             <XIcon className="h-4 w-4" />
           </a>
-          <a href={LINKS.stonkfun} target="_blank" rel="noreferrer" className="btn btn-ghost btn-sm">
+          <a href={LINKS.jupiterSwap} target="_blank" rel="noreferrer" className="btn btn-ghost btn-sm">
             Trade $STONK5
           </a>
         </div>
 
         <div className="flex items-center gap-2 md:hidden">
           <a
-            href={LINKS.stonkfun}
+            href={LINKS.jupiterSwap}
             target="_blank"
             rel="noreferrer"
             className="btn btn-ghost btn-sm"
