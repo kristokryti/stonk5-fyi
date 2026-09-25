@@ -455,8 +455,13 @@ async function fetchBirdeyeTradeVolume(): Promise<RecentTradeVolumeStats | null>
 // partial-window figure if Birdeye has no key configured or its quota/call
 // fails, rather than losing this stat entirely.
 async function fetchTradeVolume(): Promise<RecentTradeVolumeStats | null> {
-  const birdeye = await fetchBirdeyeTradeVolume();
-  if (birdeye) return birdeye;
+  try {
+    const birdeye = await fetchBirdeyeTradeVolume();
+    if (birdeye) return birdeye;
+  } catch {
+    // Key set but the call failed (quota exhausted, rate limited, etc.) —
+    // fall through to GeckoTerminal rather than losing the stat entirely.
+  }
   return fetchGeckoTradeVolume();
 }
 
