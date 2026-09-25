@@ -3,7 +3,6 @@ import {
   BIRDEYE_API_BASE,
   DEX_CHAIN,
   DEXSCREENER_API_BASE,
-  ENGINE_WALLET,
   GECKOTERMINAL_API_BASE,
   MINT,
   PAIR_ADDRESS,
@@ -322,34 +321,6 @@ async function fetchEngineLock(): Promise<EngineLockData> {
   });
 }
 
-interface StonkClaimsCountsResponse {
-  counts?: { holders?: number; everHeld?: number };
-}
-
-interface EngineHolderCounts {
-  currentHolders: number;
-  lifetimeHolders: number;
-}
-
-// stonk5.com's /api/claims endpoint requires a ?wallet= param, but the
-// `counts` object it returns is global — verified by querying it with two
-// different wallets and getting identical counts back both times. So this
-// queries it with the well-known engine wallet purely as a way to reach
-// that data, not an actual per-wallet lookup. `holders` is current
-// non-zero-balance wallets; `everHeld` is every wallet that has ever held
-// any balance, including ones that have since sold out entirely.
-async function fetchHolderCounts(): Promise<EngineHolderCounts | null> {
-  return withStaleFallback("holderCounts", async () => {
-    const json = (await fetchJson(
-      `${STONK5_API_BASE}/claims?wallet=${ENGINE_WALLET}`
-    )) as StonkClaimsCountsResponse;
-    if (json.counts?.holders === undefined || json.counts?.everHeld === undefined) {
-      throw new Error("stonk5 claims: unexpected response shape");
-    }
-    return { currentHolders: json.counts.holders, lifetimeHolders: json.counts.everHeld };
-  });
-}
-
 interface GeckoPoolResponse {
   data?: {
     attributes?: {
@@ -504,7 +475,6 @@ export async function getTokenStats(): Promise<TokenStats> {
     avgRoundSolResult,
     geckoTradersResult,
     tradeVolumeResult,
-    holderCountsResult,
   ] = await Promise.allSettled([
     fetchDexscreener(),
     fetchStonkfunMeta(),
@@ -515,7 +485,6 @@ export async function getTokenStats(): Promise<TokenStats> {
     fetchAverageRoundSol(),
     fetchGeckoTraders(),
     fetchBirdeyeTradeVolume(),
-    fetchHolderCounts(),
   ]);
 
   const dex = dexResult.status === "fulfilled" ? dexResult.value : null;
@@ -533,8 +502,6 @@ export async function getTokenStats(): Promise<TokenStats> {
     geckoTradersResult.status === "fulfilled" ? geckoTradersResult.value : null;
   const tradeVolume =
     tradeVolumeResult.status === "fulfilled" ? tradeVolumeResult.value : null;
-  const holderCounts =
-    holderCountsResult.status === "fulfilled" ? holderCountsResult.value : null;
 
   // stonk5.com's own engine API is the authoritative source for the
   // round-trigger reserve/progress/timer — it knows things (the buying
@@ -553,8 +520,6 @@ export async function getTokenStats(): Promise<TokenStats> {
         lockedTokens: engineLock?.lockedTokens ?? null,
         inVaultTokens: engineLock?.inVaultTokens ?? null,
         avgRoundSol,
-        currentHolders: holderCounts?.currentHolders ?? null,
-        lifetimeHolders: holderCounts?.lifetimeHolders ?? null,
       }
     : null;
 

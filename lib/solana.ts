@@ -291,7 +291,5 @@ export async function getOnchainStats(): Promise<OnchainStats> {
     lockedTokens: null,
     inVaultTokens: null,
     avgRoundSol: null,
-    currentHolders: null,
-    lifetimeHolders: null,
   };
 }

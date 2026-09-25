@@ -73,34 +73,6 @@ function SplitStat({
   );
 }
 
-function NumberPair({
-  label,
-  leftLabel,
-  leftValue,
-  rightLabel,
-  rightValue,
-}: {
-  label: string;
-  leftLabel: string;
-  leftValue: number;
-  rightLabel: string;
-  rightValue: number;
-}) {
-  return (
-    <div>
-      <div className="label">{label}</div>
-      <div className="mt-2 flex items-baseline justify-between gap-3">
-        <span className="num text-2xl font-semibold text-ink">{leftValue.toLocaleString()}</span>
-        <span className="num text-2xl font-semibold text-ink2">{rightValue.toLocaleString()}</span>
-      </div>
-      <div className="mt-1.5 flex justify-between text-[11px] text-mute">
-        <span>{leftLabel}</span>
-        <span>{rightLabel}</span>
-      </div>
-    </div>
-  );
-}
-
 export default function MarketBento() {
   const { stats } = useStats();
 
@@ -114,8 +86,6 @@ export default function MarketBento() {
   const priceSol = stats?.priceSol ?? null;
   const tradeVolume = stats?.recentTradeVolume ?? null;
   const traders = stats?.traders24h ?? null;
-  const currentHolders = stats?.onchain?.currentHolders ?? null;
-  const lifetimeHolders = stats?.onchain?.lifetimeHolders ?? null;
 
   const liquidityPct =
     liquidity !== null && marketCap ? (liquidity / marketCap) * 100 : null;
@@ -236,7 +206,7 @@ export default function MarketBento() {
             Unique wallets and transactions on the STONK5/SOL pool.
           </p>
 
-          <div className="mt-6 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-6 grid gap-8 sm:grid-cols-3">
             <SplitStat
               label="Traders (24h)"
               leftLabel="Buyers"
@@ -259,15 +229,6 @@ export default function MarketBento() {
                 rightLabel="Sell vol"
                 rightValue={tradeVolume.sellUsd}
                 formatValue={(v) => formatCompactUsd(v)}
-              />
-            )}
-            {currentHolders !== null && lifetimeHolders !== null && (
-              <NumberPair
-                label="Holders"
-                leftLabel="Current"
-                leftValue={currentHolders}
-                rightLabel="All-time"
-                rightValue={lifetimeHolders}
               />
             )}
           </div>
