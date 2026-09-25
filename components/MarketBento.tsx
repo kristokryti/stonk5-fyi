@@ -73,13 +73,6 @@ function SplitStat({
   );
 }
 
-function formatMinutesSpan(minutes: number): string {
-  if (minutes < 60) return `${minutes}m`;
-  const h = Math.floor(minutes / 60);
-  const m = minutes % 60;
-  return m > 0 ? `${h}h ${m}m` : `${h}h`;
-}
-
 export default function MarketBento() {
   const { stats } = useStats();
 
@@ -230,11 +223,7 @@ export default function MarketBento() {
             />
             {tradeVolume && (
               <SplitStat
-                label={
-                  tradeVolume.full24h
-                    ? "Volume (24h)"
-                    : `Volume (last ${formatMinutesSpan(tradeVolume.sinceMinutesAgo)})`
-                }
+                label="Volume (24h)"
                 leftLabel="Buy vol"
                 leftValue={tradeVolume.buyUsd}
                 rightLabel="Sell vol"

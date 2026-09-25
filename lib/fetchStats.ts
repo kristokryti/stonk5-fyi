@@ -352,55 +352,6 @@ async function fetchGeckoTraders(): Promise<Traders24hStats | null> {
   });
 }
 
-interface GeckoTrade {
-  attributes?: {
-    kind?: "buy" | "sell";
-    volume_in_usd?: string;
-    block_timestamp?: string;
-  };
-}
-interface GeckoTradesResponse {
-  data?: GeckoTrade[];
-}
-
-const GECKO_TRADES_LIMIT = 300;
-
-// GeckoTerminal's free trades endpoint only returns the most recent ~300
-// trades (no real pagination beyond that), so this can't cover a full 24h
-// on an active pool. Summing per-trade volume_in_usd by side is still real
-// data — just over whatever window that batch happens to span, which we
-// compute and report rather than mislabeling it "24h".
-async function fetchGeckoTradeVolume(): Promise<RecentTradeVolumeStats | null> {
-  return withStaleFallback("geckoTradeVolume", async () => {
-    const json = (await fetchJson(
-      `${GECKOTERMINAL_API_BASE}/networks/${DEX_CHAIN}/pools/${PAIR_ADDRESS}/trades`
-    )) as GeckoTradesResponse;
-    const trades = json.data ?? [];
-    if (trades.length === 0) throw new Error("geckoterminal trades: empty response");
-
-    let buyUsd = 0;
-    let sellUsd = 0;
-    let oldestMs = Infinity;
-    for (const t of trades) {
-      const usd = Number(t.attributes?.volume_in_usd ?? 0);
-      if (t.attributes?.kind === "buy") buyUsd += usd;
-      else if (t.attributes?.kind === "sell") sellUsd += usd;
-      const ts = t.attributes?.block_timestamp ? Date.parse(t.attributes.block_timestamp) : NaN;
-      if (!Number.isNaN(ts)) oldestMs = Math.min(oldestMs, ts);
-    }
-    if (!Number.isFinite(oldestMs)) throw new Error("geckoterminal trades: no timestamps");
-
-    return {
-      buyUsd,
-      sellUsd,
-      sinceMinutesAgo: Math.round((Date.now() - oldestMs) / 60_000),
-      tradeCount: trades.length,
-      capped: trades.length >= GECKO_TRADES_LIMIT,
-      full24h: false,
-    };
-  });
-}
-
 interface BirdeyeTradeData {
   volume_buy_24h_usd?: number;
   volume_sell_24h_usd?: number;
@@ -412,15 +363,32 @@ interface BirdeyeTradeDataResponse {
   data?: BirdeyeTradeData;
 }
 
-// Birdeye's trade-data endpoint reports a real buy/sell USD split over an
-// actual 24h window (unlike GeckoTerminal's free trades endpoint above,
-// which is capped at ~300 trades). Skipped entirely without an API key —
-// this is a paid-tier convenience, not a required data source.
+// Birdeye's trade-data endpoint is the only source found that reports a
+// real buy/sell USD split over an actual 24h window (GeckoTerminal's free
+// tier only exposes buy/sell *counts* for 24h, and its trades endpoint that
+// has real USD amounts is capped at ~300 trades — nowhere near 24h on an
+// active pool). Its free tier's request rate and monthly compute-unit
+// budget are both easy to blow through by calling it on every /api/stats
+// poll from every visitor, and this stat doesn't need sub-minute freshness
+// anyway — so refetch at most once per BIRDEYE_MIN_INTERVAL_MS, and on
+// failure (quota exhausted, rate limited, transient outage) keep serving
+// the last real 24h split for up to BIRDEYE_STALE_MAX_AGE_MS rather than
+// showing nothing or a number that isn't actually a 24h window.
+const BIRDEYE_MIN_INTERVAL_MS = 10 * 60 * 1000;
+const BIRDEYE_STALE_MAX_AGE_MS = 12 * 60 * 60 * 1000;
+
 async function fetchBirdeyeTradeVolume(): Promise<RecentTradeVolumeStats | null> {
   const apiKey = process.env.BIRDEYE_API_KEY;
   if (!apiKey) return null;
 
-  return withStaleFallback("birdeyeTradeVolume", async () => {
+  const cached = staleFallbackCache.get("birdeyeTradeVolume") as
+    | { value: RecentTradeVolumeStats; at: number }
+    | undefined;
+  if (cached && Date.now() - cached.at < BIRDEYE_MIN_INTERVAL_MS) {
+    return cached.value;
+  }
+
+  try {
     const res = await fetch(
       `${BIRDEYE_API_BASE}/defi/v3/token/trade-data/single?address=${MINT}`,
       {
@@ -440,29 +408,19 @@ async function fetchBirdeyeTradeVolume(): Promise<RecentTradeVolumeStats | null>
       throw new Error("birdeye trade-data: unexpected response shape");
     }
 
-    return {
+    const value: RecentTradeVolumeStats = {
       buyUsd: d.volume_buy_24h_usd,
       sellUsd: d.volume_sell_24h_usd,
-      sinceMinutesAgo: 24 * 60,
       tradeCount: (d.buy_24h_count ?? 0) + (d.sell_24h_count ?? 0),
-      capped: false,
-      full24h: true,
     };
-  });
-}
-
-// Prefer Birdeye's real 24h split; fall back to GeckoTerminal's honestly
-// partial-window figure if Birdeye has no key configured or its quota/call
-// fails, rather than losing this stat entirely.
-async function fetchTradeVolume(): Promise<RecentTradeVolumeStats | null> {
-  try {
-    const birdeye = await fetchBirdeyeTradeVolume();
-    if (birdeye) return birdeye;
+    staleFallbackCache.set("birdeyeTradeVolume", { value, at: Date.now() });
+    return value;
   } catch {
-    // Key set but the call failed (quota exhausted, rate limited, etc.) —
-    // fall through to GeckoTerminal rather than losing the stat entirely.
+    if (cached && Date.now() - cached.at < BIRDEYE_STALE_MAX_AGE_MS) {
+      return cached.value;
+    }
+    return null;
   }
-  return fetchGeckoTradeVolume();
 }
 
 interface StonkRoundBuy {
@@ -526,7 +484,7 @@ export async function getTokenStats(): Promise<TokenStats> {
     fetchEngineLock(),
     fetchAverageRoundSol(),
     fetchGeckoTraders(),
-    fetchTradeVolume(),
+    fetchBirdeyeTradeVolume(),
   ]);
 
   const dex = dexResult.status === "fulfilled" ? dexResult.value : null;
