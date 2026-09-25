@@ -194,6 +194,9 @@ export default function BuybackBurn() {
                 </div>
                 <p className="mt-2 text-[11px] leading-relaxed text-mute">
                   Estimated at the current average pace — not a forecast.
+                  Each round&apos;s burn and lock is funded by trading
+                  activity, which varies, so the actual pace going forward
+                  may differ from this average.
                 </p>
               </div>
             );
