@@ -42,6 +42,12 @@ export interface OnchainStats {
   lockedTokens: number | null;
   inVaultTokens: number | null;
   avgRoundSol: number | null;
+  // From stonk5.com's own engine bookkeeping (see fetchHolderCounts in
+  // fetchStats.ts) — currentHolders is wallets with a non-zero balance right
+  // now; lifetimeHolders is every wallet that has ever held any balance,
+  // including ones that have since sold out entirely.
+  currentHolders: number | null;
+  lifetimeHolders: number | null;
 }
 
 export interface LaunchInfo {
