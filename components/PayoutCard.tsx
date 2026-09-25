@@ -206,7 +206,7 @@ export default function PayoutCard() {
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
             <span className="chip chip-pos">5% burns $STONK5 permanently</span>
-            <span className="chip chip-pos">5% locks $STONK5 for 5y Jupiter Lock</span>
+            <span className="chip chip-pos">5% locks $STONK5 to 5-year Jupiter Lock</span>
           </div>
         </div>
       </div>
