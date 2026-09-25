@@ -33,6 +33,11 @@ export const STONK5_API_BASE = process.env.STONK5_API_BASE ?? "https://stonk5.co
 // expose (only transaction counts).
 export const GECKOTERMINAL_API_BASE =
   process.env.GECKOTERMINAL_API_BASE ?? "https://api.geckoterminal.com/api/v2";
+// Birdeye's API — used only for a real 24h buy/sell USD volume split
+// (GeckoTerminal's free tier can't provide one, see fetchStats.ts). Requires
+// BIRDEYE_API_KEY; the trade-volume fetch is skipped entirely without it.
+export const BIRDEYE_API_BASE =
+  process.env.BIRDEYE_API_BASE ?? "https://public-api.birdeye.so";
 
 export const LINKS = {
   website: "https://stonk5.com/",

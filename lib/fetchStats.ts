@@ -1,5 +1,6 @@
 import {
   BASKET_SHARE_OF_ROUND,
+  BIRDEYE_API_BASE,
   DEX_CHAIN,
   DEXSCREENER_API_BASE,
   GECKOTERMINAL_API_BASE,
@@ -395,8 +396,68 @@ async function fetchGeckoTradeVolume(): Promise<RecentTradeVolumeStats | null> {
       sinceMinutesAgo: Math.round((Date.now() - oldestMs) / 60_000),
       tradeCount: trades.length,
       capped: trades.length >= GECKO_TRADES_LIMIT,
+      full24h: false,
     };
   });
+}
+
+interface BirdeyeTradeData {
+  volume_buy_24h_usd?: number;
+  volume_sell_24h_usd?: number;
+  buy_24h_count?: number;
+  sell_24h_count?: number;
+}
+interface BirdeyeTradeDataResponse {
+  success?: boolean;
+  data?: BirdeyeTradeData;
+}
+
+// Birdeye's trade-data endpoint reports a real buy/sell USD split over an
+// actual 24h window (unlike GeckoTerminal's free trades endpoint above,
+// which is capped at ~300 trades). Skipped entirely without an API key —
+// this is a paid-tier convenience, not a required data source.
+async function fetchBirdeyeTradeVolume(): Promise<RecentTradeVolumeStats | null> {
+  const apiKey = process.env.BIRDEYE_API_KEY;
+  if (!apiKey) return null;
+
+  return withStaleFallback("birdeyeTradeVolume", async () => {
+    const res = await fetch(
+      `${BIRDEYE_API_BASE}/defi/v3/token/trade-data/single?address=${MINT}`,
+      {
+        cache: "no-store",
+        signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+        headers: {
+          accept: "application/json",
+          "x-chain": DEX_CHAIN,
+          "X-API-KEY": apiKey,
+        },
+      }
+    );
+    if (!res.ok) throw new Error(`birdeye trade-data responded ${res.status}`);
+    const json = (await res.json()) as BirdeyeTradeDataResponse;
+    const d = json.data;
+    if (d?.volume_buy_24h_usd === undefined || d?.volume_sell_24h_usd === undefined) {
+      throw new Error("birdeye trade-data: unexpected response shape");
+    }
+
+    return {
+      buyUsd: d.volume_buy_24h_usd,
+      sellUsd: d.volume_sell_24h_usd,
+      sinceMinutesAgo: 24 * 60,
+      tradeCount: (d.buy_24h_count ?? 0) + (d.sell_24h_count ?? 0),
+      capped: false,
+      full24h: true,
+    };
+  });
+}
+
+// Prefer Birdeye's real 24h split; fall back to GeckoTerminal's honestly
+// partial-window figure if Birdeye has no key configured or its quota/call
+// fails, rather than losing this stat entirely.
+async function fetchTradeVolume(): Promise<RecentTradeVolumeStats | null> {
+  const birdeye = await fetchBirdeyeTradeVolume();
+  if (birdeye) return birdeye;
+  return fetchGeckoTradeVolume();
 }
 
 interface StonkRoundBuy {
@@ -450,7 +511,7 @@ export async function getTokenStats(): Promise<TokenStats> {
     engineLockResult,
     avgRoundSolResult,
     geckoTradersResult,
-    geckoTradeVolumeResult,
+    tradeVolumeResult,
   ] = await Promise.allSettled([
     fetchDexscreener(),
     fetchStonkfunMeta(),
@@ -460,7 +521,7 @@ export async function getTokenStats(): Promise<TokenStats> {
     fetchEngineLock(),
     fetchAverageRoundSol(),
     fetchGeckoTraders(),
-    fetchGeckoTradeVolume(),
+    fetchTradeVolume(),
   ]);
 
   const dex = dexResult.status === "fulfilled" ? dexResult.value : null;
@@ -476,8 +537,8 @@ export async function getTokenStats(): Promise<TokenStats> {
     avgRoundSolResult.status === "fulfilled" ? avgRoundSolResult.value : null;
   const geckoTraders =
     geckoTradersResult.status === "fulfilled" ? geckoTradersResult.value : null;
-  const geckoTradeVolume =
-    geckoTradeVolumeResult.status === "fulfilled" ? geckoTradeVolumeResult.value : null;
+  const tradeVolume =
+    tradeVolumeResult.status === "fulfilled" ? tradeVolumeResult.value : null;
 
   // stonk5.com's own engine API is the authoritative source for the
   // round-trigger reserve/progress/timer — it knows things (the buying
@@ -558,7 +619,7 @@ export async function getTokenStats(): Promise<TokenStats> {
     priceChange: dex?.priceChange ?? null,
     volume: dex?.volume ?? null,
     traders24h: geckoTraders,
-    recentTradeVolume: geckoTradeVolume,
+    recentTradeVolume: tradeVolume,
 
     peakMarketCapUsd: stonkfun?.peakMarketCapUsd ?? null,
     status: stonkfun?.status ?? null,

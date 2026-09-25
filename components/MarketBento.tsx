@@ -230,7 +230,11 @@ export default function MarketBento() {
             />
             {tradeVolume && (
               <SplitStat
-                label={`Volume (last ${formatMinutesSpan(tradeVolume.sinceMinutesAgo)})`}
+                label={
+                  tradeVolume.full24h
+                    ? "Volume (24h)"
+                    : `Volume (last ${formatMinutesSpan(tradeVolume.sinceMinutesAgo)})`
+                }
                 leftLabel="Buy vol"
                 leftValue={tradeVolume.buyUsd}
                 rightLabel="Sell vol"

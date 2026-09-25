@@ -14,16 +14,19 @@ export interface Traders24hStats {
   sellers: number;
 }
 
-// From GeckoTerminal's trades endpoint — real per-trade volume summed by
-// side, but only over the ~300 most recent trades it returns (no full-24h
-// pagination on the free tier), so `sinceMinutesAgo` reports the actual
-// window that batch spans instead of assuming it's a full day.
+// Real buy/sell USD volume split. Preferred source is Birdeye's trade-data
+// endpoint, which reports an actual 24h split (`full24h: true`). Falls back
+// to GeckoTerminal's trades endpoint, which only returns the ~300 most
+// recent trades (no full-24h pagination on the free tier) — in that case
+// `full24h` is false and `sinceMinutesAgo` reports the real window that
+// batch spans instead of assuming it's a full day.
 export interface RecentTradeVolumeStats {
   buyUsd: number;
   sellUsd: number;
   sinceMinutesAgo: number;
   tradeCount: number;
   capped: boolean;
+  full24h: boolean;
 }
 
 export interface HolderConcentration {
