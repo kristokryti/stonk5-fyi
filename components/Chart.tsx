@@ -85,7 +85,7 @@ export default function Chart() {
   const impliedSupply =
     stats?.marketCapUsd && stats?.priceUsd ? stats.marketCapUsd / stats.priceUsd : null;
 
-  const [timeframe, setTimeframe] = useState<(typeof TIMEFRAMES)[number]["key"]>("5m");
+  const [timeframe, setTimeframe] = useState<(typeof TIMEFRAMES)[number]["key"]>("1m");
   const [displayMode, setDisplayMode] = useState<DisplayMode>("price");
   const [chartType, setChartType] = useState<ChartType>("candles");
   const [logScale, setLogScale] = useState(false);
