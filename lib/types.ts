@@ -42,6 +42,15 @@ export interface OnchainStats {
   lockedTokens: number | null;
   inVaultTokens: number | null;
   avgRoundSol: number | null;
+  // The buying reserve specifically — the slice of the engine wallet that
+  // actually counts toward the 5 SOL trigger (excludes rent + any
+  // hand-topped-up SOL). Null when only the on-chain RPC fallback is
+  // available, since that split isn't reconstructable from the raw balance.
+  reserveSol: number | null;
+  // Minimum reserve the engine waits for before firing a round once the
+  // 5-hour timer is already up — without this a due-but-underfunded round
+  // would sit at "00:00" looking stuck instead of explaining why.
+  minBudgetSol: number | null;
 }
 
 export interface LaunchInfo {

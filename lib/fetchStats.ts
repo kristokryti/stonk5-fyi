@@ -263,6 +263,7 @@ interface StonkPayoutResponse {
   reserveSol?: number;
   progress?: number;
   triggerSol?: number;
+  minBudgetSol?: number;
   accumulationStartedAt?: number;
   lastRoundAt?: number;
   clockKnown?: boolean;
@@ -271,6 +272,7 @@ interface StonkPayoutResponse {
 interface EnginePayoutData {
   walletSol: number;
   reserveSol: number;
+  minBudgetSol: number | null;
   roundProgressPercent: number;
   lastRoundTimestamp: string | null;
 }
@@ -289,6 +291,7 @@ async function fetchEnginePayout(): Promise<EnginePayoutData> {
   return {
     walletSol: json.walletSol,
     reserveSol: json.reserveSol,
+    minBudgetSol: json.minBudgetSol ?? null,
     roundProgressPercent: json.progress !== undefined ? json.progress * 100 : 0,
     lastRoundTimestamp:
       json.clockKnown !== false && startedAtMs !== null
@@ -520,6 +523,8 @@ export async function getTokenStats(): Promise<TokenStats> {
         lockedTokens: engineLock?.lockedTokens ?? null,
         inVaultTokens: engineLock?.inVaultTokens ?? null,
         avgRoundSol,
+        reserveSol: enginePayout?.reserveSol ?? null,
+        minBudgetSol: enginePayout?.minBudgetSol ?? null,
       }
     : null;
 

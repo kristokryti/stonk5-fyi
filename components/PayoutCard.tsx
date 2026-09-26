@@ -2,7 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { useStats } from "@/lib/statsContext";
-import { ENGINE_WALLET, LINKS, ROUND_MAX_HOURS, ROUND_SOL_THRESHOLD } from "@/lib/constants";
+import {
+  ENGINE_WALLET,
+  LINKS,
+  ROUND_MAX_HOURS,
+  ROUND_MIN_BUDGET_SOL_FALLBACK,
+  ROUND_SOL_THRESHOLD,
+} from "@/lib/constants";
 import { formatCountdown, proxiedTokenImage, shortenAddress } from "@/lib/format";
 import type { BasketToken } from "@/lib/types";
 
@@ -58,7 +64,14 @@ export default function PayoutCard() {
 
   const onchain = stats?.onchain ?? null;
   const walletSol = onchain?.engineWalletSol ?? null;
-  const walletPct = onchain?.roundProgressPercent ?? 0;
+  // The buying reserve, not the raw wallet balance — that's what the 5 SOL
+  // trigger is actually measured against (walletSol also carries rent + any
+  // hand-topped-up SOL, per stonk5.com's own breakdown). Falls back to the
+  // wallet balance only when the engine API is unreachable and we're on the
+  // on-chain-only path, where that split isn't available.
+  const reserveSol = onchain?.reserveSol ?? walletSol;
+  const minBudgetSol = onchain?.minBudgetSol ?? ROUND_MIN_BUDGET_SOL_FALLBACK;
+  const feePct = onchain?.roundProgressPercent ?? 0;
   const lastRoundTs = onchain?.lastRoundTimestamp ?? null;
 
   const timerDueMs = ROUND_MAX_HOURS * 60 * 60 * 1000;
@@ -71,20 +84,43 @@ export default function PayoutCard() {
     const elapsed = Math.max(0, now - roundStart);
     timerPct = Math.min(100, (elapsed / timerDueMs) * 100);
     timerRemainingMs = Math.max(0, timerDueMs - elapsed);
-    const elapsedHours = Math.floor(elapsed / (60 * 60 * 1000));
-    const elapsedMinutes = Math.floor((elapsed % (60 * 60 * 1000)) / (60 * 1000));
+    // Capped at the 5h mark — once the timer's due it can sit past 5h for a
+    // while waiting on the budget below, and "5h 51m of 5h" reads as broken.
+    const cappedElapsed = Math.min(elapsed, timerDueMs);
+    const elapsedHours = Math.floor(cappedElapsed / (60 * 60 * 1000));
+    const elapsedMinutes = Math.floor((cappedElapsed % (60 * 60 * 1000)) / (60 * 1000));
     timerElapsedValue = `${elapsedHours}h ${elapsedMinutes}m`;
   }
 
-  const ringPct = Math.max(timerPct ?? 0, walletPct);
-  const countdownText =
-    timerRemainingMs !== null ? formatCountdown(timerRemainingMs) : "—";
+  // "Whichever comes first": the round is due once either side hits its
+  // threshold. Per stonk5.com's own engine, a time-triggered round still
+  // waits for the reserve to cover a minimum operating budget before firing
+  // — without surfacing that, the countdown just hits 00:00:00 and sits
+  // there looking stuck instead of explaining why.
+  const isTimeDue = timerPct !== null && timerPct >= 100;
+  const isFeeDue = feePct >= 100;
+  const isDue = isTimeDue || isFeeDue;
+  const isWaitingForBudget = isDue && !isFeeDue && reserveSol !== null && reserveSol < minBudgetSol;
+
+  const ringPct = Math.max(timerPct ?? 0, feePct);
   const dashOffset = CIRCUMFERENCE * (1 - ringPct / 100);
 
-  const ariaLabel =
-    timerRemainingMs !== null
-      ? `Next payout in approximately ${formatCountdown(timerRemainingMs)}`
-      : "Next payout time unavailable — showing engine wallet progress only";
+  const ringLabel = isDue ? "Round trigger" : "Next payout in";
+  const ringValue = isWaitingForBudget
+    ? `waiting for ${minBudgetSol} SOL`
+    : isDue
+      ? "Ready"
+      : timerRemainingMs !== null
+        ? formatCountdown(timerRemainingMs)
+        : "—";
+
+  const ariaLabel = isWaitingForBudget
+    ? `Round is due — the engine is waiting for at least ${minBudgetSol} SOL in reserve to cover round costs before it fires`
+    : isDue
+      ? "Round trigger condition met — the round should fire any moment"
+      : timerRemainingMs !== null
+        ? `Next payout in approximately ${formatCountdown(timerRemainingMs)}`
+        : "Next payout time unavailable — showing engine wallet progress only";
 
   const basket = stats?.basket ?? null;
 
@@ -126,16 +162,27 @@ export default function PayoutCard() {
               transform={`rotate(-90 ${RING_SIZE / 2} ${RING_SIZE / 2})`}
             />
           </svg>
-          <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-            <span className="label">Next payout in</span>
-            <span className="num mt-1 text-[36px] font-semibold tabular-nums text-ink">
-              {countdownText}
+          <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-5">
+            <span className="label">{ringLabel}</span>
+            <span
+              className={`num mt-1 font-semibold tabular-nums text-ink ${
+                isWaitingForBudget ? "text-[18px] leading-snug" : "text-[36px]"
+              }`}
+            >
+              {ringValue}
             </span>
           </div>
         </div>
 
         <div>
           <div className="label">Round trigger · whichever comes first</div>
+          {isDue && (
+            <p className="mt-2 text-[12px] leading-relaxed text-mute">
+              {isWaitingForBudget
+                ? `Trigger condition met — the engine holds off firing until the reserve covers a ${minBudgetSol} SOL operating budget for round costs.`
+                : "Trigger condition met — the round should fire any moment now."}
+            </p>
+          )}
 
           <div className="mt-4">
             <div className="flex items-baseline justify-between">
@@ -145,6 +192,11 @@ export default function PayoutCard() {
                   <>
                     {timerElapsedValue}
                     <span className="font-medium text-mute"> of {ROUND_MAX_HOURS}h</span>
+                    {isTimeDue && (
+                      <span className="ml-1.5 rounded-full bg-[var(--fill-track)] px-1.5 py-0.5 text-[10px] font-semibold text-ink2">
+                        Ready
+                      </span>
+                    )}
                   </>
                 ) : (
                   "—"
@@ -158,12 +210,17 @@ export default function PayoutCard() {
 
           <div className="mt-5">
             <div className="flex items-baseline justify-between">
-              <span className="text-sm text-ink2">Engine wallet holds</span>
+              <span className="text-sm text-ink2">Fees toward next round</span>
               <span className="num text-sm font-semibold text-ink">
-                {walletSol !== null ? (
+                {reserveSol !== null ? (
                   <>
-                    {walletSol.toFixed(2)}
+                    {reserveSol.toFixed(3)}
                     <span className="font-medium text-mute"> / {ROUND_SOL_THRESHOLD} SOL</span>
+                    {isFeeDue && (
+                      <span className="ml-1.5 rounded-full bg-[var(--fill-track)] px-1.5 py-0.5 text-[10px] font-semibold text-ink2">
+                        Ready
+                      </span>
+                    )}
                   </>
                 ) : (
                   "—"
@@ -171,7 +228,7 @@ export default function PayoutCard() {
               </span>
             </div>
             <div className="bar mt-2">
-              <i style={{ width: `${walletPct}%` }} />
+              <i style={{ width: `${Math.min(100, feePct)}%` }} />
             </div>
             <a
               href={LINKS.solscanEngineWallet}

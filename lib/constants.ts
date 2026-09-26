@@ -16,6 +16,10 @@ export const ENGINE_WALLET = "gPYVhFeYVrfbAruwNVZthfnVdeWjgBUiaSabdpn77B6";
 export const ISSUED_SUPPLY = 1_000_000_000;
 export const ROUND_SOL_THRESHOLD = 5;
 export const ROUND_MAX_HOURS = 5;
+// stonk5.com's own engine still holds off firing a round once the 5-hour
+// timer is up until its reserve covers this much SOL for round costs
+// (observed live value; used only if /api/payout ever omits the field).
+export const ROUND_MIN_BUDGET_SOL_FALLBACK = 0.5;
 export const MIN_QUALIFY_TOKENS = 50_000;
 export const MIN_QUALIFY_USD = 20;
 // 18% x 5 basket slots — the rest of a round's fees go to burn (5%) and lock (5%).
